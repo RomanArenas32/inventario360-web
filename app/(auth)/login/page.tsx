@@ -2,7 +2,6 @@
 
 import { api } from '@/lib/api';
 import { setSession } from '@/lib/auth';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
 
@@ -38,15 +37,15 @@ export default function LoginPage() {
   return (
     <div className="h-screen grid lg:grid-cols-2">
       {/* Columna izquierda — imagen */}
-      <div className="relative hidden lg:block bg-gray-900 h-full">
-        <Image
+      <div className="relative hidden lg:block overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/images/dashboard.png"
-          alt="Vista previa del dashboard"
-          fill
-          className="object-cover opacity-90"
-          priority
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover object-top"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-gray-950/80 via-gray-950/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent" />
         <div className="absolute bottom-8 left-8 right-8">
           <p className="text-white text-xl font-semibold leading-snug">
             Gestioná tu inventario de forma simple y rápida.
