@@ -3,12 +3,7 @@
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
 
-type Category = {
-  id: string;
-  name: string;
-  description: string | null;
-};
-
+type Category = { id: string; name: string; description: string | null };
 type FormState = { name: string; description: string };
 const EMPTY: FormState = { name: '', description: '' };
 
@@ -31,9 +26,7 @@ export default function CategoriesPage() {
     }
   }
 
-  useEffect(() => {
-    void load();
-  }, []);
+  useEffect(() => { void load(); }, []);
 
   function openCreate() {
     setEditing(null);
@@ -79,28 +72,26 @@ export default function CategoriesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categorías</h1>
-          <p className="text-gray-500 mt-1">Organizá tus productos por categoría</p>
+          <h1 className="text-2xl font-bold text-foreground">Categorías</h1>
+          <p className="text-muted-foreground mt-1">Organizá tus productos por categoría</p>
         </div>
         <button
           onClick={openCreate}
-          className="bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-primary text-primary-foreground text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
         >
           + Nueva categoría
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
         ) : categories.length === 0 ? (
-          <div className="p-8 text-center text-gray-400 text-sm">
-            No hay categorías. Creá la primera.
-          </div>
+          <div className="p-8 text-center text-muted-foreground text-sm">No hay categorías. Creá la primera.</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wide">
+              <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wide">
                 <th className="text-left px-4 py-3">Nombre</th>
                 <th className="text-left px-4 py-3">Descripción</th>
                 <th className="text-right px-4 py-3">Acciones</th>
@@ -108,22 +99,12 @@ export default function CategoriesPage() {
             </thead>
             <tbody>
               {categories.map((cat) => (
-                <tr key={cat.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{cat.name}</td>
-                  <td className="px-4 py-3 text-gray-500">{cat.description ?? '—'}</td>
+                <tr key={cat.id} className="border-b border-border last:border-0 hover:bg-muted/40 transition-colors">
+                  <td className="px-4 py-3 font-medium text-foreground">{cat.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{cat.description ?? '—'}</td>
                   <td className="px-4 py-3 text-right space-x-3">
-                    <button
-                      onClick={() => openEdit(cat)}
-                      className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => void handleDelete(cat.id)}
-                      className="text-xs text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      Eliminar
-                    </button>
+                    <button onClick={() => openEdit(cat)} className="text-xs text-blue-500 hover:text-blue-400 transition-colors">Editar</button>
+                    <button onClick={() => void handleDelete(cat.id)} className="text-xs text-destructive hover:opacity-80 transition-opacity">Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -133,44 +114,44 @@ export default function CategoriesPage() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-sm p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-sm p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-foreground mb-4">
               {editing ? 'Editar categoría' : 'Nueva categoría'}
             </h2>
             <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Nombre *</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Nombre *</label>
                 <input
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-border bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Ej: Bebidas"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Descripción</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Descripción</label>
                 <input
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-border bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Opcional"
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <div className="flex gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 border border-gray-300 text-gray-600 text-sm font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-border text-muted-foreground text-sm font-medium py-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-blue-600 text-white text-sm font-medium py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-primary text-primary-foreground text-sm font-medium py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
                 >
                   {submitting ? 'Guardando...' : 'Guardar'}
                 </button>

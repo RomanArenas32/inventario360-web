@@ -4,6 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

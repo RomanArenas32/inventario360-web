@@ -4,12 +4,8 @@ import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
 
 type Product = {
-  id: string;
-  name: string;
-  code: string;
-  stock: number;
-  minStock: number;
-  isActive: boolean;
+  id: string; name: string; code: string;
+  stock: number; minStock: number; isActive: boolean;
   category: { id: string; name: string } | null;
 };
 
@@ -18,18 +14,9 @@ export default function StockPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'low' | 'ok'>('all');
 
-  async function load() {
-    setLoading(true);
-    try {
-      const data = await api.get<Product[]>('/products');
-      setProducts(data);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    void load();
+    setLoading(true);
+    void api.get<Product[]>('/products').then(setProducts).finally(() => setLoading(false));
   }, []);
 
   const filtered = products.filter((p) => {
@@ -40,44 +27,48 @@ export default function StockPage() {
 
   const lowCount = products.filter((p) => p.stock <= p.minStock).length;
 
+  const filterBtns: { key: typeof filter; label: string }[] = [
+    { key: 'all', label: 'Todos' },
+    { key: 'low', label: 'Stock bajo' },
+    { key: 'ok', label: 'Stock OK' },
+  ];
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Stock</h1>
-          <p className="text-gray-500 mt-1">
-            {lowCount > 0
-              ? `${lowCount} producto${lowCount !== 1 ? 's' : ''} con stock bajo`
-              : 'Todo el stock en orden'}
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Stock</h1>
+        <p className="text-muted-foreground mt-1">
+          {lowCount > 0
+            ? `${lowCount} producto${lowCount !== 1 ? 's' : ''} con stock bajo`
+            : 'Todo el stock en orden'}
+        </p>
       </div>
 
       <div className="flex gap-2 mb-4">
-        {(['all', 'low', 'ok'] as const).map((f) => (
+        {filterBtns.map(({ key, label }) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
+            key={key}
+            onClick={() => setFilter(key)}
             className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
-              filter === f
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+              filter === key
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card border border-border text-muted-foreground hover:text-foreground'
             }`}
           >
-            {f === 'all' ? 'Todos' : f === 'low' ? 'Stock bajo' : 'Stock OK'}
+            {label}
           </button>
         ))}
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-gray-400 text-sm">No hay productos en esta vista.</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">No hay productos en esta vista.</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wide">
+              <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wide">
                 <th className="text-left px-4 py-3">Producto</th>
                 <th className="text-left px-4 py-3">Código</th>
                 <th className="text-left px-4 py-3">Categoría</th>
@@ -90,21 +81,21 @@ export default function StockPage() {
               {filtered.map((p) => {
                 const isLow = p.stock <= p.minStock;
                 return (
-                  <tr key={p.id} className={`border-b border-gray-100 last:border-0 ${isLow ? 'bg-amber-50' : 'hover:bg-gray-50'}`}>
-                    <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-                    <td className="px-4 py-3 text-gray-500 font-mono text-xs">{p.code}</td>
-                    <td className="px-4 py-3 text-gray-500">{p.category?.name ?? '—'}</td>
-                    <td className={`px-4 py-3 text-right font-bold ${isLow ? 'text-amber-600' : 'text-gray-800'}`}>
+                  <tr key={p.id} className={`border-b border-border last:border-0 transition-colors ${isLow ? 'bg-amber-50 dark:bg-amber-950/20' : 'hover:bg-muted/40'}`}>
+                    <td className="px-4 py-3 font-medium text-foreground">{p.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{p.code}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.category?.name ?? '—'}</td>
+                    <td className={`px-4 py-3 text-right font-bold ${isLow ? 'text-amber-500' : 'text-foreground'}`}>
                       {p.stock}
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-500">{p.minStock}</td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">{p.minStock}</td>
                     <td className="px-4 py-3">
                       {isLow ? (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400">
                           Stock bajo
                         </span>
                       ) : (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400">
                           OK
                         </span>
                       )}
