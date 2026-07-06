@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AdminControllerCreateTenantData, AdminControllerCreateTenantResponses, AdminControllerDeleteTenantData, AdminControllerDeleteTenantResponses, AdminControllerFindAllTenantsData, AdminControllerFindAllTenantsResponses, AdminControllerUpdateTenantData, AdminControllerUpdateTenantResponses, AuthControllerLoginData, AuthControllerLoginResponses, AuthControllerMeData, AuthControllerMeResponses, AuthControllerRegisterData, AuthControllerRegisterResponses, CategoriesControllerCreateData, CategoriesControllerCreateResponses, CategoriesControllerFindAllData, CategoriesControllerFindAllResponses, CategoriesControllerFindOneData, CategoriesControllerFindOneResponses, CategoriesControllerRemoveData, CategoriesControllerRemoveResponses, CategoriesControllerUpdateData, CategoriesControllerUpdateResponses, ProductsControllerCreateData, ProductsControllerCreateResponses, ProductsControllerFindAllData, ProductsControllerFindAllResponses, ProductsControllerFindLowStockData, ProductsControllerFindLowStockResponses, ProductsControllerFindOneData, ProductsControllerFindOneResponses, ProductsControllerRemoveData, ProductsControllerRemoveResponses, ProductsControllerUpdateData, ProductsControllerUpdateResponses, TenantsControllerCompleteOnboardingData, TenantsControllerCompleteOnboardingResponses } from './types.gen';
+import type { AdminControllerCreateTenantData, AdminControllerCreateTenantResponses, AdminControllerDeleteTenantData, AdminControllerDeleteTenantResponses, AdminControllerFindAllTenantsData, AdminControllerFindAllTenantsResponses, AdminControllerUpdateTenantData, AdminControllerUpdateTenantResponses, AuthControllerLoginData, AuthControllerLoginResponses, AuthControllerMeData, AuthControllerMeResponses, CategoriesControllerCreateData, CategoriesControllerCreateResponses, CategoriesControllerFindAllData, CategoriesControllerFindAllResponses, CategoriesControllerFindOneData, CategoriesControllerFindOneResponses, CategoriesControllerRemoveData, CategoriesControllerRemoveResponses, CategoriesControllerUpdateData, CategoriesControllerUpdateResponses, MessagesControllerCountPendingData, MessagesControllerCountPendingResponses, MessagesControllerCreateData, MessagesControllerCreateResponses, MessagesControllerFindAllData, MessagesControllerFindAllResponses, MessagesControllerRemoveData, MessagesControllerRemoveResponses, MessagesControllerUpdateData, MessagesControllerUpdateResponses, ProductsControllerCreateData, ProductsControllerCreateResponses, ProductsControllerFindAllData, ProductsControllerFindAllResponses, ProductsControllerFindLowStockData, ProductsControllerFindLowStockResponses, ProductsControllerFindOneData, ProductsControllerFindOneResponses, ProductsControllerRemoveData, ProductsControllerRemoveResponses, ProductsControllerUpdateData, ProductsControllerUpdateResponses, TenantsControllerCompleteOnboardingData, TenantsControllerCompleteOnboardingResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -49,15 +49,6 @@ export const tenantsControllerCompleteOnboarding = <ThrowOnError extends boolean
     }
 });
 
-export const authControllerRegister = <ThrowOnError extends boolean = false>(options: Options<AuthControllerRegisterData, ThrowOnError>) => (options.client ?? client).post<AuthControllerRegisterResponses, unknown, ThrowOnError>({
-    url: '/auth/register',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
 export const authControllerLogin = <ThrowOnError extends boolean = false>(options: Options<AuthControllerLoginData, ThrowOnError>) => (options.client ?? client).post<AuthControllerLoginResponses, unknown, ThrowOnError>({
     url: '/auth/login',
     ...options,
@@ -68,6 +59,30 @@ export const authControllerLogin = <ThrowOnError extends boolean = false>(option
 });
 
 export const authControllerMe = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerMeData, ThrowOnError>) => (options?.client ?? client).get<AuthControllerMeResponses, unknown, ThrowOnError>({ url: '/auth/me', ...options });
+
+export const messagesControllerFindAll = <ThrowOnError extends boolean = false>(options: Options<MessagesControllerFindAllData, ThrowOnError>) => (options.client ?? client).get<MessagesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/messages', ...options });
+
+export const messagesControllerCreate = <ThrowOnError extends boolean = false>(options: Options<MessagesControllerCreateData, ThrowOnError>) => (options.client ?? client).post<MessagesControllerCreateResponses, unknown, ThrowOnError>({
+    url: '/messages',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const messagesControllerCountPending = <ThrowOnError extends boolean = false>(options?: Options<MessagesControllerCountPendingData, ThrowOnError>) => (options?.client ?? client).get<MessagesControllerCountPendingResponses, unknown, ThrowOnError>({ url: '/messages/pending-count', ...options });
+
+export const messagesControllerRemove = <ThrowOnError extends boolean = false>(options: Options<MessagesControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<MessagesControllerRemoveResponses, unknown, ThrowOnError>({ url: '/messages/{id}', ...options });
+
+export const messagesControllerUpdate = <ThrowOnError extends boolean = false>(options: Options<MessagesControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<MessagesControllerUpdateResponses, unknown, ThrowOnError>({
+    url: '/messages/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 export const categoriesControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<CategoriesControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<CategoriesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/categories', ...options });
 

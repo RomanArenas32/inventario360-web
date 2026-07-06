@@ -13,42 +13,42 @@ export function proxy(request: NextRequest) {
   const isTenantLogin = pathname === '/login';
   const isOnboardingRoute = pathname === '/onboarding';
 
-  // ── Rutas /admin/* ──────────────────────────────────────────
+  // ── /admin/* routes ─────────────────────────────────────────
   if (isAdminRoute) {
-    // Admin ya logueado intenta entrar al login → al panel
+    // Admin already logged in tries to access login → redirect to panel
     if (isAdminLogin && token && isAdmin) {
       return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
-    // Ruta admin sin token o sin rol admin → al login de admin
+    // Admin route without token or without admin role → redirect to admin login
     if (!isAdminLogin && (!token || !isAdmin)) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
     return NextResponse.next();
   }
 
-  // ── Rutas de tenant ─────────────────────────────────────────
+  // ── Tenant routes ────────────────────────────────────────────
 
-  // Si es admin y entra al login de tenant → al panel de admin
+  // Admin accessing tenant login → redirect to admin panel
   if (token && isAdmin && isTenantLogin) {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
-  // Sin token en ruta protegida → login de tenant
+  // No token on protected route → redirect to tenant login
   if (!token && !isTenantLogin) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Tenant logueado intenta ir al login → al dashboard
+  // Logged-in tenant tries to access login → redirect to dashboard
   if (token && !isAdmin && isTenantLogin) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Tenant sin onboarding → onboarding
+  // Tenant without onboarding → redirect to onboarding
   if (token && !isAdmin && !isOnboarded && !isOnboardingRoute) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
-  // Tenant ya onboarded intenta volver al onboarding → dashboard
+  // Onboarded tenant tries to go back to onboarding → redirect to dashboard
   if (token && !isAdmin && isOnboarded && isOnboardingRoute) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }

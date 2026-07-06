@@ -2,6 +2,16 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -72,6 +82,7 @@ export default function ComerciosPage() {
   const [form, setForm] = useState(DEFAULT_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -111,9 +122,10 @@ export default function ComerciosPage() {
     void load();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar este comercio? Esta acción no se puede deshacer.')) return;
-    await api.delete(`/admin/tenants/${id}`);
+  async function confirmDelete() {
+    if (!deleteId) return;
+    await api.delete(`/admin/tenants/${deleteId}`);
+    setDeleteId(null);
     void load();
   }
 
@@ -200,7 +212,7 @@ export default function ComerciosPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => void handleDelete(t.id)}
+                      onClick={() => setDeleteId(t.id)}
                       className="h-auto p-0 text-xs text-destructive hover:opacity-80 hover:bg-transparent"
                     >
                       Eliminar
@@ -212,6 +224,32 @@ export default function ComerciosPage() {
           </Table>
         )}
       </Card>
+
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => {
+          if (!open) setDeleteId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar comercio?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El comercio y todos sus datos serán eliminados
+              permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => void confirmDelete()}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog
         open={showCreate}

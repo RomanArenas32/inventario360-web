@@ -67,7 +67,7 @@ export default function MensajesPage() {
   function openMessage(msg: Message) {
     setSelected(msg);
     setNotes(msg.notes ?? '');
-    // Marcar como leído automáticamente si está pendiente
+    // Automatically mark as read if pending
     if (msg.status === 'pending') {
       void api.patch(`/messages/${msg.id}`, { status: 'read' }).then(() => {
         setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, status: 'read' } : m)));

@@ -16,11 +16,15 @@ export type OnboardingDto = {
     [key: string]: unknown;
 };
 
-export type RegisterDto = {
+export type LoginDto = {
     [key: string]: unknown;
 };
 
-export type LoginDto = {
+export type CreateMessageDto = {
+    [key: string]: unknown;
+};
+
+export type UpdateMessageDto = {
     [key: string]: unknown;
 };
 
@@ -99,17 +103,6 @@ export type TenantsControllerCompleteOnboardingResponses = {
     200: unknown;
 };
 
-export type AuthControllerRegisterData = {
-    body: RegisterDto;
-    path?: never;
-    query?: never;
-    url: '/auth/register';
-};
-
-export type AuthControllerRegisterResponses = {
-    201: unknown;
-};
-
 export type AuthControllerLoginData = {
     body: LoginDto;
     path?: never;
@@ -129,6 +122,67 @@ export type AuthControllerMeData = {
 };
 
 export type AuthControllerMeResponses = {
+    200: unknown;
+};
+
+export type MessagesControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query: {
+        status: string;
+    };
+    url: '/messages';
+};
+
+export type MessagesControllerFindAllResponses = {
+    200: unknown;
+};
+
+export type MessagesControllerCreateData = {
+    body: CreateMessageDto;
+    path?: never;
+    query?: never;
+    url: '/messages';
+};
+
+export type MessagesControllerCreateResponses = {
+    201: unknown;
+};
+
+export type MessagesControllerCountPendingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/messages/pending-count';
+};
+
+export type MessagesControllerCountPendingResponses = {
+    200: unknown;
+};
+
+export type MessagesControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/messages/{id}';
+};
+
+export type MessagesControllerRemoveResponses = {
+    200: unknown;
+};
+
+export type MessagesControllerUpdateData = {
+    body: UpdateMessageDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/messages/{id}';
+};
+
+export type MessagesControllerUpdateResponses = {
     200: unknown;
 };
 

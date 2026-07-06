@@ -31,12 +31,9 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const data = await api.post<{ access_token: string }>('/auth/login', form);
-      const me = await api.get<{ role: string; tenant: { isOnboarded: boolean } }>(
-        '/auth/me',
-        data.access_token,
-      );
-      setSession(data.access_token, me.role, me.tenant?.isOnboarded ?? false);
+      await api.post('/auth/login', form);
+      const me = await api.get<{ role: string; tenant: { isOnboarded: boolean } }>('/auth/me');
+      setSession(me.role, me.tenant?.isOnboarded ?? false);
       if (me.role === 'admin') {
         router.push('/admin/dashboard');
       } else {

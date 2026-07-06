@@ -15,12 +15,17 @@ export const OnboardingDtoSchema = {
     properties: {}
 } as const;
 
-export const RegisterDtoSchema = {
+export const LoginDtoSchema = {
     type: 'object',
     properties: {}
 } as const;
 
-export const LoginDtoSchema = {
+export const CreateMessageDtoSchema = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const UpdateMessageDtoSchema = {
     type: 'object',
     properties: {}
 } as const;
