@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { setOnboarded } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 const BUSINESS_TYPES = [
   { value: 'almacen', label: 'Almacén / Minimercado', icon: '🛒' },
@@ -48,31 +49,24 @@ export default function OnboardingPage() {
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-3 mb-6">
             {BUSINESS_TYPES.map((type) => (
-              <button
+              <Button
                 key={type.value}
                 type="button"
+                variant={selected === type.value ? 'default' : 'outline'}
                 onClick={() => setSelected(type.value)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors text-sm font-medium ${
-                  selected === type.value
-                    ? 'border-blue-600 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                }`}
+                className="flex flex-col items-center gap-2 p-4 h-auto rounded-xl"
               >
                 <span className="text-2xl">{type.icon}</span>
                 {type.label}
-              </button>
+              </Button>
             ))}
           </div>
 
           {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={!selected || loading}
-            className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
+          <Button type="submit" disabled={!selected || loading} className="w-full">
             {loading ? 'Guardando...' : 'Continuar'}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

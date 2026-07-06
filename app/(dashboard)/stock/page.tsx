@@ -2,10 +2,25 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Product = {
-  id: string; name: string; code: string;
-  stock: number; minStock: number; isActive: boolean;
+  id: string;
+  name: string;
+  code: string;
+  stock: number;
+  minStock: number;
+  isActive: boolean;
   category: { id: string; name: string } | null;
 };
 
@@ -16,7 +31,10 @@ export default function StockPage() {
 
   useEffect(() => {
     setLoading(true);
-    void api.get<Product[]>('/products').then(setProducts).finally(() => setLoading(false));
+    void api
+      .get<Product[]>('/products')
+      .then(setProducts)
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = products.filter((p) => {
@@ -46,67 +64,87 @@ export default function StockPage() {
 
       <div className="flex gap-2 mb-4">
         {filterBtns.map(({ key, label }) => (
-          <button
+          <Button
             key={key}
+            size="sm"
+            variant={filter === key ? 'default' : 'outline'}
             onClick={() => setFilter(key)}
-            className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
-              filter === key
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-card border border-border text-muted-foreground hover:text-foreground'
-            }`}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+      <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">No hay productos en esta vista.</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">
+            No hay productos en esta vista.
+          </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wide">
-                <th className="text-left px-4 py-3">Producto</th>
-                <th className="text-left px-4 py-3">Código</th>
-                <th className="text-left px-4 py-3">Categoría</th>
-                <th className="text-right px-4 py-3">Stock actual</th>
-                <th className="text-right px-4 py-3">Stock mínimo</th>
-                <th className="text-left px-4 py-3">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs uppercase tracking-wide hover:bg-transparent">
+                <TableHead className="px-4 py-3 text-muted-foreground">Producto</TableHead>
+                <TableHead className="px-4 py-3 text-muted-foreground">Código</TableHead>
+                <TableHead className="px-4 py-3 text-muted-foreground">Categoría</TableHead>
+                <TableHead className="px-4 py-3 text-right text-muted-foreground">
+                  Stock actual
+                </TableHead>
+                <TableHead className="px-4 py-3 text-right text-muted-foreground">
+                  Stock mínimo
+                </TableHead>
+                <TableHead className="px-4 py-3 text-muted-foreground">Estado</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filtered.map((p) => {
                 const isLow = p.stock <= p.minStock;
                 return (
-                  <tr key={p.id} className={`border-b border-border last:border-0 transition-colors ${isLow ? 'bg-amber-50 dark:bg-amber-950/20' : 'hover:bg-muted/40'}`}>
-                    <td className="px-4 py-3 font-medium text-foreground">{p.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{p.code}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.category?.name ?? '—'}</td>
-                    <td className={`px-4 py-3 text-right font-bold ${isLow ? 'text-amber-500' : 'text-foreground'}`}>
+                  <TableRow
+                    key={p.id}
+                    className={
+                      isLow
+                        ? 'bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/20'
+                        : ''
+                    }
+                  >
+                    <TableCell className="px-4 py-3 font-medium text-foreground">
+                      {p.name}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                      {p.code}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground">
+                      {p.category?.name ?? '—'}
+                    </TableCell>
+                    <TableCell
+                      className={`px-4 py-3 text-right font-bold ${isLow ? 'text-amber-500' : 'text-foreground'}`}
+                    >
                       {p.stock}
-                    </td>
-                    <td className="px-4 py-3 text-right text-muted-foreground">{p.minStock}</td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right text-muted-foreground">
+                      {p.minStock}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
                       {isLow ? (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400">
+                        <Badge className="bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0">
                           Stock bajo
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400">
+                        <Badge className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 border-0">
                           OK
-                        </span>
+                        </Badge>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

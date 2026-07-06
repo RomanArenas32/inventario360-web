@@ -2,6 +2,7 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import { Card } from '@/components/ui/card';
 
 type Tenant = {
   id: string;
@@ -13,7 +14,10 @@ export default function AdminDashboardPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
 
   useEffect(() => {
-    void api.get<Tenant[]>('/admin/tenants').then(setTenants).catch(() => null);
+    void api
+      .get<Tenant[]>('/admin/tenants')
+      .then(setTenants)
+      .catch(() => null);
   }, []);
 
   const active = tenants.filter((t) => t.isActive).length;
@@ -33,10 +37,10 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-card border border-border rounded-xl p-5 shadow-sm">
+          <Card key={stat.label} className="p-5 shadow-sm">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</p>
             <p className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</p>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

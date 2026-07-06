@@ -2,6 +2,7 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import { Card } from '@/components/ui/card';
 
 type Product = { id: string; stock: number; minStock: number; isActive: boolean };
 type Category = { id: string };
@@ -13,9 +14,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     void Promise.all([
-      api.get<Product[]>('/products').then(setProducts).catch(() => null),
-      api.get<Category[]>('/categories').then(setCategories).catch(() => null),
-      api.get<Product[]>('/products/low-stock').then(setLowStock).catch(() => null),
+      api
+        .get<Product[]>('/products')
+        .then(setProducts)
+        .catch(() => null),
+      api
+        .get<Category[]>('/categories')
+        .then(setCategories)
+        .catch(() => null),
+      api
+        .get<Product[]>('/products/low-stock')
+        .then(setLowStock)
+        .catch(() => null),
     ]);
   }, []);
 
@@ -35,10 +45,10 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-card border border-border rounded-xl p-5 shadow-sm">
+          <Card key={stat.label} className="p-5 shadow-sm">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</p>
             <p className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</p>
-          </div>
+          </Card>
         ))}
       </div>
 

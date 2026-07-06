@@ -5,6 +5,9 @@ import { setSession } from '@/lib/auth';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -47,38 +50,32 @@ export default function AdminLoginPage() {
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1">Email</label>
-            <input
+            <Label className="mb-1 text-muted-foreground">Email</Label>
+            <Input
               type="email"
               required
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full border border-border bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               placeholder="admin@inventario360.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1">Contraseña</label>
-            <input
+            <Label className="mb-1 text-muted-foreground">Contraseña</Label>
+            <Input
               type="password"
               required
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full border border-border bg-background text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               placeholder="••••••"
             />
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary text-primary-foreground rounded-lg py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
-          >
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Ingresando...' : 'Ingresar'}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
