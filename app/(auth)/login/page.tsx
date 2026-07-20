@@ -32,10 +32,14 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await api.post('/auth/login', form);
-      const me = await api.get<{ role: string; tenant: { isOnboarded: boolean } }>('/auth/me');
+      const me = await api.get<{ role: string; tenant: { isOnboarded: boolean } | null }>(
+        '/auth/me',
+      );
       setSession(me.role, me.tenant?.isOnboarded ?? false);
       if (me.role === 'admin') {
         router.push('/admin/dashboard');
+      } else if (!me.tenant) {
+        router.push('/select-tenant');
       } else {
         router.push(me.tenant.isOnboarded ? '/dashboard' : '/onboarding');
       }

@@ -20,13 +20,8 @@ export default function AdminLoginPage() {
     setError('');
     setLoading(true);
     try {
-      await api.post('/auth/login', form);
-      const me = await api.get<{ role: string }>('/auth/me');
-      if (me.role !== 'admin') {
-        await api.post('/auth/logout', {});
-        setError('Acceso no autorizado');
-        return;
-      }
+      await api.post('/admin/auth/login', form);
+      const me = await api.get<{ role: string }>('/admin/auth/me');
       setSession(me.role, true);
       router.push('/admin/dashboard');
     } catch (err: unknown) {
