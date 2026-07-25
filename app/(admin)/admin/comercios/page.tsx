@@ -15,6 +15,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,22 +56,9 @@ const BUSINESS_TYPE_LABELS: Record<string, string> = {
   tienda_electronica: 'Electrónica',
 };
 
-const BUSINESS_TYPES = [
-  { value: 'almacen', label: 'Almacén / Minimercado' },
-  { value: 'kiosco', label: 'Kiosco' },
-  { value: 'ferreteria', label: 'Ferretería' },
-  { value: 'barberia', label: 'Barbería / Estética' },
-  { value: 'restaurante', label: 'Restaurante' },
-  { value: 'tienda_ropa', label: 'Tienda de ropa' },
-  { value: 'tienda_electronica', label: 'Electrónica' },
-];
-
 const DEFAULT_FORM = {
   businessName: '',
-  ownerName: '',
   ownerEmail: '',
-  ownerPassword: '',
-  businessType: '',
   plan: 'basic',
   phone: '',
 };
@@ -103,10 +91,7 @@ export default function ComerciosPage() {
     setSubmitting(true);
     setError('');
     try {
-      await api.post('/admin/tenants', {
-        ...form,
-        businessType: form.businessType || undefined,
-      });
+      await api.post('/admin/tenants', form);
       setShowCreate(false);
       setForm(DEFAULT_FORM);
       void load();
@@ -200,23 +185,27 @@ export default function ComerciosPage() {
                       {t.isActive ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-right space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => void handleToggleActive(t)}
-                      className="h-auto p-0 text-xs hover:bg-transparent"
-                    >
-                      {t.isActive ? 'Desactivar' : 'Activar'}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeleteId(t.id)}
-                      className="h-auto p-0 text-xs text-destructive hover:opacity-80 hover:bg-transparent"
-                    >
-                      Eliminar
-                    </Button>
+                  <TableCell className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => void handleToggleActive(t)}
+                        className={`h-7 px-2 text-xs font-medium ${t.isActive ? 'text-muted-foreground hover:text-foreground' : 'text-green-600 hover:text-green-500'}`}
+                      >
+                        {t.isActive ? 'Desactivar' : 'Activar'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteId(t.id)}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        aria-label="Eliminar"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -267,7 +256,7 @@ export default function ComerciosPage() {
           </DialogHeader>
           <form onSubmit={(e) => void handleCreate(e)} className="space-y-3">
             <div>
-              <Label className="text-xs text-muted-foreground mb-1">Nombre del comercio *</Label>
+              <Label className="text-sm font-medium mb-1.5">Nombre del comercio *</Label>
               <Input
                 required
                 value={form.businessName}
@@ -276,44 +265,24 @@ export default function ComerciosPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs text-muted-foreground mb-1">Rubro</Label>
-                <Select
-                  value={form.businessType || undefined}
-                  onValueChange={(val) => setForm({ ...form, businessType: val ?? '' })}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Sin definir" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BUSINESS_TYPES.map((bt) => (
-                      <SelectItem key={bt.value} value={bt.value}>
-                        {bt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground mb-1">Plan</Label>
-                <Select
-                  value={form.plan}
-                  onValueChange={(val) => setForm({ ...form, plan: val ?? 'basic' })}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label className="text-sm font-medium mb-1.5">Plan</Label>
+              <Select
+                value={form.plan}
+                onValueChange={(val) => setForm({ ...form, plan: val ?? 'basic' })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Basic</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground mb-1">Teléfono</Label>
+              <Label className="text-sm font-medium mb-1.5">Teléfono</Label>
               <Input
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -323,39 +292,20 @@ export default function ComerciosPage() {
 
             <hr className="border-border" />
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Datos del dueño
+              Dueño del comercio
+            </p>
+            <p className="text-xs text-muted-foreground -mt-1">
+              Se enviará una invitación por email para que active su cuenta.
             </p>
 
             <div>
-              <Label className="text-xs text-muted-foreground mb-1">Nombre completo *</Label>
-              <Input
-                required
-                value={form.ownerName}
-                onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
-                placeholder="Nombre y apellido"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1">Email *</Label>
+              <Label className="text-sm font-medium mb-1.5">Email *</Label>
               <Input
                 required
                 type="email"
                 value={form.ownerEmail}
                 onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })}
                 placeholder="correo@ejemplo.com"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1">Contraseña *</Label>
-              <Input
-                required
-                minLength={6}
-                type="password"
-                value={form.ownerPassword}
-                onChange={(e) => setForm({ ...form, ownerPassword: e.target.value })}
-                placeholder="Mínimo 6 caracteres"
               />
             </div>
 
@@ -375,7 +325,7 @@ export default function ComerciosPage() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={submitting} className="flex-1">
-                {submitting ? 'Creando...' : 'Crear comercio'}
+                {submitting ? 'Enviando...' : 'Crear y enviar invitación'}
               </Button>
             </div>
           </form>

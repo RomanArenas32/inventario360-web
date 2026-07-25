@@ -1,10 +1,11 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { setOnboarded } from '@/lib/auth';
+import { clearSession, setOnboarded } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
 
 const BUSINESS_TYPES = [
   { value: 'almacen', label: 'Almacén / Minimercado', icon: '🛒' },
@@ -38,16 +39,35 @@ export default function OnboardingPage() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      await api.post('/auth/logout', {});
+    } catch {
+      // ignorar errores — igual limpiamos la sesión local
+    }
+    clearSession();
+    router.push('/login');
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-lg">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">¡Bienvenido!</h1>
-          <p className="text-gray-500 mt-1">¿Qué tipo de comercio tenés?</p>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-8 w-full max-w-lg">
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">¡Bienvenido!</h1>
+            <p className="text-muted-foreground mt-1">¿Qué tipo de comercio tenés?</p>
+          </div>
+          <button
+            onClick={() => void handleLogout()}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+          >
+            <LogOut size={14} />
+            Salir
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
             {BUSINESS_TYPES.map((type) => (
               <Button
                 key={type.value}
@@ -62,7 +82,7 @@ export default function OnboardingPage() {
             ))}
           </div>
 
-          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-sm text-destructive mb-4">{error}</p>}
 
           <Button type="submit" disabled={!selected || loading} className="w-full">
             {loading ? 'Guardando...' : 'Continuar'}

@@ -11,6 +11,7 @@ export function proxy(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin');
   const isAdminLogin = pathname === '/admin/login';
   const isTenantLogin = pathname === '/login';
+  const isPublicTenantRoute = pathname.startsWith('/login'); // /login, /login/invitation, etc.
   const isOnboardingRoute = pathname === '/onboarding';
 
   // ── /admin/* routes ─────────────────────────────────────────
@@ -34,7 +35,7 @@ export function proxy(request: NextRequest) {
   }
 
   // No token on protected route → redirect to tenant login
-  if (!token && !isTenantLogin) {
+  if (!token && !isPublicTenantRoute) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

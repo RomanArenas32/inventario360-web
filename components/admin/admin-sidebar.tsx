@@ -5,7 +5,7 @@ import { clearSession } from '@/lib/auth';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { LayoutDashboard, LogOut, Menu, MessageSquare, Store } from 'lucide-react';
+import { Boxes, LayoutDashboard, LogOut, Menu, MessageSquare, Store } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -78,7 +78,7 @@ export default function AdminSidebar() {
       <ThemeToggle className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors" />
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors"
       >
         <LogOut size={16} />
         Cerrar sesión
@@ -88,8 +88,13 @@ export default function AdminSidebar() {
 
   const headerContent = (
     <div className="px-5 py-6 border-b border-sidebar-border">
-      <p className="text-xs font-semibold text-primary uppercase tracking-widest">Admin</p>
-      <h1 className="text-lg font-bold text-sidebar-foreground mt-0.5">Inventario360</h1>
+      <div className="flex items-center gap-2 mb-0.5">
+        <div className="flex items-center justify-center w-5 h-5 rounded bg-primary text-primary-foreground shrink-0">
+          <Boxes size={11} />
+        </div>
+        <p className="text-xs font-semibold text-primary uppercase tracking-widest">Admin</p>
+      </div>
+      <h1 className="text-lg font-bold text-sidebar-foreground pl-7">Inventario360</h1>
     </div>
   );
 

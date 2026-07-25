@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -224,23 +225,29 @@ export default function ProductsPage() {
                         {p.isActive ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-right space-x-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openEdit(p)}
-                        className="h-auto p-0 text-xs text-blue-500 hover:text-blue-400 hover:bg-transparent"
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => void handleDelete(p.id)}
-                        className="h-auto p-0 text-xs text-destructive hover:opacity-80 hover:bg-transparent"
-                      >
-                        Eliminar
-                      </Button>
+                    <TableCell className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEdit(p)}
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          aria-label="Editar"
+                          title="Editar"
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => void handleDelete(p.id)}
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          aria-label="Eliminar"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -258,7 +265,7 @@ export default function ProductsPage() {
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">Nombre *</Label>
+                <Label className="text-sm font-medium mb-1.5">Nombre *</Label>
                 <Input
                   required
                   value={form.name}
@@ -267,7 +274,7 @@ export default function ProductsPage() {
                 />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">Código *</Label>
+                <Label className="text-sm font-medium mb-1.5">Código *</Label>
                 <Input
                   required
                   value={form.code}
@@ -278,7 +285,7 @@ export default function ProductsPage() {
               </div>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground mb-1">Descripción</Label>
+              <Label className="text-sm font-medium mb-1.5">Descripción</Label>
               <Input
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -286,7 +293,7 @@ export default function ProductsPage() {
               />
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground mb-1">Categoría</Label>
+              <Label className="text-sm font-medium mb-1.5">Categoría</Label>
               <Select
                 value={form.categoryId || undefined}
                 onValueChange={(val) => setForm({ ...form, categoryId: val ?? '' })}
@@ -305,7 +312,7 @@ export default function ProductsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">Precio de costo</Label>
+                <Label className="text-sm font-medium mb-1.5">Precio de costo</Label>
                 <Input
                   type="number"
                   min="0"
@@ -316,7 +323,7 @@ export default function ProductsPage() {
                 />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">Precio de venta</Label>
+                <Label className="text-sm font-medium mb-1.5">Precio de venta</Label>
                 <Input
                   type="number"
                   min="0"
@@ -329,7 +336,7 @@ export default function ProductsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">Stock actual</Label>
+                <Label className="text-sm font-medium mb-1.5">Stock actual</Label>
                 <Input
                   type="number"
                   min="0"
@@ -338,7 +345,7 @@ export default function ProductsPage() {
                 />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground mb-1">Stock mínimo</Label>
+                <Label className="text-sm font-medium mb-1.5">Stock mínimo</Label>
                 <Input
                   type="number"
                   min="0"

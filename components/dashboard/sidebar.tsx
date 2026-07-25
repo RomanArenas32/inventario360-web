@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import {
+  Boxes,
   Check,
   ChevronsUpDown,
   LayoutDashboard,
@@ -131,10 +132,15 @@ export default function Sidebar() {
     if (!canSwitch) {
       return (
         <div className="px-5 py-5 border-b border-sidebar-border">
-          <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest mb-0.5">
-            Inventario360
-          </p>
-          <h1 className="text-base font-bold text-sidebar-foreground leading-tight">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center justify-center w-5 h-5 rounded bg-primary text-primary-foreground shrink-0">
+              <Boxes size={11} />
+            </div>
+            <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest">
+              Inventario360
+            </p>
+          </div>
+          <h1 className="text-base font-bold text-sidebar-foreground leading-tight pl-7">
             {data?.activeTenantName ?? '—'}
           </h1>
         </div>
@@ -144,10 +150,15 @@ export default function Sidebar() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full text-left px-5 py-5 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors outline-none">
-          <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest mb-0.5">
-            Inventario360
-          </p>
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center justify-center w-5 h-5 rounded bg-primary text-primary-foreground shrink-0">
+              <Boxes size={11} />
+            </div>
+            <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest">
+              Inventario360
+            </p>
+          </div>
+          <div className="flex items-center justify-between gap-2 pl-7">
             <h1 className="text-base font-bold text-sidebar-foreground leading-tight truncate">
               {data?.activeTenantName ?? '—'}
             </h1>
@@ -197,7 +208,7 @@ export default function Sidebar() {
       <ThemeToggle className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors" />
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
       >
         <LogOut size={16} />
         Cerrar sesión

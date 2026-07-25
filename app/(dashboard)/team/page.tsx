@@ -35,13 +35,11 @@ type Member = {
 };
 
 type FormState = {
-  name: string;
   email: string;
-  password: string;
   role: 'owner' | 'staff';
 };
 
-const EMPTY: FormState = { name: '', email: '', password: '', role: 'staff' };
+const EMPTY: FormState = { email: '', role: 'staff' };
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Dueño', staff: 'Empleado' };
 
@@ -195,15 +193,9 @@ export default function TeamPage() {
             <DialogTitle>Agregar miembro</DialogTitle>
           </DialogHeader>
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3">
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1">Nombre *</Label>
-              <Input
-                required
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Nombre completo"
-              />
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Se enviará una invitación por email para que active su cuenta.
+            </p>
             <div>
               <Label className="text-xs text-muted-foreground mb-1">Email *</Label>
               <Input
@@ -212,17 +204,6 @@ export default function TeamPage() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="email@ejemplo.com"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1">Contraseña *</Label>
-              <Input
-                required
-                type="password"
-                minLength={6}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="Mínimo 6 caracteres"
               />
             </div>
             <div>
@@ -254,7 +235,7 @@ export default function TeamPage() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={submitting} className="flex-1">
-                {submitting ? 'Guardando...' : 'Agregar'}
+                {submitting ? 'Enviando...' : 'Enviar invitación'}
               </Button>
             </div>
           </form>

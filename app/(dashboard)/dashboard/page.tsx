@@ -3,6 +3,7 @@
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { AlertTriangle, CheckCircle2, Package, Tag } from 'lucide-react';
 
 type Product = { id: string; stock: number; minStock: number; isActive: boolean };
 type Category = { id: string };
@@ -32,10 +33,34 @@ export default function DashboardPage() {
   const active = products.filter((p) => p.isActive).length;
 
   const stats = [
-    { label: 'Productos', value: products.length, color: 'text-blue-500' },
-    { label: 'Activos', value: active, color: 'text-green-500' },
-    { label: 'Stock bajo', value: lowStock.length, color: 'text-amber-500' },
-    { label: 'Categorías', value: categories.length, color: 'text-purple-500' },
+    {
+      label: 'Productos',
+      value: products.length,
+      color: 'text-blue-500',
+      icon: Package,
+      iconBg: 'bg-blue-50 dark:bg-blue-950/50 text-blue-500',
+    },
+    {
+      label: 'Activos',
+      value: active,
+      color: 'text-green-500',
+      icon: CheckCircle2,
+      iconBg: 'bg-green-50 dark:bg-green-950/50 text-green-500',
+    },
+    {
+      label: 'Stock bajo',
+      value: lowStock.length,
+      color: 'text-amber-500',
+      icon: AlertTriangle,
+      iconBg: 'bg-amber-50 dark:bg-amber-950/50 text-amber-500',
+    },
+    {
+      label: 'Categorías',
+      value: categories.length,
+      color: 'text-purple-500',
+      icon: Tag,
+      iconBg: 'bg-purple-50 dark:bg-purple-950/50 text-purple-500',
+    },
   ];
 
   return (
@@ -46,20 +71,35 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
         {stats.map((stat) => (
           <Card key={stat.label} className="p-5 shadow-sm">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</p>
-            <p className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                  {stat.label}
+                </p>
+                <p className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</p>
+              </div>
+              <div className={`p-2 rounded-lg shrink-0 ${stat.iconBg}`}>
+                <stat.icon size={18} />
+              </div>
+            </div>
           </Card>
         ))}
       </div>
 
       {lowStock.length > 0 && (
-        <div className="mt-6 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
-          <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-            Alerta: {lowStock.length} producto{lowStock.length !== 1 ? 's' : ''} con stock bajo
-          </p>
-          <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">
-            Revisá la sección de Stock para ver el detalle.
-          </p>
+        <div className="mt-6 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+          <AlertTriangle
+            size={16}
+            className="text-amber-500 shrink-0 mt-0.5"
+          />
+          <div>
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
+              Alerta: {lowStock.length} producto{lowStock.length !== 1 ? 's' : ''} con stock bajo
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">
+              Revisá la sección de Stock para ver el detalle.
+            </p>
+          </div>
         </div>
       )}
     </div>
