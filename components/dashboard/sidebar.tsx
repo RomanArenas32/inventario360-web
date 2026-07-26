@@ -75,6 +75,7 @@ function NavLinks({
 type TenantOption = { id: string; name: string; role: string };
 type SidebarData = {
   userName: string;
+  avatarUrl: string | null;
   activeTenantId: string;
   activeTenantName: string;
   tenantRole: string | null;
@@ -93,6 +94,7 @@ export default function Sidebar() {
     void api
       .get<{
         name: string;
+        avatarUrl: string | null;
         tenantRole: string | null;
         tenant: { id: string; name: string } | null;
         tenants: TenantOption[];
@@ -101,6 +103,7 @@ export default function Sidebar() {
         if (me.tenant) {
           setData({
             userName: me.name,
+            avatarUrl: me.avatarUrl ?? null,
             activeTenantId: me.tenant.id,
             activeTenantName: me.tenant.name,
             tenantRole: me.tenantRole,
@@ -111,7 +114,12 @@ export default function Sidebar() {
       .catch(() => null);
   }, []);
 
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      await api.post('/auth/logout', {});
+    } catch {
+      // ignorar errores — igual limpiamos la sesión local
+    }
     clearSession();
     router.push('/login');
   }
@@ -202,12 +210,20 @@ export default function Sidebar() {
             : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
         }`}
       >
-        <User size={16} />
+        {data?.avatarUrl ? (
+          <img
+            src={data.avatarUrl}
+            alt={data.userName}
+            className="w-5 h-5 rounded-full object-cover shrink-0"
+          />
+        ) : (
+          <User size={16} />
+        )}
         {data?.userName ?? 'Mi perfil'}
       </Link>
       <ThemeToggle className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors" />
       <button
-        onClick={handleLogout}
+        onClick={() => void handleLogout()}
         className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-sidebar-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
       >
         <LogOut size={16} />
