@@ -1,7 +1,9 @@
 'use client';
 
 import { api } from '@/lib/api';
+import { Plan } from '@/lib/client';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,17 +17,23 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Building2, ChevronDown, Mail, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -44,6 +52,22 @@ type Tenant = {
   isActive: boolean;
   isOnboarded: boolean;
   user?: { name: string; email: string };
+  pendingInvitation: { email: string; expired: boolean } | null;
+};
+
+const COUNTRIES = [
+  { code: '+54', flag: '🇦🇷', name: 'Argentina' },
+  { code: '+591', flag: '🇧🇴', name: 'Bolivia' },
+  { code: '+56', flag: '🇨🇱', name: 'Chile' },
+  { code: '+595', flag: '🇵🇾', name: 'Paraguay' },
+  { code: '+51', flag: '🇵🇪', name: 'Perú' },
+  { code: '+598', flag: '🇺🇾', name: 'Uruguay' },
+];
+
+const PLAN_CONFIG: Record<string, { label: string; description: string }> = {
+  basic: { label: 'Basic', description: 'Para comenzar' },
+  pro: { label: 'Pro', description: 'Funciones avanzadas' },
+  enterprise: { label: 'Enterprise', description: 'Sin límites' },
 };
 
 const BUSINESS_TYPE_LABELS: Record<string, string> = {
@@ -61,6 +85,7 @@ const DEFAULT_FORM = {
   ownerEmail: '',
   plan: 'basic',
   phone: '',
+  countryCode: '+54',
 };
 
 export default function ComerciosPage() {
@@ -71,6 +96,7 @@ export default function ComerciosPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -91,27 +117,47 @@ export default function ComerciosPage() {
     setSubmitting(true);
     setError('');
     try {
-      await api.post('/admin/tenants', form);
+      await api.post('/admin/tenants', {
+        ...form,
+        phone: form.phone ? `${form.countryCode}${form.phone}` : undefined,
+      });
       setShowCreate(false);
       setForm(DEFAULT_FORM);
       void load();
+      toast.success('Comercio creado');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al crear');
+      const msg = err instanceof Error ? err.message : 'Error al crear';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleToggleActive(tenant: Tenant) {
-    await api.patch(`/admin/tenants/${tenant.id}`, { isActive: !tenant.isActive });
-    void load();
+    try {
+      await api.patch(`/admin/tenants/${tenant.id}`, { isActive: !tenant.isActive });
+      void load();
+      toast.success(tenant.isActive ? 'Comercio desactivado' : 'Comercio activado');
+    } catch {
+      toast.error('Error al actualizar el estado');
+    }
   }
 
   async function confirmDelete() {
     if (!deleteId) return;
-    await api.delete(`/admin/tenants/${deleteId}`);
-    setDeleteId(null);
-    void load();
+    const idToDelete = deleteId;
+    setDeleting(true);
+    try {
+      await api.delete(`/admin/tenants/${idToDelete}`);
+      setTenants((prev) => prev.filter((t) => t.id !== idToDelete));
+      setDeleteId(null);
+      toast.success('Comercio eliminado');
+    } catch {
+      toast.error('Error al eliminar el comercio');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -155,8 +201,27 @@ export default function ComerciosPage() {
                     )}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-foreground/80">
-                    <div>{t.user?.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.user?.email}</div>
+                    {t.user ? (
+                      <>
+                        <div>{t.user.name}</div>
+                        <div className="text-xs text-muted-foreground">{t.user.email}</div>
+                      </>
+                    ) : t.pendingInvitation ? (
+                      <>
+                        <div className="text-xs text-muted-foreground">{t.pendingInvitation.email}</div>
+                        <Badge
+                          className={
+                            t.pendingInvitation.expired
+                              ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 border-0 mt-1'
+                              : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0 mt-1'
+                          }
+                        >
+                          {t.pendingInvitation.expired ? 'Invitación expirada' : 'Invitación pendiente'}
+                        </Badge>
+                      </>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-foreground/80">
                     {t.businessType
@@ -166,12 +231,14 @@ export default function ComerciosPage() {
                   <TableCell className="px-4 py-3">
                     <Badge
                       className={
-                        t.plan === 'pro'
+                        t.plan === Plan.PRO
                           ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border-0'
-                          : 'bg-muted text-muted-foreground border-0'
+                          : t.plan === Plan.ENTERPRISE
+                            ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-0'
+                            : 'bg-muted text-muted-foreground border-0'
                       }
                     >
-                      {t.plan === 'pro' ? 'Pro' : 'Basic'}
+                      {t.plan.charAt(0).toUpperCase() + t.plan.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell className="px-4 py-3">
@@ -232,9 +299,10 @@ export default function ComerciosPage() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => void confirmDelete()}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              disabled={deleting}
+              className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-60"
             >
-              Eliminar
+              {deleting ? 'Eliminando...' : 'Eliminar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -250,68 +318,118 @@ export default function ComerciosPage() {
           }
         }}
       >
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Nuevo comercio</DialogTitle>
+            <DialogTitle>Invitar nuevo comercio</DialogTitle>
+            <DialogDescription>
+              Completá los datos del negocio. El dueño recibirá un email para activar su cuenta.
+            </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => void handleCreate(e)} className="space-y-3">
-            <div>
-              <Label className="text-sm font-medium mb-1.5">Nombre del comercio *</Label>
-              <Input
-                required
-                value={form.businessName}
-                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                placeholder="Ej: Almacén Don Juan"
-              />
+
+          <form onSubmit={(e) => void handleCreate(e)} className="space-y-5 pt-1">
+            {/* Datos del comercio */}
+            <div className="space-y-3">
+              <div className="relative">
+                <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  required
+                  value={form.businessName}
+                  onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                  placeholder="Nombre del comercio"
+                  className="pl-9"
+                />
+              </div>
+              <div className="flex items-center rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm hover:bg-muted/50 rounded-l-md transition-colors focus:outline-none shrink-0">
+                    <span className="text-base leading-none">
+                      {COUNTRIES.find((c) => c.code === form.countryCode)?.flag}
+                    </span>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {form.countryCode}
+                    </span>
+                    <ChevronDown size={11} className="text-muted-foreground" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-52">
+                    {COUNTRIES.map((c) => (
+                      <DropdownMenuItem
+                        key={c.code}
+                        onSelect={() => setForm({ ...form, countryCode: c.code })}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <span className="text-base">{c.flag}</span>
+                        <span className="flex-1 text-sm">{c.name}</span>
+                        <span className="text-xs font-mono text-muted-foreground">{c.code}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <div className="w-px h-5 bg-border shrink-0" />
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="Número de teléfono"
+                  className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
             </div>
 
-            <div>
-              <Label className="text-sm font-medium mb-1.5">Plan</Label>
-              <Select
-                value={form.plan}
-                onValueChange={(val) => setForm({ ...form, plan: val ?? 'basic' })}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="basic">Basic</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Selección de plan */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Plan
+              </Label>
+              <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${Object.values(Plan).length}, 1fr)` }}>
+                {Object.values(Plan).map((p) => {
+                  const config = PLAN_CONFIG[p] ?? { label: p, description: '' };
+                  const selected = form.plan === p;
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setForm({ ...form, plan: p })}
+                      className={`rounded-lg border px-3 py-2.5 text-left transition-all ${
+                        selected
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                          : 'border-border bg-card hover:border-muted-foreground/40'
+                      }`}
+                    >
+                      <div className={`text-sm font-semibold ${selected ? 'text-primary' : 'text-foreground'}`}>
+                        {config.label}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{config.description}</div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div>
-              <Label className="text-sm font-medium mb-1.5">Teléfono</Label>
-              <Input
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="Ej: 2366-123456"
-              />
-            </div>
+            <Separator />
 
-            <hr className="border-border" />
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Dueño del comercio
-            </p>
-            <p className="text-xs text-muted-foreground -mt-1">
-              Se enviará una invitación por email para que active su cuenta.
-            </p>
-
-            <div>
-              <Label className="text-sm font-medium mb-1.5">Email *</Label>
-              <Input
-                required
-                type="email"
-                value={form.ownerEmail}
-                onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })}
-                placeholder="correo@ejemplo.com"
-              />
+            {/* Dueño */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                  Dueño del comercio
+                </p>
+                <div className="relative">
+                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    required
+                    type="email"
+                    value={form.ownerEmail}
+                    onChange={(e) => setForm({ ...form, ownerEmail: e.target.value })}
+                    placeholder="correo@ejemplo.com"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
             </div>
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-1">
               <Button
                 type="button"
                 variant="outline"
@@ -325,7 +443,7 @@ export default function ComerciosPage() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={submitting} className="flex-1">
-                {submitting ? 'Enviando...' : 'Crear y enviar invitación'}
+                {submitting ? 'Enviando...' : 'Enviar invitación'}
               </Button>
             </div>
           </form>

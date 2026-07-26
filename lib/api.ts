@@ -10,6 +10,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     },
   });
 
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    if (!res.ok) throw new Error('Error en la solicitud');
+    return undefined as T;
+  }
   const data = await res.json();
   if (!res.ok) throw new Error(data.message ?? 'Error en la solicitud');
   return data as T;

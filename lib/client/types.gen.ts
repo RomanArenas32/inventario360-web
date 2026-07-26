@@ -4,44 +4,197 @@ export type ClientOptions = {
     baseUrl: string;
 };
 
+export const BusinessType = {
+    ALMACEN: 'almacen',
+    KIOSCO: 'kiosco',
+    FERRETERIA: 'ferreteria',
+    BARBERIA: 'barberia',
+    RESTAURANTE: 'restaurante',
+    TIENDA_ROPA: 'tienda_ropa',
+    TIENDA_ELECTRONICA: 'tienda_electronica'
+} as const;
+
+export type BusinessType = typeof BusinessType[keyof typeof BusinessType];
+
+export const Plan = {
+    BASIC: 'basic',
+    PRO: 'pro',
+    ENTERPRISE: 'enterprise'
+} as const;
+
+export type Plan = typeof Plan[keyof typeof Plan];
+
 export type CreateTenantDto = {
-    [key: string]: unknown;
+    businessType?: BusinessType;
+    plan?: Plan;
+    businessName: string;
+    phone?: string;
+    ownerEmail: string;
 };
 
 export type UpdateTenantDto = {
-    [key: string]: unknown;
+    plan?: Plan;
+    name?: string;
+    phone?: string;
+    isActive?: boolean;
 };
 
-export type OnboardingDto = {
-    [key: string]: unknown;
+export type User = {
+    id: string;
+    name: string;
+    email: string;
+    password: string | null;
+    avatarUrl: string | null;
+    globalRole: 'admin' | 'user';
+    isActive: boolean;
+    memberships: Array<TenantMembership>;
+    createdAt: string;
+};
+
+export type Tenant = {
+    id: string;
+    name: string;
+    businessType: 'almacen' | 'kiosco' | 'ferreteria' | 'barberia' | 'restaurante' | 'tienda_ropa' | 'tienda_electronica';
+    phone: string;
+    plan: 'basic' | 'pro' | 'enterprise';
+    isOnboarded: boolean;
+    isActive: boolean;
+    memberships: Array<TenantMembership>;
+    createdAt: string;
+};
+
+export type TenantMembership = {
+    id: string;
+    userId: string;
+    user: User;
+    tenantId: string;
+    tenant: Tenant;
+    role: 'owner' | 'staff';
+    isActive: boolean;
+    createdAt: string;
 };
 
 export type LoginDto = {
-    [key: string]: unknown;
+    email: string;
+    password: string;
+};
+
+export type OnboardingDto = {
+    businessType: BusinessType;
+};
+
+export type AddMemberDto = {
+    email: string;
+    role?: 'owner' | 'staff';
+};
+
+export type UpdateMemberRoleDto = {
+    role: 'owner' | 'staff';
+};
+
+export type UpdateProfileDto = {
+    name: string;
+};
+
+export type ChangePasswordDto = {
+    currentPassword: string;
+    newPassword: string;
+};
+
+export type AcceptInvitationDto = {
+    name: string;
+    password: string;
 };
 
 export type CreateMessageDto = {
-    [key: string]: unknown;
+    name: string;
+    email: string;
+    phone?: string;
+    message: string;
+};
+
+export type ContactMessage = {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    message: string;
+    status: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
+    isUser: boolean;
+    notes: string;
+    createdAt: string;
+    updatedAt: string;
 };
 
 export type UpdateMessageDto = {
-    [key: string]: unknown;
+    status?: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
+    isUser?: boolean;
+    notes?: string;
 };
 
 export type CreateCategoryDto = {
-    [key: string]: unknown;
+    name: string;
+    description?: string;
+};
+
+export type Category = {
+    id: string;
+    name: string;
+    description: string;
+    tenantId: string;
+    tenant: Tenant;
+    products: Array<Product>;
+    createdAt: string;
+};
+
+export type Product = {
+    id: string;
+    name: string;
+    description: string;
+    code: string;
+    costPrice: number;
+    salePrice: number;
+    stock: number;
+    minStock: number;
+    imageUrl: string;
+    isActive: boolean;
+    categoryId: string;
+    category: Category;
+    tenantId: string;
+    tenant: Tenant;
+    createdAt: string;
+    updatedAt: string;
 };
 
 export type UpdateCategoryDto = {
-    [key: string]: unknown;
+    name?: string;
+    description?: string;
 };
 
 export type CreateProductDto = {
-    [key: string]: unknown;
+    name: string;
+    description?: string;
+    code: string;
+    costPrice?: number;
+    salePrice?: number;
+    stock?: number;
+    minStock?: number;
+    imageUrl?: string;
+    isActive?: boolean;
+    categoryId?: string;
 };
 
 export type UpdateProductDto = {
-    [key: string]: unknown;
+    name?: string;
+    description?: string;
+    code?: string;
+    costPrice?: number;
+    salePrice?: number;
+    stock?: number;
+    minStock?: number;
+    imageUrl?: string;
+    isActive?: boolean;
+    categoryId?: string;
 };
 
 export type AdminControllerFindAllTenantsData = {
@@ -89,6 +242,41 @@ export type AdminControllerUpdateTenantData = {
 };
 
 export type AdminControllerUpdateTenantResponses = {
+    200: Tenant;
+};
+
+export type AdminControllerUpdateTenantResponse = AdminControllerUpdateTenantResponses[keyof AdminControllerUpdateTenantResponses];
+
+export type AdminAuthControllerLoginData = {
+    body: LoginDto;
+    path?: never;
+    query?: never;
+    url: '/admin/auth/login';
+};
+
+export type AdminAuthControllerLoginResponses = {
+    201: unknown;
+};
+
+export type AdminAuthControllerLogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/admin/auth/logout';
+};
+
+export type AdminAuthControllerLogoutResponses = {
+    201: unknown;
+};
+
+export type AdminAuthControllerMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/admin/auth/me';
+};
+
+export type AdminAuthControllerMeResponses = {
     200: unknown;
 };
 
@@ -100,6 +288,131 @@ export type TenantsControllerCompleteOnboardingData = {
 };
 
 export type TenantsControllerCompleteOnboardingResponses = {
+    200: Tenant;
+};
+
+export type TenantsControllerCompleteOnboardingResponse = TenantsControllerCompleteOnboardingResponses[keyof TenantsControllerCompleteOnboardingResponses];
+
+export type TenantsControllerGetMembersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenants/members';
+};
+
+export type TenantsControllerGetMembersResponses = {
+    200: unknown;
+};
+
+export type TenantsControllerAddMemberData = {
+    body: AddMemberDto;
+    path?: never;
+    query?: never;
+    url: '/tenants/members';
+};
+
+export type TenantsControllerAddMemberResponses = {
+    201: unknown;
+};
+
+export type TenantsControllerRemoveMemberData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: never;
+    url: '/tenants/members/{userId}';
+};
+
+export type TenantsControllerRemoveMemberResponses = {
+    200: unknown;
+};
+
+export type TenantsControllerUpdateMemberRoleData = {
+    body: UpdateMemberRoleDto;
+    path: {
+        userId: string;
+    };
+    query?: never;
+    url: '/tenants/members/{userId}';
+};
+
+export type TenantsControllerUpdateMemberRoleResponses = {
+    200: unknown;
+};
+
+export type UsersControllerUpdateProfileData = {
+    body: UpdateProfileDto;
+    path?: never;
+    query?: never;
+    url: '/users/me';
+};
+
+export type UsersControllerUpdateProfileResponses = {
+    200: unknown;
+};
+
+export type UsersControllerChangePasswordData = {
+    body: ChangePasswordDto;
+    path?: never;
+    query?: never;
+    url: '/users/me/password';
+};
+
+export type UsersControllerChangePasswordResponses = {
+    200: unknown;
+};
+
+export type InvitationsControllerValidateData = {
+    body?: never;
+    path: {
+        token: string;
+    };
+    query?: never;
+    url: '/invitations/validate/{token}';
+};
+
+export type InvitationsControllerValidateResponses = {
+    200: unknown;
+};
+
+export type InvitationsControllerAcceptData = {
+    body: AcceptInvitationDto;
+    path: {
+        token: string;
+    };
+    query?: never;
+    url: '/invitations/accept/{token}';
+};
+
+export type InvitationsControllerAcceptResponses = {
+    201: unknown;
+};
+
+export type InvitationsControllerGoogleStartData = {
+    body?: never;
+    path?: never;
+    query: {
+        token: string;
+    };
+    url: '/invitations/google';
+};
+
+export type InvitationsControllerGoogleStartResponses = {
+    200: unknown;
+};
+
+export type InvitationsControllerGoogleCallbackData = {
+    body?: never;
+    path?: never;
+    query: {
+        code: string;
+        state: string;
+    };
+    url: '/invitations/google/callback';
+};
+
+export type InvitationsControllerGoogleCallbackResponses = {
     200: unknown;
 };
 
@@ -114,6 +427,28 @@ export type AuthControllerLoginResponses = {
     201: unknown;
 };
 
+export type AuthControllerLogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/logout';
+};
+
+export type AuthControllerLogoutResponses = {
+    201: unknown;
+};
+
+export type AuthControllerSwitchTenantData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/switch-tenant';
+};
+
+export type AuthControllerSwitchTenantResponses = {
+    201: unknown;
+};
+
 export type AuthControllerMeData = {
     body?: never;
     path?: never;
@@ -125,18 +460,44 @@ export type AuthControllerMeResponses = {
     200: unknown;
 };
 
-export type MessagesControllerFindAllData = {
+export type AuthControllerGoogleStartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/google';
+};
+
+export type AuthControllerGoogleStartResponses = {
+    200: unknown;
+};
+
+export type AuthControllerGoogleCallbackData = {
     body?: never;
     path?: never;
     query: {
-        status: string;
+        code: string;
+    };
+    url: '/auth/google/callback';
+};
+
+export type AuthControllerGoogleCallbackResponses = {
+    200: unknown;
+};
+
+export type MessagesControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        status?: string;
     };
     url: '/messages';
 };
 
 export type MessagesControllerFindAllResponses = {
-    200: unknown;
+    200: Array<ContactMessage>;
 };
+
+export type MessagesControllerFindAllResponse = MessagesControllerFindAllResponses[keyof MessagesControllerFindAllResponses];
 
 export type MessagesControllerCreateData = {
     body: CreateMessageDto;
@@ -146,8 +507,10 @@ export type MessagesControllerCreateData = {
 };
 
 export type MessagesControllerCreateResponses = {
-    201: unknown;
+    201: ContactMessage;
 };
+
+export type MessagesControllerCreateResponse = MessagesControllerCreateResponses[keyof MessagesControllerCreateResponses];
 
 export type MessagesControllerCountPendingData = {
     body?: never;
@@ -157,8 +520,10 @@ export type MessagesControllerCountPendingData = {
 };
 
 export type MessagesControllerCountPendingResponses = {
-    200: unknown;
+    200: number;
 };
+
+export type MessagesControllerCountPendingResponse = MessagesControllerCountPendingResponses[keyof MessagesControllerCountPendingResponses];
 
 export type MessagesControllerRemoveData = {
     body?: never;
@@ -183,8 +548,10 @@ export type MessagesControllerUpdateData = {
 };
 
 export type MessagesControllerUpdateResponses = {
-    200: unknown;
+    200: ContactMessage;
 };
+
+export type MessagesControllerUpdateResponse = MessagesControllerUpdateResponses[keyof MessagesControllerUpdateResponses];
 
 export type CategoriesControllerFindAllData = {
     body?: never;
@@ -194,8 +561,10 @@ export type CategoriesControllerFindAllData = {
 };
 
 export type CategoriesControllerFindAllResponses = {
-    200: unknown;
+    200: Array<Category>;
 };
+
+export type CategoriesControllerFindAllResponse = CategoriesControllerFindAllResponses[keyof CategoriesControllerFindAllResponses];
 
 export type CategoriesControllerCreateData = {
     body: CreateCategoryDto;
@@ -205,8 +574,10 @@ export type CategoriesControllerCreateData = {
 };
 
 export type CategoriesControllerCreateResponses = {
-    201: unknown;
+    201: Category;
 };
+
+export type CategoriesControllerCreateResponse = CategoriesControllerCreateResponses[keyof CategoriesControllerCreateResponses];
 
 export type CategoriesControllerRemoveData = {
     body?: never;
@@ -231,8 +602,10 @@ export type CategoriesControllerFindOneData = {
 };
 
 export type CategoriesControllerFindOneResponses = {
-    200: unknown;
+    200: Category;
 };
+
+export type CategoriesControllerFindOneResponse = CategoriesControllerFindOneResponses[keyof CategoriesControllerFindOneResponses];
 
 export type CategoriesControllerUpdateData = {
     body: UpdateCategoryDto;
@@ -244,8 +617,10 @@ export type CategoriesControllerUpdateData = {
 };
 
 export type CategoriesControllerUpdateResponses = {
-    200: unknown;
+    200: Category;
 };
+
+export type CategoriesControllerUpdateResponse = CategoriesControllerUpdateResponses[keyof CategoriesControllerUpdateResponses];
 
 export type ProductsControllerFindAllData = {
     body?: never;
@@ -255,8 +630,10 @@ export type ProductsControllerFindAllData = {
 };
 
 export type ProductsControllerFindAllResponses = {
-    200: unknown;
+    200: Array<Product>;
 };
+
+export type ProductsControllerFindAllResponse = ProductsControllerFindAllResponses[keyof ProductsControllerFindAllResponses];
 
 export type ProductsControllerCreateData = {
     body: CreateProductDto;
@@ -266,8 +643,10 @@ export type ProductsControllerCreateData = {
 };
 
 export type ProductsControllerCreateResponses = {
-    201: unknown;
+    201: Product;
 };
+
+export type ProductsControllerCreateResponse = ProductsControllerCreateResponses[keyof ProductsControllerCreateResponses];
 
 export type ProductsControllerFindLowStockData = {
     body?: never;
@@ -277,8 +656,10 @@ export type ProductsControllerFindLowStockData = {
 };
 
 export type ProductsControllerFindLowStockResponses = {
-    200: unknown;
+    200: Array<Product>;
 };
+
+export type ProductsControllerFindLowStockResponse = ProductsControllerFindLowStockResponses[keyof ProductsControllerFindLowStockResponses];
 
 export type ProductsControllerRemoveData = {
     body?: never;
@@ -303,8 +684,10 @@ export type ProductsControllerFindOneData = {
 };
 
 export type ProductsControllerFindOneResponses = {
-    200: unknown;
+    200: Product;
 };
+
+export type ProductsControllerFindOneResponse = ProductsControllerFindOneResponses[keyof ProductsControllerFindOneResponses];
 
 export type ProductsControllerUpdateData = {
     body: UpdateProductDto;
@@ -316,5 +699,7 @@ export type ProductsControllerUpdateData = {
 };
 
 export type ProductsControllerUpdateResponses = {
-    200: unknown;
+    200: Product;
 };
+
+export type ProductsControllerUpdateResponse = ProductsControllerUpdateResponses[keyof ProductsControllerUpdateResponses];

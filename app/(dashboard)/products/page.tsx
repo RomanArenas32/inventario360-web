@@ -2,6 +2,7 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -135,13 +136,17 @@ export default function ProductsPage() {
       };
       if (editing) {
         await api.patch(`/products/${editing.id}`, body);
+        toast.success('Producto actualizado');
       } else {
         await api.post('/products', body);
+        toast.success('Producto creado');
       }
       setShowForm(false);
       void load();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al guardar');
+      const msg = err instanceof Error ? err.message : 'Error al guardar';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -149,8 +154,13 @@ export default function ProductsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este producto?')) return;
-    await api.delete(`/products/${id}`);
-    void load();
+    try {
+      await api.delete(`/products/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast.success('Producto eliminado');
+    } catch {
+      toast.error('Error al eliminar el producto');
+    }
   }
 
   return (

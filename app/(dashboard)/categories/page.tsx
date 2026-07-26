@@ -2,6 +2,7 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -66,13 +67,17 @@ export default function CategoriesPage() {
       const body = { name: form.name, description: form.description || undefined };
       if (editing) {
         await api.patch(`/categories/${editing.id}`, body);
+        toast.success('Categoría actualizada');
       } else {
         await api.post('/categories', body);
+        toast.success('Categoría creada');
       }
       setShowForm(false);
       void load();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al guardar');
+      const msg = err instanceof Error ? err.message : 'Error al guardar';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -80,8 +85,13 @@ export default function CategoriesPage() {
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar esta categoría?')) return;
-    await api.delete(`/categories/${id}`);
-    void load();
+    try {
+      await api.delete(`/categories/${id}`);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      toast.success('Categoría eliminada');
+    } catch {
+      toast.error('Error al eliminar la categoría');
+    }
   }
 
   return (

@@ -4,7 +4,8 @@ import { api } from '@/lib/api';
 import { setSession } from '@/lib/auth';
 import AuthSplitLayout from '@/components/auth/auth-split-layout';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -26,7 +27,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 const ERROR_MESSAGES: Record<string, string> = {
-  no_account: 'No existe una cuenta con ese email de Google.',
+  no_account: 'No existe una cuenta asociada a este correo.',
   no_tenant: 'Tu cuenta no tiene ningún negocio asociado.',
   google_failed: 'No se pudo autenticar con Google. Intentá de nuevo.',
 };
@@ -39,8 +40,16 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const oauthError = searchParams.get('error');
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!oauthError) return;
+    const t = setTimeout(() => {
+      toast.error(ERROR_MESSAGES[oauthError] ?? 'Error al iniciar sesión con Google.');
+      router.replace('/login');
+    }, 100);
+    return () => clearTimeout(t);
+  }, [oauthError]);
 
   const [showContact, setShowContact] = useState(false);
   const [contact, setContact] = useState<ContactForm>(EMPTY_CONTACT);
@@ -50,7 +59,6 @@ export default function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await api.post('/auth/login', form);
@@ -66,7 +74,7 @@ export default function LoginPage() {
         router.push(me.tenant.isOnboarded ? '/dashboard' : '/onboarding');
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      toast.error(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -100,12 +108,6 @@ export default function LoginPage() {
         <p className="text-muted-foreground mt-1 text-sm">Iniciá sesión en tu cuenta</p>
       </div>
 
-      {oauthError && (
-        <p className="text-sm text-destructive mb-4">
-          {ERROR_MESSAGES[oauthError] ?? 'Error al iniciar sesión con Google.'}
-        </p>
-      )}
-
       <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
         <div>
           <Label className="mb-1">Email</Label>
@@ -128,8 +130,6 @@ export default function LoginPage() {
             placeholder="••••••"
           />
         </div>
-
-        {error && <p className="text-sm text-destructive">{error}</p>}
 
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Ingresando...' : 'Ingresar'}

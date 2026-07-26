@@ -5,6 +5,7 @@ import { setSession } from '@/lib/auth';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +13,6 @@ import { Label } from '@/components/ui/label';
 export default function AdminLoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
       setSession(me.role, true);
       router.push('/admin/dashboard');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      toast.error(err instanceof Error ? err.message : 'Credenciales inválidas');
     } finally {
       setLoading(false);
     }
@@ -66,8 +66,6 @@ export default function AdminLoginPage() {
               placeholder="••••••"
             />
           </div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Ingresando...' : 'Ingresar'}

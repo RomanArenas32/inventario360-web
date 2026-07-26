@@ -2,6 +2,7 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -81,6 +82,15 @@ export default function MensajesPage() {
       const updated = await api.patch<Message>(`/messages/${id}`, patch);
       setMessages((prev) => prev.map((m) => (m.id === id ? updated : m)));
       setSelected(updated);
+      if ('notes' in patch) {
+        toast.success('Notas guardadas');
+      } else if ('status' in patch) {
+        toast.success(`Estado actualizado a ${STATUS_LABELS[patch.status!]?.label ?? patch.status}`);
+      } else if ('isUser' in patch) {
+        toast.success(patch.isUser ? 'Marcado como cliente' : 'Desmarcado como cliente');
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Error al actualizar');
     } finally {
       setSaving(false);
     }
@@ -88,9 +98,14 @@ export default function MensajesPage() {
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este mensaje?')) return;
-    await api.delete(`/messages/${id}`);
-    setMessages((prev) => prev.filter((m) => m.id !== id));
-    setSelected(null);
+    try {
+      await api.delete(`/messages/${id}`);
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+      setSelected(null);
+      toast.success('Mensaje eliminado');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Error al eliminar');
+    }
   }
 
   async function saveNotes() {
