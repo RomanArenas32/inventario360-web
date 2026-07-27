@@ -17,7 +17,18 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Building2, Mail, Trash2, PowerOff, Power, Info } from 'lucide-react';
+import {
+  Building2,
+  Mail,
+  Trash2,
+  PowerOff,
+  Power,
+  Info,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  UserCheck,
+} from 'lucide-react';
 import { PhoneInput, formatPhone, type PhoneValue } from '@/components/ui/phone-input';
 import {
   Dialog,
@@ -32,8 +43,6 @@ import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
@@ -320,93 +329,129 @@ export default function ComerciosPage() {
 
       {/* Detail sheet */}
       <Sheet open={!!detailTenant} onOpenChange={(open) => { if (!open) setDetailTenant(null); }}>
-        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-lg flex flex-col gap-0 p-0 overflow-y-auto">
           {detailTenant && (
             <>
-              <SheetHeader className="mb-6">
-                <SheetTitle>{detailTenant.name}</SheetTitle>
-                <SheetDescription>Información completa del comercio</SheetDescription>
-              </SheetHeader>
-
-              {/* Comercio */}
-              <section className="mb-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                  Comercio
-                </p>
-                <div className="space-y-2">
-                  <DetailRow label="Nombre" value={detailTenant.name} />
-                  <DetailRow
-                    label="Rubro"
-                    value={
-                      detailTenant.businessType
-                        ? (BUSINESS_TYPE_LABELS[detailTenant.businessType] ??
-                          detailTenant.businessType)
-                        : '—'
-                    }
-                  />
-                  <DetailRow label="Teléfono" value={detailTenant.phone ?? '—'} />
-                  <DetailRow
-                    label="Plan"
-                    value={
-                      detailTenant.plan.charAt(0).toUpperCase() + detailTenant.plan.slice(1)
-                    }
-                  />
-                  <DetailRow
-                    label="Estado"
-                    value={detailTenant.isActive ? 'Activo' : 'Inactivo'}
-                  />
-                  <DetailRow label="Creado el" value={formatDate(detailTenant.createdAt)} />
-                </div>
-              </section>
-
-              <Separator className="mb-6" />
-
-              {/* Invitación */}
-              <section className="mb-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                  Invitación
-                </p>
-                {detailTenant.invitation ? (
-                  <div className="space-y-2">
-                    <DetailRow label="Email" value={detailTenant.invitation.email} />
-                    <DetailRow
-                      label="Enviada el"
-                      value={formatDate(detailTenant.invitation.sentAt)}
-                    />
-                    <DetailRow
-                      label="Vence el"
-                      value={formatDate(detailTenant.invitation.expiresAt)}
-                    />
-                    <DetailRow
-                      label="Aceptada el"
-                      value={
-                        detailTenant.invitation.acceptedAt
-                          ? formatDate(detailTenant.invitation.acceptedAt)
-                          : detailTenant.invitation.expired
-                            ? 'Expirada'
-                            : 'Pendiente'
-                      }
-                    />
+              {/* Header */}
+              <div className="px-6 pt-6 pb-5 border-b border-border">
+                <div className="flex items-start gap-3 pr-8">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Building2 size={18} className="text-primary" />
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Sin invitación registrada.</p>
-                )}
-              </section>
-
-              {detailTenant.user && (
-                <>
-                  <Separator className="mb-6" />
-                  <section>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                      Dueño
-                    </p>
-                    <div className="space-y-2">
-                      <DetailRow label="Nombre" value={detailTenant.user.name} />
-                      <DetailRow label="Email" value={detailTenant.user.email} />
+                  <div className="min-w-0">
+                    <SheetTitle className="text-lg">{detailTenant.name}</SheetTitle>
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                      <Badge
+                        className={
+                          detailTenant.plan === Plan.PRO
+                            ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border-0'
+                            : detailTenant.plan === Plan.ENTERPRISE
+                              ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-0'
+                              : 'bg-muted text-muted-foreground border-0'
+                        }
+                      >
+                        {detailTenant.plan.charAt(0).toUpperCase() + detailTenant.plan.slice(1)}
+                      </Badge>
+                      <Badge
+                        className={
+                          detailTenant.isActive
+                            ? 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 border-0'
+                            : 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 border-0'
+                        }
+                      >
+                        {detailTenant.isActive ? 'Activo' : 'Inactivo'}
+                      </Badge>
                     </div>
-                  </section>
-                </>
-              )}
+                  </div>
+                </div>
+
+                {/* Quick info */}
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  <div className="bg-muted/50 rounded-lg px-3 py-2.5">
+                    <p className="text-xs text-muted-foreground mb-0.5">Rubro</p>
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {detailTenant.businessType
+                        ? (BUSINESS_TYPE_LABELS[detailTenant.businessType] ?? detailTenant.businessType)
+                        : '—'}
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg px-3 py-2.5">
+                    <p className="text-xs text-muted-foreground mb-0.5">Teléfono</p>
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {detailTenant.phone ?? '—'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline */}
+              <div className="px-6 py-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-6">
+                  Historial
+                </p>
+                <div className="relative">
+                  {/* Vertical connector line */}
+                  <div className="absolute left-[15px] top-6 bottom-6 w-px bg-border" />
+
+                  <ol className="space-y-0">
+                    {/* Comercio registrado */}
+                    <TimelineItem
+                      icon={<Building2 size={13} />}
+                      status="done"
+                      title="Comercio registrado"
+                      date={formatDate(detailTenant.createdAt)}
+                    />
+
+                    {/* Invitación enviada */}
+                    {detailTenant.invitation && (
+                      <TimelineItem
+                        icon={<Mail size={13} />}
+                        status="done"
+                        title="Invitación enviada"
+                        subtitle={detailTenant.invitation.email}
+                        date={formatDate(detailTenant.invitation.sentAt)}
+                      />
+                    )}
+
+                    {/* Estado invitación */}
+                    {detailTenant.invitation && (
+                      detailTenant.invitation.acceptedAt ? (
+                        <TimelineItem
+                          icon={<CheckCircle2 size={13} />}
+                          status="success"
+                          title="Invitación aceptada"
+                          date={formatDate(detailTenant.invitation.acceptedAt)}
+                        />
+                      ) : detailTenant.invitation.expired ? (
+                        <TimelineItem
+                          icon={<XCircle size={13} />}
+                          status="error"
+                          title="Invitación expirada"
+                          subtitle={`Venció el ${formatDate(detailTenant.invitation.expiresAt)}`}
+                        />
+                      ) : (
+                        <TimelineItem
+                          icon={<Clock size={13} />}
+                          status="pending"
+                          title="En espera de aceptación"
+                          subtitle={`Vence el ${formatDate(detailTenant.invitation.expiresAt)}`}
+                        />
+                      )
+                    )}
+
+                    {/* Dueño registrado */}
+                    {detailTenant.user && (
+                      <TimelineItem
+                        icon={<UserCheck size={13} />}
+                        status="success"
+                        title="Dueño registrado"
+                        subtitle={`${detailTenant.user.name} · ${detailTenant.user.email}`}
+                        isLast
+                      />
+                    )}
+                  </ol>
+                </div>
+              </div>
             </>
           )}
         </SheetContent>
@@ -605,11 +650,53 @@ export default function ComerciosPage() {
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+type TimelineStatus = 'done' | 'success' | 'error' | 'pending';
+
+const STATUS_STYLES: Record<
+  TimelineStatus,
+  { dot: string; icon: string; connector: string }
+> = {
+  done:    { dot: 'bg-muted-foreground/30 border-border',         icon: 'text-muted-foreground', connector: 'bg-border' },
+  success: { dot: 'bg-green-500/20 border-green-500/40',           icon: 'text-green-500',        connector: 'bg-border' },
+  error:   { dot: 'bg-red-500/20 border-red-500/40',               icon: 'text-red-500',          connector: 'bg-border' },
+  pending: { dot: 'bg-amber-500/20 border-amber-500/40 animate-pulse', icon: 'text-amber-500',    connector: 'bg-border' },
+};
+
+function TimelineItem({
+  icon,
+  status,
+  title,
+  subtitle,
+  date,
+  isLast = false,
+}: {
+  icon: React.ReactNode;
+  status: TimelineStatus;
+  title: string;
+  subtitle?: string;
+  date?: string;
+  isLast?: boolean;
+}) {
+  const s = STATUS_STYLES[status];
   return (
-    <div className="flex items-start justify-between gap-4 text-sm">
-      <span className="text-muted-foreground shrink-0">{label}</span>
-      <span className="text-foreground text-right">{value}</span>
-    </div>
+    <li className={`relative flex gap-4 ${isLast ? '' : 'pb-7'}`}>
+      {/* Dot */}
+      <div
+        className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${s.dot}`}
+      >
+        <span className={s.icon}>{icon}</span>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0 pt-1">
+        <p className="text-sm font-medium text-foreground leading-tight">{title}</p>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
+        )}
+        {date && (
+          <p className="text-xs text-muted-foreground/70 mt-1">{date}</p>
+        )}
+      </div>
+    </li>
   );
 }
