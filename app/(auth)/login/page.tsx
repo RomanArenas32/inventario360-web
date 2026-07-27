@@ -37,6 +37,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PhoneInput, formatPhone, type PhoneValue } from '@/components/ui/phone-input';
 
 const ERROR_MESSAGES: Record<string, string> = {
   no_account: 'No existe una cuenta asociada a este correo.',
@@ -44,12 +45,23 @@ const ERROR_MESSAGES: Record<string, string> = {
   google_failed: 'No se pudo autenticar con Google. Intentá de nuevo.',
 };
 
-type ContactForm = { name: string; email: string; phone: string; message: string };
-const EMPTY_CONTACT: ContactForm = { name: '', email: '', phone: '', message: '' };
+type ContactForm = { name: string; email: string; phone: PhoneValue; message: string };
+const EMPTY_CONTACT: ContactForm = {
+  name: '',
+  email: '',
+  phone: { countryCode: '+54', number: '' },
+  message: '',
+};
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<AuthSplitLayout><p className="text-center text-muted-foreground text-sm">Cargando...</p></AuthSplitLayout>}>
+    <Suspense
+      fallback={
+        <AuthSplitLayout>
+          <p className="text-center text-muted-foreground text-sm">Cargando...</p>
+        </AuthSplitLayout>
+      }
+    >
       <LoginContent />
     </Suspense>
   );
@@ -105,7 +117,7 @@ function LoginContent() {
     setContactLoading(true);
     setContactError('');
     try {
-      await api.post('/messages', contact);
+      await api.post('/messages', { ...contact, phone: formatPhone(contact.phone) || undefined });
       setContactSent(true);
     } catch (err: unknown) {
       setContactError(err instanceof Error ? err.message : 'Error al enviar');
@@ -237,10 +249,9 @@ function LoginContent() {
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1">Teléfono</Label>
-                  <Input
+                  <PhoneInput
                     value={contact.phone}
-                    onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                    placeholder="Ej: 2366-123456"
+                    onChange={(v) => setContact({ ...contact, phone: v })}
                   />
                 </div>
                 <div>

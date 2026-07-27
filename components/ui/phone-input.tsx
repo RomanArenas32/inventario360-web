@@ -52,7 +52,7 @@ export function PhoneInput({
   const selected = COUNTRIES.find((c) => c.code === value.countryCode) ?? COUNTRIES[0];
 
   return (
-    <div className="flex items-center rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <div className="flex items-center rounded-lg border border-input bg-transparent dark:bg-input/30 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm hover:bg-muted/50 rounded-l-md transition-colors focus:outline-none shrink-0">
           <span className="text-base leading-none">{selected.flag}</span>

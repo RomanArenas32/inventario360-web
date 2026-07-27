@@ -23,7 +23,13 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 export default function InvitationPage() {
   return (
-    <Suspense fallback={<AuthSplitLayout><p className="text-center text-muted-foreground text-sm">Cargando...</p></AuthSplitLayout>}>
+    <Suspense
+      fallback={
+        <AuthSplitLayout>
+          <p className="text-center text-muted-foreground text-sm">Cargando...</p>
+        </AuthSplitLayout>
+      }
+    >
       <InvitationContent />
     </Suspense>
   );
