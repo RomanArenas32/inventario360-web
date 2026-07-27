@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({ className, hideLabel }: { className?: string; hideLabel?: boolean }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -22,7 +22,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
       {isDark ? <Sun size={16} /> : <Moon size={16} />}
-      <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+      {!hideLabel && <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>}
     </Button>
   );
 }
