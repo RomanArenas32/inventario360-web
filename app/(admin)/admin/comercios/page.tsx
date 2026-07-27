@@ -17,7 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Building2, Mail, Trash2, PowerOff, Power } from 'lucide-react';
+import { Building2, Mail, Trash2, PowerOff, Power, Info } from 'lucide-react';
 import { PhoneInput, formatPhone, type PhoneValue } from '@/components/ui/phone-input';
 import {
   Dialog,
@@ -29,6 +29,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import {
   Table,
@@ -39,6 +46,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+type Invitation = {
+  email: string;
+  sentAt: string;
+  acceptedAt: string | null;
+  expiresAt: string;
+  expired: boolean;
+};
+
 type Tenant = {
   id: string;
   name: string;
@@ -47,8 +62,9 @@ type Tenant = {
   plan: string;
   isActive: boolean;
   isOnboarded: boolean;
-  user?: { name: string; email: string };
-  pendingInvitation: { email: string; expired: boolean } | null;
+  createdAt: string;
+  user?: { name: string; email: string } | null;
+  invitation: Invitation | null;
 };
 
 const PLAN_CONFIG: Record<string, { label: string; description: string }> = {
@@ -74,6 +90,11 @@ const DEFAULT_FORM = {
   phone: { countryCode: '+54', number: '' } as PhoneValue,
 };
 
+function formatDate(value: string | null | undefined) {
+  if (!value) return '—';
+  return new Date(value).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
 export default function ComerciosPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,6 +106,7 @@ export default function ComerciosPage() {
   const [deleting, setDeleting] = useState(false);
   const [toggleTarget, setToggleTarget] = useState<Tenant | null>(null);
   const [toggling, setToggling] = useState(false);
+  const [detailTenant, setDetailTenant] = useState<Tenant | null>(null);
 
   async function load() {
     setLoading(true);
@@ -204,21 +226,23 @@ export default function ComerciosPage() {
                         <div>{t.user.name}</div>
                         <div className="text-xs text-muted-foreground">{t.user.email}</div>
                       </>
-                    ) : t.pendingInvitation ? (
+                    ) : t.invitation ? (
                       <>
-                        <div className="text-xs text-muted-foreground">
-                          {t.pendingInvitation.email}
-                        </div>
+                        <div className="text-xs text-muted-foreground">{t.invitation.email}</div>
                         <Badge
                           className={
-                            t.pendingInvitation.expired
-                              ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 border-0 mt-1'
-                              : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0 mt-1'
+                            t.invitation.acceptedAt
+                              ? 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 border-0 mt-1'
+                              : t.invitation.expired
+                                ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 border-0 mt-1'
+                                : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0 mt-1'
                           }
                         >
-                          {t.pendingInvitation.expired
-                            ? 'Invitación expirada'
-                            : 'Invitación pendiente'}
+                          {t.invitation.acceptedAt
+                            ? 'Invitación aceptada'
+                            : t.invitation.expired
+                              ? 'Invitación expirada'
+                              : 'Invitación pendiente'}
                         </Badge>
                       </>
                     ) : (
@@ -255,7 +279,17 @@ export default function ComerciosPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDetailTenant(t)}
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        aria-label="Ver detalles"
+                        title="Ver detalles"
+                      >
+                        <Info size={14} />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -283,6 +317,100 @@ export default function ComerciosPage() {
           </Table>
         )}
       </Card>
+
+      {/* Detail sheet */}
+      <Sheet open={!!detailTenant} onOpenChange={(open) => { if (!open) setDetailTenant(null); }}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          {detailTenant && (
+            <>
+              <SheetHeader className="mb-6">
+                <SheetTitle>{detailTenant.name}</SheetTitle>
+                <SheetDescription>Información completa del comercio</SheetDescription>
+              </SheetHeader>
+
+              {/* Comercio */}
+              <section className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                  Comercio
+                </p>
+                <div className="space-y-2">
+                  <DetailRow label="Nombre" value={detailTenant.name} />
+                  <DetailRow
+                    label="Rubro"
+                    value={
+                      detailTenant.businessType
+                        ? (BUSINESS_TYPE_LABELS[detailTenant.businessType] ??
+                          detailTenant.businessType)
+                        : '—'
+                    }
+                  />
+                  <DetailRow label="Teléfono" value={detailTenant.phone ?? '—'} />
+                  <DetailRow
+                    label="Plan"
+                    value={
+                      detailTenant.plan.charAt(0).toUpperCase() + detailTenant.plan.slice(1)
+                    }
+                  />
+                  <DetailRow
+                    label="Estado"
+                    value={detailTenant.isActive ? 'Activo' : 'Inactivo'}
+                  />
+                  <DetailRow label="Creado el" value={formatDate(detailTenant.createdAt)} />
+                </div>
+              </section>
+
+              <Separator className="mb-6" />
+
+              {/* Invitación */}
+              <section className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                  Invitación
+                </p>
+                {detailTenant.invitation ? (
+                  <div className="space-y-2">
+                    <DetailRow label="Email" value={detailTenant.invitation.email} />
+                    <DetailRow
+                      label="Enviada el"
+                      value={formatDate(detailTenant.invitation.sentAt)}
+                    />
+                    <DetailRow
+                      label="Vence el"
+                      value={formatDate(detailTenant.invitation.expiresAt)}
+                    />
+                    <DetailRow
+                      label="Aceptada el"
+                      value={
+                        detailTenant.invitation.acceptedAt
+                          ? formatDate(detailTenant.invitation.acceptedAt)
+                          : detailTenant.invitation.expired
+                            ? 'Expirada'
+                            : 'Pendiente'
+                      }
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Sin invitación registrada.</p>
+                )}
+              </section>
+
+              {detailTenant.user && (
+                <>
+                  <Separator className="mb-6" />
+                  <section>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                      Dueño
+                    </p>
+                    <div className="space-y-2">
+                      <DetailRow label="Nombre" value={detailTenant.user.name} />
+                      <DetailRow label="Email" value={detailTenant.user.email} />
+                    </div>
+                  </section>
+                </>
+              )}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* Diálogo desactivar / reactivar */}
       <AlertDialog
@@ -473,6 +601,15 @@ export default function ComerciosPage() {
           </form>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 text-sm">
+      <span className="text-muted-foreground shrink-0">{label}</span>
+      <span className="text-foreground text-right">{value}</span>
     </div>
   );
 }

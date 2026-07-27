@@ -1,13 +1,27 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { SlidersHorizontal, Layers2, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
 
 type Message = {
   id: string;
@@ -50,7 +64,53 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const STATUSES = Object.entries(STATUS_LABELS);
+
+type GroupBy = 'status' | 'date' | 'isUser';
+type IsUserFilter = 'all' | 'client' | 'non-client';
+
+const GROUP_LABELS: Record<GroupBy, string> = {
+  status: 'Estado',
+  date: 'Fecha',
+  isUser: 'Tipo',
+};
+
+const ISUSER_LABELS: Record<IsUserFilter, string> = {
+  all: 'Todos',
+  client: 'Clientes',
+  'non-client': 'No clientes',
+};
+
 const PAGE_SIZE = 20;
+
+function getDateBucket(dateStr: string): string {
+  const msgDate = new Date(dateStr);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86_400_000);
+  const weekAgo = new Date(today.getTime() - 7 * 86_400_000);
+  const d = new Date(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate());
+  if (d.getTime() === today.getTime()) return 'Hoy';
+  if (d.getTime() === yesterday.getTime()) return 'Ayer';
+  if (d >= weekAgo) return 'Esta semana';
+  return 'Antes';
+}
+
+function groupMessages(msgs: Message[], by: GroupBy): [string, Message[]][] {
+  const map = new Map<string, Message[]>();
+  for (const m of msgs) {
+    const key =
+      by === 'status'
+        ? (STATUS_LABELS[m.status]?.label ?? m.status)
+        : by === 'date'
+          ? getDateBucket(m.createdAt)
+          : m.isUser
+            ? 'Clientes'
+            : 'No clientes';
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(m);
+  }
+  return Array.from(map.entries());
+}
 
 export default function MensajesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -58,29 +118,34 @@ export default function MensajesPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
-  const [filter, setFilter] = useState('');
+
+  // Filtros (servidor)
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  // Filtros (cliente)
+  const [isUserFilter, setIsUserFilter] = useState<IsUserFilter>('all');
+  // Agrupamiento (cliente)
+  const [groupBy, setGroupBy] = useState<GroupBy | 'none'>('none');
+
   const [selected, setSelected] = useState<Message | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const filterRef = useRef(filter);
-
+  const statusFiltersRef = useRef(statusFilters);
   useEffect(() => {
-    filterRef.current = filter;
-  }, [filter]);
+    statusFiltersRef.current = statusFilters;
+  }, [statusFilters]);
 
-  const buildPath = useCallback((status: string, off: number) => {
+  const buildPath = useCallback((statuses: string[], off: number) => {
     const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(off) });
-    if (status) params.set('status', status);
+    statuses.forEach((s) => params.append('status', s));
     return `/messages?${params.toString()}`;
   }, []);
 
-  // Carga inicial o al cambiar filtro
-  async function loadFirst(status: string) {
+  async function loadFirst(statuses: string[]) {
     setLoading(true);
     try {
-      const result = await api.get<PaginatedResult>(buildPath(status, 0));
+      const result = await api.get<PaginatedResult>(buildPath(statuses, 0));
       setMessages(result.data);
       setHasMore(result.hasMore);
       setOffset(result.data.length);
@@ -89,12 +154,11 @@ export default function MensajesPage() {
     }
   }
 
-  // Carga siguiente página
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
     try {
-      const result = await api.get<PaginatedResult>(buildPath(filterRef.current, offset));
+      const result = await api.get<PaginatedResult>(buildPath(statusFiltersRef.current, offset));
       setMessages((prev) => [...prev, ...result.data]);
       setHasMore(result.hasMore);
       setOffset((prev) => prev + result.data.length);
@@ -107,11 +171,10 @@ export default function MensajesPage() {
     setMessages([]);
     setOffset(0);
     setHasMore(true);
-    void loadFirst(filter);
+    void loadFirst(statusFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  }, [statusFilters]);
 
-  // IntersectionObserver sobre el sentinel al pie de la lista
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
@@ -124,6 +187,47 @@ export default function MensajesPage() {
     observer.observe(el);
     return () => observer.disconnect();
   }, [loadMore]);
+
+  // Mensajes visibles después de filtros cliente
+  const visible = useMemo(() => {
+    if (isUserFilter === 'all') return messages;
+    return messages.filter((m) => (isUserFilter === 'client' ? m.isUser : !m.isUser));
+  }, [messages, isUserFilter]);
+
+  // Agrupados
+  const grouped = useMemo(
+    () => (groupBy !== 'none' ? groupMessages(visible, groupBy as GroupBy) : null),
+    [visible, groupBy],
+  );
+
+  // Chips activos
+  const chips = [
+    ...statusFilters.map((s) => ({
+      key: `status:${s}`,
+      label: STATUS_LABELS[s]?.label,
+      onRemove: () => setStatusFilters((prev) => prev.filter((x) => x !== s)),
+    })),
+    ...(isUserFilter !== 'all'
+      ? [
+          {
+            key: 'isUser',
+            label: ISUSER_LABELS[isUserFilter],
+            onRemove: () => setIsUserFilter('all'),
+          },
+        ]
+      : []),
+    ...(groupBy !== 'none'
+      ? [
+          {
+            key: 'group',
+            label: `Agrupado: ${GROUP_LABELS[groupBy as GroupBy]}`,
+            onRemove: () => setGroupBy('none'),
+          },
+        ]
+      : []),
+  ];
+
+  const hasFilters = statusFilters.length > 0 || isUserFilter !== 'all';
 
   function openMessage(msg: Message) {
     setSelected(msg);
@@ -141,15 +245,13 @@ export default function MensajesPage() {
       const updated = await api.patch<Message>(`/messages/${id}`, patch);
       setMessages((prev) => prev.map((m) => (m.id === id ? updated : m)));
       setSelected(updated);
-      if ('notes' in patch) {
-        toast.success('Notas guardadas');
-      } else if ('status' in patch) {
+      if ('notes' in patch) toast.success('Notas guardadas');
+      else if ('status' in patch)
         toast.success(
           `Estado actualizado a ${STATUS_LABELS[patch.status!]?.label ?? patch.status}`,
         );
-      } else if ('isUser' in patch) {
+      else if ('isUser' in patch)
         toast.success(patch.isUser ? 'Marcado como cliente' : 'Desmarcado como cliente');
-      }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Error al actualizar');
     } finally {
@@ -174,40 +276,162 @@ export default function MensajesPage() {
     await handleUpdate(selected.id, { notes });
   }
 
+  function MessageRow({ msg }: { msg: Message }) {
+    return (
+      <Button
+        key={msg.id}
+        variant="ghost"
+        onClick={() => openMessage(msg)}
+        className={`w-full justify-start h-auto rounded-none px-4 py-3 ${selected?.id === msg.id ? 'bg-muted/60' : ''}`}
+      >
+        <div className="flex items-start justify-between gap-2 w-full">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span
+                className={`font-medium text-sm ${msg.status === 'pending' ? 'text-foreground' : 'text-foreground/80'}`}
+              >
+                {msg.name}
+              </span>
+              {msg.isUser && (
+                <Badge className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-0">
+                  Cliente
+                </Badge>
+              )}
+              {msg.status === 'pending' && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground truncate">{msg.email}</p>
+            <p className="text-xs text-muted-foreground/70 mt-0.5 truncate">{msg.message}</p>
+          </div>
+          <div className="flex-shrink-0 text-right">
+            <Badge className={`${STATUS_LABELS[msg.status]?.color ?? ''} border-0`}>
+              {STATUS_LABELS[msg.status]?.label}
+            </Badge>
+            <p className="text-xs text-muted-foreground/50 mt-1">
+              {new Date(msg.createdAt).toLocaleDateString('es-AR')}
+            </p>
+          </div>
+        </div>
+      </Button>
+    );
+  }
+
   return (
     <div className="flex gap-4 h-full">
       {/* Lista */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Mensajes</h1>
-            <p className="text-muted-foreground mt-0.5 text-sm">
-              Solicitudes de acceso y consultas
-            </p>
-          </div>
+        {/* Header */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-foreground">Mensajes</h1>
+          <p className="text-muted-foreground mt-0.5 text-sm">Solicitudes de acceso y consultas</p>
         </div>
 
-        {/* Filtros */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          <Button
-            size="sm"
-            variant={filter === '' ? 'default' : 'outline'}
-            onClick={() => setFilter('')}
-          >
-            Todos
-          </Button>
-          {STATUSES.map(([key, { label }]) => (
-            <Button
-              key={key}
-              size="sm"
-              variant={filter === key ? 'default' : 'outline'}
-              onClick={() => setFilter(key)}
+        {/* Toolbar */}
+        <div className={`flex items-center gap-2 ${chips.length > 0 ? 'mb-2' : 'mb-4'} flex-wrap`}>
+          {/* Filtrar */}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm' }),
+                'gap-1.5',
+                hasFilters && 'border-primary text-primary',
+              )}
             >
-              {label}
-            </Button>
-          ))}
+              <SlidersHorizontal size={13} />
+              Filtrar
+              {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Estado</DropdownMenuLabel>
+                {STATUSES.map(([key, { label }]) => (
+                  <DropdownMenuCheckboxItem
+                    key={key}
+                    checked={statusFilters.includes(key)}
+                    onCheckedChange={(checked) =>
+                      setStatusFilters((prev) =>
+                        checked ? [...prev, key] : prev.filter((s) => s !== key),
+                      )
+                    }
+                  >
+                    {label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup
+                value={isUserFilter}
+                onValueChange={(v) => setIsUserFilter(v as IsUserFilter)}
+              >
+                <DropdownMenuLabel>Tipo de contacto</DropdownMenuLabel>
+                <DropdownMenuRadioItem value="all">Todos</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="client">Clientes</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="non-client">No clientes</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Agrupar */}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm' }),
+                'gap-1.5',
+                groupBy !== 'none' && 'border-primary text-primary',
+              )}
+            >
+              <Layers2 size={13} />
+              Agrupar
+              {groupBy !== 'none' && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44">
+              <DropdownMenuRadioGroup
+                value={groupBy}
+                onValueChange={(v) => setGroupBy(v as GroupBy | 'none')}
+              >
+                <DropdownMenuLabel>Agrupar por</DropdownMenuLabel>
+                <DropdownMenuRadioItem value="none">Sin agrupar</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="status">Estado</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="date">Fecha</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="isUser">Tipo</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
+        {/* Chips activos — segunda fila */}
+        {chips.length > 0 && (
+          <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+            {chips.map((chip) => (
+              <Badge
+                key={chip.key}
+                variant="secondary"
+                className="gap-1 pl-2.5 pr-1.5 py-1 text-xs font-normal"
+              >
+                {chip.label}
+                <button
+                  onClick={chip.onRemove}
+                  className="rounded-sm opacity-60 hover:opacity-100 transition-opacity"
+                >
+                  <X size={11} />
+                </button>
+              </Badge>
+            ))}
+            <button
+              onClick={() => {
+                setStatusFilters([]);
+                setIsUserFilter('all');
+                setGroupBy('none');
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-1 hover:cursor-pointer"
+            >
+              Limpiar todo
+            </button>
+          </div>
+        )}
+
+        {/* Lista de mensajes */}
         <Card className="p-0 overflow-hidden shadow-sm">
           {loading ? (
             <div className="divide-y divide-border">
@@ -228,52 +452,34 @@ export default function MensajesPage() {
                 </div>
               ))}
             </div>
-          ) : messages.length === 0 ? (
+          ) : visible.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground text-sm">No hay mensajes.</div>
+          ) : grouped ? (
+            <div className="divide-y divide-border">
+              {grouped.map(([group, msgs]) => (
+                <div key={group}>
+                  <div className="px-4 py-2 flex items-center gap-2 bg-muted/40 border-b border-border">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      {group}
+                    </span>
+                    <span className="text-xs text-muted-foreground/50">({msgs.length})</span>
+                  </div>
+                  {msgs.map((msg) => (
+                    <MessageRow key={msg.id} msg={msg} />
+                  ))}
+                </div>
+              ))}
+              <div ref={sentinelRef} className="py-2 flex justify-center">
+                {loadingMore && (
+                  <span className="text-xs text-muted-foreground">Cargando más...</span>
+                )}
+              </div>
+            </div>
           ) : (
             <div className="divide-y divide-border">
-              {messages.map((msg) => (
-                <Button
-                  key={msg.id}
-                  variant="ghost"
-                  onClick={() => openMessage(msg)}
-                  className={`w-full justify-start h-auto rounded-none px-4 py-3 ${selected?.id === msg.id ? 'bg-muted/60' : ''}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`font-medium text-sm ${msg.status === 'pending' ? 'text-foreground' : 'text-foreground/80'}`}
-                        >
-                          {msg.name}
-                        </span>
-                        {msg.isUser && (
-                          <Badge className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-0">
-                            Cliente
-                          </Badge>
-                        )}
-                        {msg.status === 'pending' && (
-                          <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate">{msg.email}</p>
-                      <p className="text-xs text-muted-foreground/70 mt-0.5 truncate">
-                        {msg.message}
-                      </p>
-                    </div>
-                    <div className="flex-shrink-0 text-right">
-                      <Badge className={`${STATUS_LABELS[msg.status]?.color ?? ''} border-0`}>
-                        {STATUS_LABELS[msg.status]?.label}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground/50 mt-1">
-                        {new Date(msg.createdAt).toLocaleDateString('es-AR')}
-                      </p>
-                    </div>
-                  </div>
-                </Button>
+              {visible.map((msg) => (
+                <MessageRow key={msg.id} msg={msg} />
               ))}
-
-              {/* Sentinel para IntersectionObserver */}
               <div ref={sentinelRef} className="py-2 flex justify-center">
                 {loadingMore && (
                   <span className="text-xs text-muted-foreground">Cargando más...</span>
@@ -307,7 +513,6 @@ export default function MensajesPage() {
             <p className="text-foreground/80 text-sm leading-relaxed">{selected.message}</p>
           </div>
 
-          {/* Estado */}
           <div>
             <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">
               Estado
@@ -329,7 +534,6 @@ export default function MensajesPage() {
             </div>
           </div>
 
-          {/* Es cliente */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
               ¿Es cliente?
@@ -343,7 +547,6 @@ export default function MensajesPage() {
             </Button>
           </div>
 
-          {/* Notas */}
           <div>
             <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">
               Notas internas
