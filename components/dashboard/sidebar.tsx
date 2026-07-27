@@ -107,10 +107,15 @@ export default function Sidebar() {
       return (
         <div className="px-5 py-5 border-b border-sidebar-border">
           <div className="flex items-center gap-2 mb-1">
-            <Image src="/logos/logo-color.svg" alt="Inventario360" width={16} height={16} className="size-8 shrink-0" unoptimized />
-            <p className="text-xs text-sidebar-foreground/50 tracking-widest">
-              Inventario360
-            </p>
+            <Image
+              src="/logos/logo-color.svg"
+              alt="Inventario360"
+              width={16}
+              height={16}
+              className="size-8 shrink-0"
+              unoptimized
+            />
+            <p className="text-xs text-sidebar-foreground/50 tracking-widest">Inventario360</p>
           </div>
           <h1 className="text-base font-bold text-sidebar-foreground leading-tight pl-7">
             {data?.activeTenantName ?? '—'}
@@ -123,7 +128,14 @@ export default function Sidebar() {
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full text-left px-5 py-5 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors outline-none">
           <div className="flex items-center gap-2 mb-1">
-            <Image src="/logos/logo-color.svg" alt="Inventario360" width={16} height={16} className="size-8 shrink-0" unoptimized />
+            <Image
+              src="/logos/logo-color.svg"
+              alt="Inventario360"
+              width={16}
+              height={16}
+              className="size-8 shrink-0"
+              unoptimized
+            />
             <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest">
               Inventario360
             </p>
@@ -138,10 +150,7 @@ export default function Sidebar() {
         <DropdownMenuContent side="bottom" align="start" sideOffset={0}>
           <DropdownMenuLabel>Negocios</DropdownMenuLabel>
           {data?.allTenants.map((t) => (
-            <DropdownMenuItem
-              key={t.id}
-              onClick={() => void handleSwitchTenant(t.id, onClose)}
-            >
+            <DropdownMenuItem key={t.id} onClick={() => void handleSwitchTenant(t.id, onClose)}>
               <span className="flex items-center gap-2 flex-1 min-w-0">
                 <Check
                   size={12}
@@ -161,7 +170,14 @@ export default function Sidebar() {
 
   const collapsedHeader = (
     <div className="flex justify-center py-5 border-b border-sidebar-border">
-      <Image src="/logos/logo-color.svg" alt="Inventario360" width={16} height={16} className="w-4 h-4" unoptimized />
+      <Image
+        src="/logos/logo-color.svg"
+        alt="Inventario360"
+        width={16}
+        height={16}
+        className="w-4 h-4"
+        unoptimized
+      />
     </div>
   );
 
@@ -178,10 +194,13 @@ export default function Sidebar() {
       }`}
     >
       {data?.avatarUrl ? (
-        <img
+        <Image
           src={data.avatarUrl}
           alt={data.userName}
+          width={20}
+          height={20}
           className="w-5 h-5 rounded-full object-cover shrink-0"
+          unoptimized
         />
       ) : (
         <User size={16} />
@@ -195,9 +214,7 @@ export default function Sidebar() {
       <p className="text-[10px] text-sidebar-foreground/50 uppercase tracking-widest leading-none">
         Inventario360
       </p>
-      <h1 className="text-sm font-bold text-sidebar-foreground">
-        {data?.activeTenantName ?? '—'}
-      </h1>
+      <h1 className="text-sm font-bold text-sidebar-foreground">{data?.activeTenantName ?? '—'}</h1>
     </>
   );
 

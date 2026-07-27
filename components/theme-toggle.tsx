@@ -29,10 +29,11 @@ export function ThemeToggle({
       className={className}
       title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
-      {isDark
-        ? <Sun size={iconSize} style={{ width: iconSize, height: iconSize }} />
-        : <Moon size={iconSize} style={{ width: iconSize, height: iconSize }} />
-      }
+      {isDark ? (
+        <Sun size={iconSize} style={{ width: iconSize, height: iconSize }} />
+      ) : (
+        <Moon size={iconSize} style={{ width: iconSize, height: iconSize }} />
+      )}
       {!hideLabel && <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>}
     </Button>
   );

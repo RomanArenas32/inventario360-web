@@ -22,13 +22,13 @@ import {
 } from 'lucide-react';
 
 const BUSINESS_TYPES = [
-  { value: 'almacen',            label: 'Almacén',      icon: '🛒', desc: 'Minimercado' },
-  { value: 'kiosco',             label: 'Kiosco',        icon: '🗞️', desc: 'Revistas y más' },
-  { value: 'ferreteria',         label: 'Ferretería',    icon: '🔧', desc: 'Materiales' },
-  { value: 'barberia',           label: 'Barbería',      icon: '✂️', desc: 'Estética' },
-  { value: 'restaurante',        label: 'Restaurante',   icon: '🍽️', desc: 'Gastronomía' },
-  { value: 'tienda_ropa',        label: 'Indumentaria',  icon: '👗', desc: 'Moda' },
-  { value: 'tienda_electronica', label: 'Electrónica',   icon: '💻', desc: 'Tecnología' },
+  { value: 'almacen', label: 'Almacén', icon: '🛒', desc: 'Minimercado' },
+  { value: 'kiosco', label: 'Kiosco', icon: '🗞️', desc: 'Revistas y más' },
+  { value: 'ferreteria', label: 'Ferretería', icon: '🔧', desc: 'Materiales' },
+  { value: 'barberia', label: 'Barbería', icon: '✂️', desc: 'Estética' },
+  { value: 'restaurante', label: 'Restaurante', icon: '🍽️', desc: 'Gastronomía' },
+  { value: 'tienda_ropa', label: 'Indumentaria', icon: '👗', desc: 'Moda' },
+  { value: 'tienda_electronica', label: 'Electrónica', icon: '💻', desc: 'Tecnología' },
 ];
 
 const STEP_META = [
@@ -59,15 +59,17 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    void api.get<{ tenant: { name: string; phone: string | null } | null }>('/auth/me').then((me) => {
-      if (me.tenant) {
-        setFormData((d) => ({
-          ...d,
-          businessName: me.tenant!.name ?? '',
-          phone: parsePhone(me.tenant!.phone ?? ''),
-        }));
-      }
-    });
+    void api
+      .get<{ tenant: { name: string; phone: string | null } | null }>('/auth/me')
+      .then((me) => {
+        if (me.tenant) {
+          setFormData((d) => ({
+            ...d,
+            businessName: me.tenant!.name ?? '',
+            phone: parsePhone(me.tenant!.phone ?? ''),
+          }));
+        }
+      });
   }, []);
   const [error, setError] = useState('');
 
@@ -102,8 +104,7 @@ export default function OnboardingPage() {
   }
 
   const canAdvance =
-    (step === 1 && !!formData.businessType) ||
-    (step === 2 && !!formData.businessName.trim());
+    (step === 1 && !!formData.businessType) || (step === 2 && !!formData.businessName.trim());
 
   return (
     <div className="min-h-screen flex">
@@ -125,11 +126,22 @@ export default function OnboardingPage() {
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-2.5">
-          <Image src="/logos/marca2-white.svg" alt="Inventario360" width={200} height={60} className="h-40" style={{ width: 'auto' }} unoptimized />
+          <Image
+            src="/logos/marca2-white.svg"
+            alt="Inventario360"
+            width={200}
+            height={60}
+            className="h-40"
+            style={{ width: 'auto' }}
+            unoptimized
+          />
         </div>
 
         {/* Título dinámico por paso */}
-        <div key={step} className="relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div
+          key={step}
+          className="relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500"
+        >
           <h2 className="text-white text-4xl font-bold leading-tight mb-4 whitespace-pre-line">
             {meta.title}
           </h2>
@@ -176,8 +188,8 @@ export default function OnboardingPage() {
                       done
                         ? 'bg-primary text-primary-foreground'
                         : active
-                        ? 'bg-primary/10 text-primary border-2 border-primary'
-                        : 'bg-muted text-muted-foreground'
+                          ? 'bg-primary/10 text-primary border-2 border-primary'
+                          : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     {done ? <CheckCircle2 size={15} /> : n}
@@ -195,7 +207,10 @@ export default function OnboardingPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle hideLabel className="h-8 w-8 text-muted-foreground hover:text-foreground" />
+            <ThemeToggle
+              hideLabel
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            />
             <Button
               variant="ghost"
               onClick={() => void handleLogout()}
@@ -255,22 +270,19 @@ export default function OnboardingPage() {
                   <span className="text-2xl">{selectedType?.icon}</span>
                   <h1 className="text-2xl font-bold text-foreground">Datos de tu negocio</h1>
                 </div>
-                <p className="text-muted-foreground text-sm mb-7">
+                <p className="text-muted-foreground text-sm mb-5 sm:mb-7">
                   Podés actualizar esto más tarde desde tu perfil
                 </p>
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="businessName">
-                      Nombre del negocio{' '}
-                      <span className="text-destructive">*</span>
+                      Nombre del negocio <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="businessName"
                       placeholder={`Ej: Mi ${selectedType?.label ?? 'Negocio'}`}
                       value={formData.businessName}
-                      onChange={(e) =>
-                        setFormData((d) => ({ ...d, businessName: e.target.value }))
-                      }
+                      onChange={(e) => setFormData((d) => ({ ...d, businessName: e.target.value }))}
                       autoFocus
                     />
                   </div>
@@ -290,35 +302,36 @@ export default function OnboardingPage() {
 
             {/* Paso 3 — Confirmación */}
             {step === 3 && (
-              <div
-                key="step-3"
-                className="animate-in fade-in zoom-in-95 duration-300 text-center"
-              >
+              <div key="step-3" className="animate-in fade-in zoom-in-95 duration-300 text-center">
                 <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5">
                   <CheckCircle2 size={38} className="text-primary" />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">¡Todo configurado!</h1>
-                <p className="text-muted-foreground text-sm mb-7">
+                <p className="text-muted-foreground text-sm mb-5 sm:mb-7">
                   Tu cuenta está lista. Aquí un resumen de lo que guardamos:
                 </p>
 
-                <div className="bg-muted/50 border border-border rounded-xl p-5 text-left space-y-3 mb-7">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tipo de negocio</span>
-                    <span className="font-medium text-foreground">
+                <div className="bg-muted/50 border border-border rounded-xl p-4 sm:p-5 text-left space-y-3 mb-5 sm:mb-7">
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="text-muted-foreground shrink-0">Tipo de negocio</span>
+                    <span className="font-medium text-foreground text-right">
                       {selectedType?.icon} {selectedType?.label}
                     </span>
                   </div>
                   {formData.businessName && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Nombre</span>
-                      <span className="font-medium text-foreground">{formData.businessName}</span>
+                    <div className="flex justify-between gap-3 text-sm">
+                      <span className="text-muted-foreground shrink-0">Nombre</span>
+                      <span className="font-medium text-foreground text-right truncate">
+                        {formData.businessName}
+                      </span>
                     </div>
                   )}
                   {formData.phone.number && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Teléfono</span>
-                      <span className="font-medium text-foreground">{formatPhone(formData.phone)}</span>
+                    <div className="flex justify-between gap-3 text-sm">
+                      <span className="text-muted-foreground shrink-0">Teléfono</span>
+                      <span className="font-medium text-foreground text-right">
+                        {formatPhone(formData.phone)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -345,7 +358,11 @@ export default function OnboardingPage() {
               </Button>
 
               {step < TOTAL_STEPS ? (
-                <Button onClick={() => setStep((s) => s + 1)} disabled={!canAdvance} className="gap-2">
+                <Button
+                  onClick={() => setStep((s) => s + 1)}
+                  disabled={!canAdvance}
+                  className="gap-2"
+                >
                   Siguiente
                   <ArrowRight size={15} />
                 </Button>

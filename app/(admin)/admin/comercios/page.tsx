@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Building2, Mail, Trash2, PowerOff, Power } from 'lucide-react';
-import { PhoneInput, formatPhone, parsePhone, type PhoneValue } from '@/components/ui/phone-input';
+import { PhoneInput, formatPhone, type PhoneValue } from '@/components/ui/phone-input';
 import {
   Dialog,
   DialogContent,
@@ -202,7 +202,9 @@ export default function ComerciosPage() {
                       </>
                     ) : t.pendingInvitation ? (
                       <>
-                        <div className="text-xs text-muted-foreground">{t.pendingInvitation.email}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {t.pendingInvitation.email}
+                        </div>
                         <Badge
                           className={
                             t.pendingInvitation.expired
@@ -210,7 +212,9 @@ export default function ComerciosPage() {
                               : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0 mt-1'
                           }
                         >
-                          {t.pendingInvitation.expired ? 'Invitación expirada' : 'Invitación pendiente'}
+                          {t.pendingInvitation.expired
+                            ? 'Invitación expirada'
+                            : 'Invitación pendiente'}
                         </Badge>
                       </>
                     ) : (
@@ -279,7 +283,9 @@ export default function ComerciosPage() {
       {/* Diálogo desactivar / reactivar */}
       <AlertDialog
         open={!!toggleTarget}
-        onOpenChange={(open) => { if (!open) setToggleTarget(null); }}
+        onOpenChange={(open) => {
+          if (!open) setToggleTarget(null);
+        }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -304,8 +310,12 @@ export default function ComerciosPage() {
               }
             >
               {toggling
-                ? toggleTarget?.isActive ? 'Desactivando...' : 'Reactivando...'
-                : toggleTarget?.isActive ? 'Desactivar' : 'Reactivar'}
+                ? toggleTarget?.isActive
+                  ? 'Desactivando...'
+                  : 'Reactivando...'
+                : toggleTarget?.isActive
+                  ? 'Desactivar'
+                  : 'Reactivar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -361,7 +371,10 @@ export default function ComerciosPage() {
             {/* Datos del comercio */}
             <div className="space-y-3">
               <div className="relative">
-                <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Building2
+                  size={15}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   required
                   value={form.businessName}
@@ -370,10 +383,7 @@ export default function ComerciosPage() {
                   className="pl-9"
                 />
               </div>
-              <PhoneInput
-                value={form.phone}
-                onChange={(v) => setForm({ ...form, phone: v })}
-              />
+              <PhoneInput value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
             </div>
 
             {/* Selección de plan */}
@@ -381,7 +391,10 @@ export default function ComerciosPage() {
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Plan
               </Label>
-              <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${Object.values(Plan).length}, 1fr)` }}>
+              <div
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `repeat(${Object.values(Plan).length}, 1fr)` }}
+              >
                 {Object.values(Plan).map((p) => {
                   const config = PLAN_CONFIG[p] ?? { label: p, description: '' };
                   const selected = form.plan === p;
@@ -395,10 +408,14 @@ export default function ComerciosPage() {
                           : 'hover:border-muted-foreground/40'
                       }`}
                     >
-                      <div className={`text-sm font-semibold ${selected ? 'text-primary' : 'text-foreground'}`}>
+                      <div
+                        className={`text-sm font-semibold ${selected ? 'text-primary' : 'text-foreground'}`}
+                      >
                         {config.label}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{config.description}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {config.description}
+                      </div>
                     </Card>
                   );
                 })}
@@ -414,7 +431,10 @@ export default function ComerciosPage() {
                   Dueño del comercio
                 </p>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Mail
+                    size={15}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     required
                     type="email"

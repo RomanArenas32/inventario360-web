@@ -266,6 +266,14 @@ export const OnboardingDtoSchema = {
                     $ref: '#/components/schemas/BusinessType'
                 }
             ]
+        },
+        businessName: {
+            type: 'string',
+            maxLength: 100
+        },
+        phone: {
+            type: 'string',
+            maxLength: 30
         }
     },
     required: [

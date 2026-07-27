@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 import AuthSplitLayout from '@/components/auth/auth-split-layout';
 import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -22,6 +22,14 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 export default function InvitationPage() {
+  return (
+    <Suspense fallback={<AuthSplitLayout><p className="text-center text-muted-foreground text-sm">Cargando...</p></AuthSplitLayout>}>
+      <InvitationContent />
+    </Suspense>
+  );
+}
+
+function InvitationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
@@ -72,8 +80,8 @@ export default function InvitationPage() {
             <h1 className="text-2xl font-bold text-foreground">Activá tu cuenta</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Fuiste invitado a{' '}
-              <span className="font-medium text-foreground">{info?.tenantName}</span>. Usá tu
-              cuenta de Google para continuar.
+              <span className="font-medium text-foreground">{info?.tenantName}</span>. Usá tu cuenta
+              de Google para continuar.
             </p>
           </div>
 

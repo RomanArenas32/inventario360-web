@@ -31,7 +31,11 @@ export default function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
       <div className="flex items-center justify-center p-8 bg-background relative">
         <div className="absolute top-4 right-4">
           {/* Mobile: solo ícono grande */}
-          <ThemeToggle hideLabel iconSize={32} className="lg:hidden text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors" />
+          <ThemeToggle
+            hideLabel
+            iconSize={32}
+            className="lg:hidden text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-muted transition-colors"
+          />
           {/* Desktop: ícono + label */}
           <ThemeToggle className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors" />
         </div>

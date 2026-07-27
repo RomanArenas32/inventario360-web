@@ -85,7 +85,9 @@ export default function MensajesPage() {
       if ('notes' in patch) {
         toast.success('Notas guardadas');
       } else if ('status' in patch) {
-        toast.success(`Estado actualizado a ${STATUS_LABELS[patch.status!]?.label ?? patch.status}`);
+        toast.success(
+          `Estado actualizado a ${STATUS_LABELS[patch.status!]?.label ?? patch.status}`,
+        );
       } else if ('isUser' in patch) {
         toast.success(patch.isUser ? 'Marcado como cliente' : 'Desmarcado como cliente');
       }

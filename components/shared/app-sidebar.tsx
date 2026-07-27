@@ -99,7 +99,14 @@ export function AppSidebar({
         collapsed ? 'justify-center px-2' : 'gap-3 px-3'
       }`}
     >
-      <span style={{ display: 'block', transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 300ms ease-in-out' }} className="shrink-0">
+      <span
+        style={{
+          display: 'block',
+          transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 300ms ease-in-out',
+        }}
+        className="shrink-0"
+      >
         <PanelLeftClose size={15} />
       </span>
       <span

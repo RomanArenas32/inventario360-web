@@ -88,10 +88,7 @@ export default function DashboardPage() {
 
       {lowStock.length > 0 && (
         <div className="mt-6 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
-          <AlertTriangle
-            size={16}
-            className="text-amber-500 shrink-0 mt-0.5"
-          />
+          <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
               Alerta: {lowStock.length} producto{lowStock.length !== 1 ? 's' : ''} con stock bajo

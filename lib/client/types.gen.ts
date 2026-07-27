@@ -81,6 +81,8 @@ export type LoginDto = {
 
 export type OnboardingDto = {
     businessType: BusinessType;
+    businessName?: string;
+    phone?: string;
 };
 
 export type AddMemberDto = {

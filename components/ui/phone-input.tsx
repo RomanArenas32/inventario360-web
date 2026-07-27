@@ -9,11 +9,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export const COUNTRIES = [
-  { code: '+54',  flag: '🇦🇷', name: 'Argentina' },
+  { code: '+54', flag: '🇦🇷', name: 'Argentina' },
   { code: '+591', flag: '🇧🇴', name: 'Bolivia' },
-  { code: '+56',  flag: '🇨🇱', name: 'Chile' },
+  { code: '+56', flag: '🇨🇱', name: 'Chile' },
   { code: '+595', flag: '🇵🇾', name: 'Paraguay' },
-  { code: '+51',  flag: '🇵🇪', name: 'Perú' },
+  { code: '+51', flag: '🇵🇪', name: 'Perú' },
   { code: '+598', flag: '🇺🇾', name: 'Uruguay' },
 ] as const;
 
@@ -44,7 +44,11 @@ interface PhoneInputProps {
   placeholder?: string;
 }
 
-export function PhoneInput({ value, onChange, placeholder = 'Número de teléfono' }: PhoneInputProps) {
+export function PhoneInput({
+  value,
+  onChange,
+  placeholder = 'Número de teléfono',
+}: PhoneInputProps) {
   const selected = COUNTRIES.find((c) => c.code === value.countryCode) ?? COUNTRIES[0];
 
   return (
