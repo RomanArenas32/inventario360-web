@@ -385,21 +385,20 @@ export default function ComerciosPage() {
                   const config = PLAN_CONFIG[p] ?? { label: p, description: '' };
                   const selected = form.plan === p;
                   return (
-                    <button
+                    <Card
                       key={p}
-                      type="button"
                       onClick={() => setForm({ ...form, plan: p })}
-                      className={`rounded-lg border px-3 py-2.5 text-left transition-all ${
+                      className={`cursor-pointer px-3 py-2.5 transition-all ${
                         selected
-                          ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                          : 'border-border bg-card hover:border-muted-foreground/40'
+                          ? 'border-primary ring-1 ring-primary bg-primary/5'
+                          : 'hover:border-muted-foreground/40'
                       }`}
                     >
                       <div className={`text-sm font-semibold ${selected ? 'text-primary' : 'text-foreground'}`}>
                         {config.label}
                       </div>
                       <div className="text-xs text-muted-foreground mt-0.5">{config.description}</div>
-                    </button>
+                    </Card>
                   );
                 })}
               </div>
