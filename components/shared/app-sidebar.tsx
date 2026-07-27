@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { LogOut, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { LogOut, Menu, PanelLeftClose } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -53,7 +53,7 @@ function NavLinks({
                 : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
             }`}
           >
-            <Icon size={16} className="shrink-0" />
+            <Icon size={16} />
             <span
               style={{
                 maxWidth: collapsed ? 0 : 160,

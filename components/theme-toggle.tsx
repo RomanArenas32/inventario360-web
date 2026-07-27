@@ -5,7 +5,15 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-export function ThemeToggle({ className, hideLabel }: { className?: string; hideLabel?: boolean }) {
+export function ThemeToggle({
+  className,
+  hideLabel,
+  iconSize = 16,
+}: {
+  className?: string;
+  hideLabel?: boolean;
+  iconSize?: number;
+}) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -21,7 +29,10 @@ export function ThemeToggle({ className, hideLabel }: { className?: string; hide
       className={className}
       title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
-      {isDark ? <Sun size={16} /> : <Moon size={16} />}
+      {isDark
+        ? <Sun size={iconSize} style={{ width: iconSize, height: iconSize }} />
+        : <Moon size={iconSize} style={{ width: iconSize, height: iconSize }} />
+      }
       {!hideLabel && <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>}
     </Button>
   );

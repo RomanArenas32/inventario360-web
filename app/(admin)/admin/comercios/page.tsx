@@ -17,13 +17,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Building2, ChevronDown, Mail, Trash2 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Building2, Mail, Trash2, PowerOff, Power } from 'lucide-react';
+import { PhoneInput, formatPhone, parsePhone, type PhoneValue } from '@/components/ui/phone-input';
 import {
   Dialog,
   DialogContent,
@@ -55,15 +50,6 @@ type Tenant = {
   pendingInvitation: { email: string; expired: boolean } | null;
 };
 
-const COUNTRIES = [
-  { code: '+54', flag: '🇦🇷', name: 'Argentina' },
-  { code: '+591', flag: '🇧🇴', name: 'Bolivia' },
-  { code: '+56', flag: '🇨🇱', name: 'Chile' },
-  { code: '+595', flag: '🇵🇾', name: 'Paraguay' },
-  { code: '+51', flag: '🇵🇪', name: 'Perú' },
-  { code: '+598', flag: '🇺🇾', name: 'Uruguay' },
-];
-
 const PLAN_CONFIG: Record<string, { label: string; description: string }> = {
   basic: { label: 'Basic', description: 'Para comenzar' },
   pro: { label: 'Pro', description: 'Funciones avanzadas' },
@@ -84,8 +70,7 @@ const DEFAULT_FORM = {
   businessName: '',
   ownerEmail: '',
   plan: 'basic',
-  phone: '',
-  countryCode: '+54',
+  phone: { countryCode: '+54', number: '' } as PhoneValue,
 };
 
 export default function ComerciosPage() {
@@ -97,6 +82,8 @@ export default function ComerciosPage() {
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [toggleTarget, setToggleTarget] = useState<Tenant | null>(null);
+  const [toggling, setToggling] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -118,8 +105,10 @@ export default function ComerciosPage() {
     setError('');
     try {
       await api.post('/admin/tenants', {
-        ...form,
-        phone: form.phone ? `${form.countryCode}${form.phone}` : undefined,
+        businessName: form.businessName,
+        ownerEmail: form.ownerEmail,
+        plan: form.plan,
+        phone: formatPhone(form.phone) || undefined,
       });
       setShowCreate(false);
       setForm(DEFAULT_FORM);
@@ -134,13 +123,18 @@ export default function ComerciosPage() {
     }
   }
 
-  async function handleToggleActive(tenant: Tenant) {
+  async function confirmToggle() {
+    if (!toggleTarget) return;
+    setToggling(true);
     try {
-      await api.patch(`/admin/tenants/${tenant.id}`, { isActive: !tenant.isActive });
+      await api.patch(`/admin/tenants/${toggleTarget.id}`, { isActive: !toggleTarget.isActive });
+      setToggleTarget(null);
       void load();
-      toast.success(tenant.isActive ? 'Comercio desactivado' : 'Comercio activado');
+      toast.success(toggleTarget.isActive ? 'Comercio desactivado' : 'Comercio reactivado');
     } catch {
       toast.error('Error al actualizar el estado');
+    } finally {
+      setToggling(false);
     }
   }
 
@@ -257,9 +251,10 @@ export default function ComerciosPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => void handleToggleActive(t)}
-                        className={`h-7 px-2 text-xs font-medium ${t.isActive ? 'text-muted-foreground hover:text-foreground' : 'text-green-600 hover:text-green-500'}`}
+                        onClick={() => setToggleTarget(t)}
+                        className={`h-7 px-2 text-xs font-medium gap-1.5 ${t.isActive ? 'text-muted-foreground hover:text-foreground' : 'text-green-600 hover:text-green-500'}`}
                       >
+                        {t.isActive ? <PowerOff size={12} /> : <Power size={12} />}
                         {t.isActive ? 'Desactivar' : 'Activar'}
                       </Button>
                       <Button
@@ -281,6 +276,42 @@ export default function ComerciosPage() {
         )}
       </Card>
 
+      {/* Diálogo desactivar / reactivar */}
+      <AlertDialog
+        open={!!toggleTarget}
+        onOpenChange={(open) => { if (!open) setToggleTarget(null); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {toggleTarget?.isActive ? '¿Desactivar comercio?' : '¿Reactivar comercio?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {toggleTarget?.isActive
+                ? `Se suspenderá el acceso a "${toggleTarget.name}". Los usuarios que no pertenezcan a otro negocio activo quedarán desactivados y no podrán iniciar sesión hasta que el comercio sea reactivado.`
+                : `Se restaurará el acceso a "${toggleTarget?.name}". Todos los usuarios asociados al comercio podrán volver a iniciar sesión.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => void confirmToggle()}
+              disabled={toggling}
+              className={
+                toggleTarget?.isActive
+                  ? 'bg-destructive text-white hover:bg-destructive/90 disabled:opacity-60'
+                  : 'bg-green-600 text-white hover:bg-green-700 disabled:opacity-60'
+              }
+            >
+              {toggling
+                ? toggleTarget?.isActive ? 'Desactivando...' : 'Reactivando...'
+                : toggleTarget?.isActive ? 'Desactivar' : 'Reactivar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Diálogo eliminar */}
       <AlertDialog
         open={!!deleteId}
         onOpenChange={(open) => {
@@ -292,7 +323,7 @@ export default function ComerciosPage() {
             <AlertDialogTitle>¿Eliminar comercio?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. El comercio y todos sus datos serán eliminados
-              permanentemente.
+              permanentemente. Los usuarios que no pertenezcan a otro negocio quedarán desactivados.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -339,40 +370,10 @@ export default function ComerciosPage() {
                   className="pl-9"
                 />
               </div>
-              <div className="flex items-center rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1.5 pl-3 pr-2 py-2 text-sm hover:bg-muted/50 rounded-l-md transition-colors focus:outline-none shrink-0">
-                    <span className="text-base leading-none">
-                      {COUNTRIES.find((c) => c.code === form.countryCode)?.flag}
-                    </span>
-                    <span className="text-xs font-mono text-muted-foreground">
-                      {form.countryCode}
-                    </span>
-                    <ChevronDown size={11} className="text-muted-foreground" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-52">
-                    {COUNTRIES.map((c) => (
-                      <DropdownMenuItem
-                        key={c.code}
-                        onSelect={() => setForm({ ...form, countryCode: c.code })}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <span className="text-base">{c.flag}</span>
-                        <span className="flex-1 text-sm">{c.name}</span>
-                        <span className="text-xs font-mono text-muted-foreground">{c.code}</span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <div className="w-px h-5 bg-border shrink-0" />
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="Número de teléfono"
-                  className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
+              <PhoneInput
+                value={form.phone}
+                onChange={(v) => setForm({ ...form, phone: v })}
+              />
             </div>
 
             {/* Selección de plan */}

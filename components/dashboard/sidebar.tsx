@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Boxes,
   Check,
   ChevronsUpDown,
   LayoutDashboard,
@@ -23,6 +22,7 @@ import {
   Users,
   Warehouse,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -107,10 +107,8 @@ export default function Sidebar() {
       return (
         <div className="px-5 py-5 border-b border-sidebar-border">
           <div className="flex items-center gap-2 mb-1">
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-primary text-primary-foreground shrink-0">
-              <Boxes size={11} />
-            </div>
-            <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest">
+            <Image src="/logos/logo-color.svg" alt="Inventario360" width={16} height={16} className="size-8 shrink-0" unoptimized />
+            <p className="text-xs text-sidebar-foreground/50 tracking-widest">
               Inventario360
             </p>
           </div>
@@ -125,9 +123,7 @@ export default function Sidebar() {
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full text-left px-5 py-5 border-b border-sidebar-border hover:bg-sidebar-accent transition-colors outline-none">
           <div className="flex items-center gap-2 mb-1">
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-primary text-primary-foreground shrink-0">
-              <Boxes size={11} />
-            </div>
+            <Image src="/logos/logo-color.svg" alt="Inventario360" width={16} height={16} className="size-8 shrink-0" unoptimized />
             <p className="text-xs text-sidebar-foreground/50 uppercase tracking-widest">
               Inventario360
             </p>
@@ -165,9 +161,7 @@ export default function Sidebar() {
 
   const collapsedHeader = (
     <div className="flex justify-center py-5 border-b border-sidebar-border">
-      <div className="flex items-center justify-center w-5 h-5 rounded bg-primary text-primary-foreground">
-        <Boxes size={11} />
-      </div>
+      <Image src="/logos/logo-color.svg" alt="Inventario360" width={16} height={16} className="w-4 h-4" unoptimized />
     </div>
   );
 

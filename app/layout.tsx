@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: 'Inventario360',
   description: 'Sistema de gestión de inventario',
   icons: {
-    icon: '/logos/logo.png',
+    icon: '/logos/logo-color.svg',
   },
 };
 
