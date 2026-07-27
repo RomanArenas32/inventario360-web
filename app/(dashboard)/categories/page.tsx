@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -106,7 +107,7 @@ export default function CategoriesPage() {
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+          <TableSkeleton cols={3} headers={['Nombre', 'Descripción', 'Acciones']} />
         ) : categories.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay categorías. Creá la primera.

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -177,7 +178,19 @@ export default function ProductsPage() {
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+          <TableSkeleton
+            cols={8}
+            headers={[
+              'Nombre',
+              'Código',
+              'Categoría',
+              'P. Costo',
+              'P. Venta',
+              'Stock',
+              'Estado',
+              'Acciones',
+            ]}
+          />
         ) : products.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay productos. Agregá el primero.

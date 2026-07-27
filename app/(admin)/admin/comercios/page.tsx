@@ -29,6 +29,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import {
   Table,
   TableBody,
@@ -166,7 +167,10 @@ export default function ComerciosPage() {
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+          <TableSkeleton
+            cols={6}
+            headers={['Comercio', 'Dueño', 'Rubro', 'Plan', 'Estado', 'Acciones']}
+          />
         ) : tenants.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay comercios registrados. Creá el primero.

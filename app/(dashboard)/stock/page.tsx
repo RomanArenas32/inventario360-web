@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import {
   Table,
   TableBody,
@@ -77,7 +78,10 @@ export default function StockPage() {
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+          <TableSkeleton
+            cols={5}
+            headers={['Producto', 'Código', 'Categoría', 'Stock', 'Estado']}
+          />
         ) : filtered.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay productos en esta vista.

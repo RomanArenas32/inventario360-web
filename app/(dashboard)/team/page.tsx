@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -117,7 +118,7 @@ export default function TeamPage() {
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+          <TableSkeleton cols={4} headers={['Miembro', 'Rol', 'Estado', 'Acciones']} />
         ) : members.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay miembros. Agregá el primero.

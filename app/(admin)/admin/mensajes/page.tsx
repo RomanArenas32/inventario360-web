@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 
 type Message = {
@@ -209,7 +210,24 @@ export default function MensajesPage() {
 
         <Card className="p-0 overflow-hidden shadow-sm">
           {loading ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+            <div className="divide-y divide-border">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="px-4 py-3 flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3.5 w-28" />
+                      <Skeleton className="h-3.5 w-14 rounded-full" />
+                    </div>
+                    <Skeleton className="h-3 w-48" />
+                    <Skeleton className="h-3 w-64" />
+                  </div>
+                  <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : messages.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground text-sm">No hay mensajes.</div>
           ) : (
