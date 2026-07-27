@@ -1,7 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,14 @@ type Message = {
   isUser: boolean;
   notes: string | null;
   createdAt: string;
+};
+
+type PaginatedResult = {
+  data: Message[];
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
 };
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -41,34 +49,84 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const STATUSES = Object.entries(STATUS_LABELS);
+const PAGE_SIZE = 20;
 
 export default function MensajesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState<Message | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  async function load(status?: string) {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef(filter);
+
+  useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
+
+  const buildPath = useCallback((status: string, off: number) => {
+    const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(off) });
+    if (status) params.set('status', status);
+    return `/messages?${params.toString()}`;
+  }, []);
+
+  // Carga inicial o al cambiar filtro
+  async function loadFirst(status: string) {
     setLoading(true);
     try {
-      const path = status ? `/messages?status=${status}` : '/messages';
-      const data = await api.get<Message[]>(path);
-      setMessages(data);
+      const result = await api.get<PaginatedResult>(buildPath(status, 0));
+      setMessages(result.data);
+      setHasMore(result.hasMore);
+      setOffset(result.data.length);
     } finally {
       setLoading(false);
     }
   }
 
+  // Carga siguiente página
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const result = await api.get<PaginatedResult>(buildPath(filterRef.current, offset));
+      setMessages((prev) => [...prev, ...result.data]);
+      setHasMore(result.hasMore);
+      setOffset((prev) => prev + result.data.length);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasMore, offset, buildPath]);
+
   useEffect(() => {
-    void load(filter || undefined);
+    setMessages([]);
+    setOffset(0);
+    setHasMore(true);
+    void loadFirst(filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
+
+  // IntersectionObserver sobre el sentinel al pie de la lista
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) void loadMore();
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   function openMessage(msg: Message) {
     setSelected(msg);
     setNotes(msg.notes ?? '');
-    // Automatically mark as read if pending
     if (msg.status === 'pending') {
       void api.patch(`/messages/${msg.id}`, { status: 'read' }).then(() => {
         setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, status: 'read' } : m)));
@@ -196,6 +254,13 @@ export default function MensajesPage() {
                   </div>
                 </Button>
               ))}
+
+              {/* Sentinel para IntersectionObserver */}
+              <div ref={sentinelRef} className="py-2 flex justify-center">
+                {loadingMore && (
+                  <span className="text-xs text-muted-foreground">Cargando más...</span>
+                )}
+              </div>
             </div>
           )}
         </Card>

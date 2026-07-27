@@ -490,16 +490,19 @@ export type MessagesControllerFindAllData = {
     body?: never;
     path?: never;
     query?: {
-        status?: string;
+        status?: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
+        limit?: number;
+        offset?: number;
+        sortBy?: string;
+        sortOrder?: 'ASC' | 'DESC';
+        groupBy?: string;
     };
     url: '/messages';
 };
 
 export type MessagesControllerFindAllResponses = {
-    200: Array<ContactMessage>;
+    200: unknown;
 };
-
-export type MessagesControllerFindAllResponse = MessagesControllerFindAllResponses[keyof MessagesControllerFindAllResponses];
 
 export type MessagesControllerCreateData = {
     body: CreateMessageDto;
