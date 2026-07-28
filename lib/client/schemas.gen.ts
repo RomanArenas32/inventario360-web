@@ -556,10 +556,17 @@ export const ProductSchema = {
             type: 'boolean'
         },
         categoryId: {
-            type: 'string'
+            type: 'string',
+            nullable: true
         },
         category: {
-            $ref: '#/components/schemas/Category'
+            nullable: true,
+            type: 'object',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/Category'
+                }
+            ]
         },
         tenantId: {
             type: 'string'
@@ -687,7 +694,8 @@ export const UpdateProductDtoSchema = {
             type: 'boolean'
         },
         categoryId: {
-            type: 'string'
+            type: 'string',
+            nullable: true
         }
     }
 } as const;

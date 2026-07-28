@@ -160,8 +160,8 @@ export type Product = {
     minStock: number;
     imageUrl: string;
     isActive: boolean;
-    categoryId: string;
-    category: Category;
+    categoryId: string | null;
+    category: Category | null;
     tenantId: string;
     tenant: Tenant;
     createdAt: string;
@@ -196,7 +196,7 @@ export type UpdateProductDto = {
     minStock?: number;
     imageUrl?: string;
     isActive?: boolean;
-    categoryId?: string;
+    categoryId?: string | null;
 };
 
 export type AdminControllerFindAllTenantsData = {
