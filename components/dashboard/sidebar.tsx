@@ -21,6 +21,7 @@ import {
   User,
   Users,
   Warehouse,
+  CalendarDays,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -29,6 +30,7 @@ import { usePathname, useRouter } from 'next/navigation';
 const NAV_ITEMS: SidebarNavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/products', label: 'Productos', icon: Package },
+  { href: '/turns', label: 'Turnos', icon: CalendarDays },
   { href: '/categories', label: 'Categorías', icon: Tag },
   { href: '/stock', label: 'Stock', icon: Warehouse },
   { href: '/team', label: 'Equipo', icon: Users },

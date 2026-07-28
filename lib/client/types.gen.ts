@@ -490,7 +490,7 @@ export type MessagesControllerFindAllData = {
     body?: never;
     path?: never;
     query?: {
-        status?: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
+        status?: Array<'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed'>;
         limit?: number;
         offset?: number;
         sortBy?: string;
