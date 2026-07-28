@@ -40,11 +40,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import {
   Table,
@@ -328,7 +324,12 @@ export default function ComerciosPage() {
       </Card>
 
       {/* Detail sheet */}
-      <Sheet open={!!detailTenant} onOpenChange={(open) => { if (!open) setDetailTenant(null); }}>
+      <Sheet
+        open={!!detailTenant}
+        onOpenChange={(open) => {
+          if (!open) setDetailTenant(null);
+        }}
+      >
         <SheetContent className="w-full sm:max-w-lg flex flex-col gap-0 p-0 overflow-y-auto">
           {detailTenant && (
             <>
@@ -371,7 +372,8 @@ export default function ComerciosPage() {
                     <p className="text-xs text-muted-foreground mb-0.5">Rubro</p>
                     <p className="text-sm font-medium text-foreground truncate">
                       {detailTenant.businessType
-                        ? (BUSINESS_TYPE_LABELS[detailTenant.businessType] ?? detailTenant.businessType)
+                        ? (BUSINESS_TYPE_LABELS[detailTenant.businessType] ??
+                          detailTenant.businessType)
                         : '—'}
                     </p>
                   </div>
@@ -414,8 +416,8 @@ export default function ComerciosPage() {
                     )}
 
                     {/* Estado invitación */}
-                    {detailTenant.invitation && (
-                      detailTenant.invitation.acceptedAt ? (
+                    {detailTenant.invitation &&
+                      (detailTenant.invitation.acceptedAt ? (
                         <TimelineItem
                           icon={<CheckCircle2 size={13} />}
                           status="success"
@@ -436,8 +438,7 @@ export default function ComerciosPage() {
                           title="En espera de aceptación"
                           subtitle={`Vence el ${formatDate(detailTenant.invitation.expiresAt)}`}
                         />
-                      )
-                    )}
+                      ))}
 
                     {/* Dueño registrado */}
                     {detailTenant.user && (
@@ -652,14 +653,23 @@ export default function ComerciosPage() {
 
 type TimelineStatus = 'done' | 'success' | 'error' | 'pending';
 
-const STATUS_STYLES: Record<
-  TimelineStatus,
-  { dot: string; icon: string; connector: string }
-> = {
-  done:    { dot: 'bg-muted-foreground/30 border-border',         icon: 'text-muted-foreground', connector: 'bg-border' },
-  success: { dot: 'bg-green-500/20 border-green-500/40',           icon: 'text-green-500',        connector: 'bg-border' },
-  error:   { dot: 'bg-red-500/20 border-red-500/40',               icon: 'text-red-500',          connector: 'bg-border' },
-  pending: { dot: 'bg-amber-500/20 border-amber-500/40 animate-pulse', icon: 'text-amber-500',    connector: 'bg-border' },
+const STATUS_STYLES: Record<TimelineStatus, { dot: string; icon: string; connector: string }> = {
+  done: {
+    dot: 'bg-muted-foreground/30 border-border',
+    icon: 'text-muted-foreground',
+    connector: 'bg-border',
+  },
+  success: {
+    dot: 'bg-green-500/20 border-green-500/40',
+    icon: 'text-green-500',
+    connector: 'bg-border',
+  },
+  error: { dot: 'bg-red-500/20 border-red-500/40', icon: 'text-red-500', connector: 'bg-border' },
+  pending: {
+    dot: 'bg-amber-500/20 border-amber-500/40 animate-pulse',
+    icon: 'text-amber-500',
+    connector: 'bg-border',
+  },
 };
 
 function TimelineItem({
@@ -690,12 +700,8 @@ function TimelineItem({
       {/* Content */}
       <div className="flex-1 min-w-0 pt-1">
         <p className="text-sm font-medium text-foreground leading-tight">{title}</p>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
-        )}
-        {date && (
-          <p className="text-xs text-muted-foreground/70 mt-1">{date}</p>
-        )}
+        {subtitle && <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>}
+        {date && <p className="text-xs text-muted-foreground/70 mt-1">{date}</p>}
       </div>
     </li>
   );

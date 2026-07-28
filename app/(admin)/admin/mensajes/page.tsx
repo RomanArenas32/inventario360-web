@@ -129,7 +129,7 @@ export default function MensajesPage() {
   const [selected, setSelected] = useState<Message | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const statusFiltersRef = useRef(statusFilters);
@@ -152,7 +152,6 @@ export default function MensajesPage() {
       setHasMore(result.hasMore);
       setOffset(result.data.length);
     } catch (err: unknown) {
-      console.error('Error cargando mensajes:', err);
       setError(err instanceof Error ? err.message : 'Error al cargar mensajes');
       setMessages([]);
       setHasMore(false);
