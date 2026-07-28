@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { CalendarDays } from 'lucide-react';
-import TurnBlock from '@/components/turnos/TurnBlock';
+import TurnBlock from '@/components/turns/TurnBlock';
 
 const morning = ['08:00', '09:00', '10:00', '11:00'];
 const afternoon = ['16:00', '17:00', '18:00', '19:00'];
