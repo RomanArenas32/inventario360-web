@@ -129,6 +129,7 @@ export default function MensajesPage() {
   const [selected, setSelected] = useState<Message | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const statusFiltersRef = useRef(statusFilters);
@@ -144,11 +145,17 @@ export default function MensajesPage() {
 
   async function loadFirst(statuses: string[]) {
     setLoading(true);
+    setError(null);
     try {
       const result = await api.get<PaginatedResult>(buildPath(statuses, 0));
       setMessages(result.data);
       setHasMore(result.hasMore);
       setOffset(result.data.length);
+    } catch (err: unknown) {
+      console.error('Error cargando mensajes:', err);
+      setError(err instanceof Error ? err.message : 'Error al cargar mensajes');
+      setMessages([]);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
