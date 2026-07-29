@@ -3,6 +3,7 @@
 import { api } from '@/lib/api';
 import { setSession } from '@/lib/auth';
 import AuthSplitLayout from '@/components/auth/auth-split-layout';
+import InventoryMascot from '@/components/auth/inventory-mascot';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type FormEvent, useEffect, useState, Suspense } from 'react';
 import { toast } from 'sonner';
@@ -45,10 +46,17 @@ const ERROR_MESSAGES: Record<string, string> = {
   google_failed: 'No se pudo autenticar con Google. Intentá de nuevo.',
 };
 
-type ContactForm = { name: string; email: string; phone: PhoneValue; message: string };
+type ContactForm = {
+  name: string;
+  email: string;
+  businessType: string;
+  phone: PhoneValue;
+  message: string;
+};
 const EMPTY_CONTACT: ContactForm = {
   name: '',
   email: '',
+  businessType: '',
   phone: { countryCode: '+54', number: '' },
   message: '',
 };
@@ -189,15 +197,8 @@ function LoginContent() {
         Continuar con Google
       </Button>
 
-      <div className="mt-6 pt-6 border-t border-border text-center">
-        <p className="text-sm text-muted-foreground">¿Todavía no tenés cuenta?</p>
-        <Button
-          variant="link"
-          onClick={() => setShowContact(true)}
-          className="mt-2 h-auto p-0 text-sm font-medium"
-        >
-          Puedes pedir tu cuenta aqui →
-        </Button>
+      <div className="mt-5 flex justify-center">
+        <InventoryMascot onRequestAccount={() => setShowContact(true)} />
       </div>
 
       {/* Modal solicitar acceso */}
@@ -211,9 +212,9 @@ function LoginContent() {
           {contactSent ? (
             <div className="text-center py-4">
               <div className="text-3xl mb-3">✓</div>
-              <h2 className="text-lg font-bold text-foreground">¡Mensaje enviado!</h2>
+              <h2 className="text-lg font-bold text-foreground">¡Solicitud recibida!</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Nos pondremos en contacto con vos a la brevedad.
+                Registramos tus datos y nos pondremos en contacto a la brevedad.
               </p>
               <Button onClick={closeContact} className="mt-4 w-full">
                 Cerrar
@@ -229,12 +230,12 @@ function LoginContent() {
               </p>
               <form onSubmit={(e) => void handleContact(e)} className="space-y-3">
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1">Nombre *</Label>
+                  <Label className="text-xs text-muted-foreground mb-1">Nombre y apellido *</Label>
                   <Input
                     required
                     value={contact.name}
                     onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                    placeholder="Tu nombre"
+                    placeholder="Ej: Ana Pérez"
                   />
                 </div>
                 <div>
@@ -245,6 +246,18 @@ function LoginContent() {
                     value={contact.email}
                     onChange={(e) => setContact({ ...contact, email: e.target.value })}
                     placeholder="tu@email.com"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1">
+                    Rubro o tipo de comercio *
+                  </Label>
+                  <Input
+                    required
+                    maxLength={100}
+                    value={contact.businessType}
+                    onChange={(e) => setContact({ ...contact, businessType: e.target.value })}
+                    placeholder="Ej: Barbería, farmacia, taller mecánico"
                   />
                 </div>
                 <div>

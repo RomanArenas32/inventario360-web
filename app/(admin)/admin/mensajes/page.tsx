@@ -27,6 +27,7 @@ type Message = {
   id: string;
   name: string;
   email: string;
+  businessType: string | null;
   phone: string | null;
   message: string;
   status: string;
@@ -513,6 +514,15 @@ export default function MensajesPage() {
             >
               ×
             </Button>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+              Rubro o tipo de comercio
+            </p>
+            <p className="mt-1 text-sm text-foreground">
+              {selected.businessType ?? 'Sin especificar'}
+            </p>
           </div>
 
           <div className="bg-muted rounded-lg p-3">

@@ -114,14 +114,22 @@ export type AcceptInvitationDto = {
 export type CreateMessageDto = {
     name: string;
     email: string;
+    businessType: string;
     phone?: string;
     message: string;
+};
+
+export type UpdateMessageDto = {
+    status?: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
+    isUser?: boolean;
+    notes?: string;
 };
 
 export type ContactMessage = {
     id: string;
     name: string;
     email: string;
+    businessType: string | null;
     phone: string;
     message: string;
     status: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
@@ -129,12 +137,6 @@ export type ContactMessage = {
     notes: string;
     createdAt: string;
     updatedAt: string;
-};
-
-export type UpdateMessageDto = {
-    status?: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
-    isUser?: boolean;
-    notes?: string;
 };
 
 export type CreateCategoryDto = {
@@ -539,10 +541,8 @@ export type MessagesControllerCreateData = {
 };
 
 export type MessagesControllerCreateResponses = {
-    201: ContactMessage;
+    201: unknown;
 };
-
-export type MessagesControllerCreateResponse = MessagesControllerCreateResponses[keyof MessagesControllerCreateResponses];
 
 export type MessagesControllerCountPendingData = {
     body?: never;
