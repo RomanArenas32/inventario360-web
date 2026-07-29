@@ -288,12 +288,19 @@ export const AddMemberDtoSchema = {
             type: 'string',
             format: 'email'
         },
+        name: {
+            type: 'string',
+            minLength: 2
+        },
         role: {
             type: 'string',
             enum: [
                 'owner',
                 'staff'
             ]
+        },
+        resend: {
+            type: 'boolean'
         }
     },
     required: [
@@ -301,7 +308,7 @@ export const AddMemberDtoSchema = {
     ]
 } as const;
 
-export const UpdateMemberRoleDtoSchema = {
+export const UpdateMemberDtoSchema = {
     type: 'object',
     properties: {
         role: {
@@ -310,11 +317,12 @@ export const UpdateMemberRoleDtoSchema = {
                 'owner',
                 'staff'
             ]
+        },
+        name: {
+            type: 'string',
+            minLength: 2
         }
-    },
-    required: [
-        'role'
-    ]
+    }
 } as const;
 
 export const UpdateProfileDtoSchema = {
@@ -556,10 +564,17 @@ export const ProductSchema = {
             type: 'boolean'
         },
         categoryId: {
-            type: 'string'
+            type: 'string',
+            nullable: true
         },
         category: {
-            $ref: '#/components/schemas/Category'
+            nullable: true,
+            type: 'object',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/Category'
+                }
+            ]
         },
         tenantId: {
             type: 'string'
@@ -687,7 +702,8 @@ export const UpdateProductDtoSchema = {
             type: 'boolean'
         },
         categoryId: {
-            type: 'string'
+            type: 'string',
+            nullable: true
         }
     }
 } as const;

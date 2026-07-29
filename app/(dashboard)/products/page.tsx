@@ -31,6 +31,7 @@ type Category = { id: string; name: string };
 type Product = {
   id: string;
   name: string;
+  description: string | null;
   code: string;
   costPrice: number | null;
   salePrice: number | null;
@@ -61,6 +62,8 @@ const EMPTY: FormState = {
   categoryId: '',
   isActive: true,
 };
+
+const NO_CATEGORY_VALUE = 'none';
 
 function formatPrice(value: number | null) {
   if (value == null) return '—';
@@ -107,7 +110,7 @@ export default function ProductsPage() {
     setForm({
       name: p.name,
       code: p.code,
-      description: '',
+      description: p.description ?? '',
       costPrice: p.costPrice?.toString() ?? '',
       salePrice: p.salePrice?.toString() ?? '',
       stock: p.stock.toString(),
@@ -132,7 +135,7 @@ export default function ProductsPage() {
         salePrice: form.salePrice ? parseFloat(form.salePrice) : undefined,
         stock: parseInt(form.stock, 10),
         minStock: parseInt(form.minStock, 10),
-        categoryId: form.categoryId || undefined,
+        categoryId: form.categoryId || (editing ? null : undefined),
         isActive: form.isActive,
       };
       if (editing) {
@@ -318,13 +321,19 @@ export default function ProductsPage() {
             <div>
               <Label className="text-sm font-medium mb-1.5">Categoría</Label>
               <Select
-                value={form.categoryId || undefined}
-                onValueChange={(val) => setForm({ ...form, categoryId: val ?? '' })}
+                value={form.categoryId || NO_CATEGORY_VALUE}
+                onValueChange={(val) =>
+                  setForm({
+                    ...form,
+                    categoryId: val === NO_CATEGORY_VALUE ? '' : (val ?? ''),
+                  })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Sin categoría" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={NO_CATEGORY_VALUE}>Sin categoría</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}

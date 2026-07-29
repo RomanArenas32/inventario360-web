@@ -87,11 +87,14 @@ export type OnboardingDto = {
 
 export type AddMemberDto = {
     email: string;
+    name?: string;
     role?: 'owner' | 'staff';
+    resend?: boolean;
 };
 
-export type UpdateMemberRoleDto = {
-    role: 'owner' | 'staff';
+export type UpdateMemberDto = {
+    role?: 'owner' | 'staff';
+    name?: string;
 };
 
 export type UpdateProfileDto = {
@@ -160,8 +163,8 @@ export type Product = {
     minStock: number;
     imageUrl: string;
     isActive: boolean;
-    categoryId: string;
-    category: Category;
+    categoryId: string | null;
+    category: Category | null;
     tenantId: string;
     tenant: Tenant;
     createdAt: string;
@@ -196,7 +199,7 @@ export type UpdateProductDto = {
     minStock?: number;
     imageUrl?: string;
     isActive?: boolean;
-    categoryId?: string;
+    categoryId?: string | null;
 };
 
 export type AdminControllerFindAllTenantsData = {
@@ -317,6 +320,30 @@ export type TenantsControllerAddMemberResponses = {
     201: unknown;
 };
 
+export type TenantsControllerGetPendingInvitationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenants/invitations/pending';
+};
+
+export type TenantsControllerGetPendingInvitationsResponses = {
+    200: unknown;
+};
+
+export type TenantsControllerRevokeInvitationData = {
+    body?: never;
+    path: {
+        invitationId: string;
+    };
+    query?: never;
+    url: '/tenants/invitations/pending/{invitationId}';
+};
+
+export type TenantsControllerRevokeInvitationResponses = {
+    200: unknown;
+};
+
 export type TenantsControllerRemoveMemberData = {
     body?: never;
     path: {
@@ -330,8 +357,8 @@ export type TenantsControllerRemoveMemberResponses = {
     200: unknown;
 };
 
-export type TenantsControllerUpdateMemberRoleData = {
-    body: UpdateMemberRoleDto;
+export type TenantsControllerUpdateMemberData = {
+    body: UpdateMemberDto;
     path: {
         userId: string;
     };
@@ -339,7 +366,7 @@ export type TenantsControllerUpdateMemberRoleData = {
     url: '/tenants/members/{userId}';
 };
 
-export type TenantsControllerUpdateMemberRoleResponses = {
+export type TenantsControllerUpdateMemberResponses = {
     200: unknown;
 };
 
@@ -490,7 +517,7 @@ export type MessagesControllerFindAllData = {
     body?: never;
     path?: never;
     query?: {
-        status?: 'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed';
+        status?: Array<'pending' | 'read' | 'replied' | 'snoozed' | 'dismissed'>;
         limit?: number;
         offset?: number;
         sortBy?: string;
