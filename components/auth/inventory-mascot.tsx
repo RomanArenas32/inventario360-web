@@ -14,12 +14,12 @@ export default function InventoryMascot({ onRequestAccount }: InventoryMascotPro
       aria-label="Solicitar una cuenta"
       className="group flex w-full max-w-[240px] flex-col items-center rounded-2xl text-left outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
-      <span className="mb-1 rounded-xl border border-border bg-popover px-3 py-2 shadow-lg">
-        <span className="block text-xs text-muted-foreground">¿Todavía no tenés cuenta?</span>
-        <span className="mt-0.5 block text-sm font-semibold text-primary">Pedí la tuya acá →</span>
-      </span>
+      <span className="mascot-float flex w-full flex-col items-center">
+        <span className="relative mb-3 rounded-xl border border-border bg-popover px-4 py-2 text-center shadow-lg after:absolute after:left-1/2 after:top-full after:h-3 after:w-3 after:-translate-x-1/2 after:-translate-y-1/2 after:rotate-45 after:border-b after:border-r after:border-border after:bg-popover">
+          <span className="block text-xs text-muted-foreground">¿No tenés cuenta?</span>
+          <span className="mt-0.5 block text-sm font-semibold text-primary">Pedila acá</span>
+        </span>
 
-      <span className="mascot-float block w-full">
         <Image
           src="/images/inventario-mascot.png"
           alt=""
