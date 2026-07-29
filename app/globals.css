@@ -1,10 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   transition-property: background-color, border-color, color;
   transition-duration: 150ms;
   transition-timing-function: ease;
@@ -132,5 +134,28 @@
   }
   html {
     @apply font-sans;
+  }
+
+  @keyframes mascot-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(-1deg);
+    }
+
+    50% {
+      transform: translate3d(0, -10px, 0) rotate(1deg);
+    }
+  }
+
+  .mascot-float {
+    transform-origin: 50% 75%;
+    animation: mascot-float 3s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mascot-float {
+      animation: none;
+    }
   }
 }
