@@ -1,6 +1,20 @@
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import AdminSidebar from '@/components/admin/admin-sidebar';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('inv360_token')!.value; // middleware garantiza que existe
+
+  const res = await fetch(`${API_URL}/admin/auth/me`, {
+    headers: { Cookie: `inv360_token=${token}` },
+    cache: 'no-store',
+  });
+
+  if (!res.ok) redirect('/admin/login');
+
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
       <AdminSidebar />

@@ -87,11 +87,14 @@ export type OnboardingDto = {
 
 export type AddMemberDto = {
     email: string;
+    name?: string;
     role?: 'owner' | 'staff';
+    resend?: boolean;
 };
 
-export type UpdateMemberRoleDto = {
-    role: 'owner' | 'staff';
+export type UpdateMemberDto = {
+    role?: 'owner' | 'staff';
+    name?: string;
 };
 
 export type UpdateProfileDto = {
@@ -317,6 +320,30 @@ export type TenantsControllerAddMemberResponses = {
     201: unknown;
 };
 
+export type TenantsControllerGetPendingInvitationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenants/invitations/pending';
+};
+
+export type TenantsControllerGetPendingInvitationsResponses = {
+    200: unknown;
+};
+
+export type TenantsControllerRevokeInvitationData = {
+    body?: never;
+    path: {
+        invitationId: string;
+    };
+    query?: never;
+    url: '/tenants/invitations/pending/{invitationId}';
+};
+
+export type TenantsControllerRevokeInvitationResponses = {
+    200: unknown;
+};
+
 export type TenantsControllerRemoveMemberData = {
     body?: never;
     path: {
@@ -330,8 +357,8 @@ export type TenantsControllerRemoveMemberResponses = {
     200: unknown;
 };
 
-export type TenantsControllerUpdateMemberRoleData = {
-    body: UpdateMemberRoleDto;
+export type TenantsControllerUpdateMemberData = {
+    body: UpdateMemberDto;
     path: {
         userId: string;
     };
@@ -339,7 +366,7 @@ export type TenantsControllerUpdateMemberRoleData = {
     url: '/tenants/members/{userId}';
 };
 
-export type TenantsControllerUpdateMemberRoleResponses = {
+export type TenantsControllerUpdateMemberResponses = {
     200: unknown;
 };
 
