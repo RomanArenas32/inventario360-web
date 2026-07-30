@@ -170,6 +170,13 @@ export const TenantSchema = {
         isActive: {
             type: 'boolean'
         },
+        staffModules: {
+            nullable: true,
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
         memberships: {
             type: 'array',
             items: {
@@ -189,6 +196,7 @@ export const TenantSchema = {
         'plan',
         'isOnboarded',
         'isActive',
+        'staffModules',
         'memberships',
         'createdAt'
     ]
@@ -382,6 +390,10 @@ export const CreateMessageDtoSchema = {
             type: 'string',
             format: 'email'
         },
+        businessType: {
+            type: 'string',
+            maxLength: 100
+        },
         phone: {
             type: 'string'
         },
@@ -392,64 +404,8 @@ export const CreateMessageDtoSchema = {
     required: [
         'name',
         'email',
+        'businessType',
         'message'
-    ]
-} as const;
-
-export const ContactMessageSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string'
-        },
-        name: {
-            type: 'string'
-        },
-        email: {
-            type: 'string'
-        },
-        phone: {
-            type: 'string'
-        },
-        message: {
-            type: 'string'
-        },
-        status: {
-            enum: [
-                'pending',
-                'read',
-                'replied',
-                'snoozed',
-                'dismissed'
-            ],
-            type: 'string'
-        },
-        isUser: {
-            type: 'boolean'
-        },
-        notes: {
-            type: 'string'
-        },
-        createdAt: {
-            format: 'date-time',
-            type: 'string'
-        },
-        updatedAt: {
-            format: 'date-time',
-            type: 'string'
-        }
-    },
-    required: [
-        'id',
-        'name',
-        'email',
-        'phone',
-        'message',
-        'status',
-        'isUser',
-        'notes',
-        'createdAt',
-        'updatedAt'
     ]
 } as const;
 
@@ -473,6 +429,68 @@ export const UpdateMessageDtoSchema = {
             type: 'string'
         }
     }
+} as const;
+
+export const ContactMessageSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        email: {
+            type: 'string'
+        },
+        businessType: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string'
+        },
+        message: {
+            type: 'string'
+        },
+        status: {
+            type: 'string',
+            enum: [
+                'pending',
+                'read',
+                'replied',
+                'snoozed',
+                'dismissed'
+            ]
+        },
+        isUser: {
+            type: 'boolean'
+        },
+        notes: {
+            type: 'string'
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'name',
+        'email',
+        'businessType',
+        'phone',
+        'message',
+        'status',
+        'isUser',
+        'notes',
+        'createdAt',
+        'updatedAt'
+    ]
 } as const;
 
 export const CreateCategoryDtoSchema = {
