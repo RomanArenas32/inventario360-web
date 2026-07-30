@@ -197,7 +197,7 @@ function LoginContent() {
         Continuar con Google
       </Button>
 
-      <div className="mt-5 flex justify-center">
+      <div className="fixed bottom-4 right-4 z-10 w-36 sm:w-44">
         <InventoryMascot onRequestAccount={() => setShowContact(true)} />
       </div>
 
