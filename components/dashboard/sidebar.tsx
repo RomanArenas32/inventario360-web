@@ -17,6 +17,7 @@ import {
   ChevronsUpDown,
   LayoutDashboard,
   Package,
+  Settings,
   Tag,
   User,
   Users,
@@ -27,14 +28,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-const NAV_ITEMS: SidebarNavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/products', label: 'Productos', icon: Package },
-  { href: '/turns', label: 'Turnos', icon: CalendarDays },
-  { href: '/categories', label: 'Categorías', icon: Tag },
-  { href: '/stock', label: 'Stock', icon: Warehouse },
-  { href: '/team', label: 'Equipo', icon: Users },
-];
+// Ítems que el owner puede restringir para staff (module key → nav item)
+const MODULE_NAV: Record<string, SidebarNavItem> = {
+  products: { href: '/products', label: 'Productos', icon: Package },
+  turns: { href: '/turns', label: 'Turnos', icon: CalendarDays },
+  categories: { href: '/categories', label: 'Categorías', icon: Tag },
+  stock: { href: '/stock', label: 'Stock', icon: Warehouse },
+};
 
 type TenantOption = { id: string; name: string; role: string };
 type SidebarData = {
@@ -43,6 +43,7 @@ type SidebarData = {
   activeTenantId: string;
   activeTenantName: string;
   tenantRole: string | null;
+  staffModules: string[] | null;
   allTenants: TenantOption[];
 };
 
@@ -59,7 +60,7 @@ export default function Sidebar() {
         name: string;
         avatarUrl: string | null;
         tenantRole: string | null;
-        tenant: { id: string; name: string } | null;
+        tenant: { id: string; name: string; staffModules: string[] | null } | null;
         tenants: TenantOption[];
       }>('/auth/me')
       .then((me) => {
@@ -70,6 +71,7 @@ export default function Sidebar() {
             activeTenantId: me.tenant.id,
             activeTenantName: me.tenant.name,
             tenantRole: me.tenantRole,
+            staffModules: me.tenant.staffModules,
             allTenants: me.tenants,
           });
         }
@@ -98,9 +100,21 @@ export default function Sidebar() {
     }
   }
 
-  const navItems = NAV_ITEMS.filter(
-    (item) => item.href !== '/team' || data?.tenantRole === 'owner',
-  );
+  const isOwner = data?.tenantRole === 'owner';
+
+  const navItems: SidebarNavItem[] = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    // Módulos controlables — si es staff, filtrar según staffModules del tenant
+    ...Object.entries(MODULE_NAV)
+      .filter(([key]) => {
+        if (isOwner) return true;
+        const allowed = data?.staffModules;
+        return allowed === null || allowed === undefined || allowed.includes(key);
+      })
+      .map(([, item]) => item),
+    // Solo owners
+    ...(isOwner ? [{ href: '/team', label: 'Equipo', icon: Users } as SidebarNavItem] : []),
+  ];
 
   const tenantHeader = (onClose?: () => void) => {
     const canSwitch = (data?.allTenants.length ?? 0) > 1;
@@ -184,31 +198,49 @@ export default function Sidebar() {
   );
 
   const bottomExtra = (collapsed: boolean) => (
-    <Link
-      href="/profile"
-      title={collapsed ? (data?.userName ?? 'Mi perfil') : undefined}
-      className={`flex items-center py-2 rounded-lg text-sm font-medium transition-colors ${
-        collapsed ? 'justify-center px-2' : 'gap-3 px-3'
-      } ${
-        pathname === '/profile'
-          ? 'bg-primary text-primary-foreground'
-          : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-      }`}
-    >
-      {data?.avatarUrl ? (
-        <Image
-          src={data.avatarUrl}
-          alt={data.userName}
-          width={20}
-          height={20}
-          className="w-5 h-5 rounded-full object-cover shrink-0"
-          unoptimized
-        />
-      ) : (
-        <User size={16} />
+    <>
+      {isOwner && (
+        <Link
+          href="/settings"
+          title={collapsed ? 'Integraciones' : undefined}
+          className={`flex items-center py-2 rounded-lg text-sm font-medium transition-colors ${
+            collapsed ? 'justify-center px-2' : 'gap-3 px-3'
+          } ${
+            pathname === '/settings'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+          }`}
+        >
+          <Settings size={16} />
+          {!collapsed && 'Integraciones'}
+        </Link>
       )}
-      {!collapsed && (data?.userName ?? 'Mi perfil')}
-    </Link>
+      <Link
+        href="/profile"
+        title={collapsed ? (data?.userName ?? 'Mi perfil') : undefined}
+        className={`flex items-center py-2 rounded-lg text-sm font-medium transition-colors ${
+          collapsed ? 'justify-center px-2' : 'gap-3 px-3'
+        } ${
+          pathname === '/profile'
+            ? 'bg-primary text-primary-foreground'
+            : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+        }`}
+      >
+        {data?.avatarUrl ? (
+          <Image
+            src={data.avatarUrl}
+            alt={data.userName}
+            width={20}
+            height={20}
+            className="w-5 h-5 rounded-full object-cover shrink-0"
+            unoptimized
+          />
+        ) : (
+          <User size={16} />
+        )}
+        {!collapsed && (data?.userName ?? 'Mi perfil')}
+      </Link>
+    </>
   );
 
   const mobileHeader = (

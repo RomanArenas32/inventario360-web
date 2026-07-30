@@ -170,6 +170,13 @@ export const TenantSchema = {
         isActive: {
             type: 'boolean'
         },
+        staffModules: {
+            nullable: true,
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
         memberships: {
             type: 'array',
             items: {
@@ -189,6 +196,7 @@ export const TenantSchema = {
         'plan',
         'isOnboarded',
         'isActive',
+        'staffModules',
         'memberships',
         'createdAt'
     ]

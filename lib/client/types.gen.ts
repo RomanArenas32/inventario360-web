@@ -59,6 +59,7 @@ export type Tenant = {
     plan: 'basic' | 'pro' | 'enterprise';
     isOnboarded: boolean;
     isActive: boolean;
+    staffModules: Array<string> | null;
     memberships: Array<TenantMembership>;
     createdAt: string;
 };
@@ -369,6 +370,28 @@ export type TenantsControllerUpdateMemberData = {
 };
 
 export type TenantsControllerUpdateMemberResponses = {
+    200: unknown;
+};
+
+export type TenantsControllerGetSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenants/settings';
+};
+
+export type TenantsControllerGetSettingsResponses = {
+    200: unknown;
+};
+
+export type TenantsControllerUpdateSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenants/settings';
+};
+
+export type TenantsControllerUpdateSettingsResponses = {
     200: unknown;
 };
 
