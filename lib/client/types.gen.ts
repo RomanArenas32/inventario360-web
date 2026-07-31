@@ -140,6 +140,21 @@ export type ContactMessage = {
     updatedAt: string;
 };
 
+export type UpsertNotificationSettingsDto = {
+    whatsappPhone?: string | null;
+    whatsappOptIn?: boolean;
+    alertLowStock?: boolean;
+};
+
+export type NotificationSettings = {
+    id: string;
+    tenantId: string;
+    whatsappPhone: string | null;
+    whatsappOptIn: boolean;
+    alertLowStock: boolean;
+    updatedAt: string;
+};
+
 export type CreateCategoryDto = {
     name: string;
     description?: string;
@@ -629,6 +644,34 @@ export type MessagesControllerUpdateResponses = {
 };
 
 export type MessagesControllerUpdateResponse = MessagesControllerUpdateResponses[keyof MessagesControllerUpdateResponses];
+
+export type NotificationSettingsControllerGetSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/notification-settings';
+};
+
+export type NotificationSettingsControllerGetSettingsResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type NotificationSettingsControllerGetSettingsResponse = NotificationSettingsControllerGetSettingsResponses[keyof NotificationSettingsControllerGetSettingsResponses];
+
+export type NotificationSettingsControllerUpsertSettingsData = {
+    body: UpsertNotificationSettingsDto;
+    path?: never;
+    query?: never;
+    url: '/notification-settings';
+};
+
+export type NotificationSettingsControllerUpsertSettingsResponses = {
+    200: NotificationSettings;
+};
+
+export type NotificationSettingsControllerUpsertSettingsResponse = NotificationSettingsControllerUpsertSettingsResponses[keyof NotificationSettingsControllerUpsertSettingsResponses];
 
 export type CategoriesControllerFindAllData = {
     body?: never;

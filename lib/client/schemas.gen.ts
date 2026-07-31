@@ -493,6 +493,56 @@ export const ContactMessageSchema = {
     ]
 } as const;
 
+export const UpsertNotificationSettingsDtoSchema = {
+    type: 'object',
+    properties: {
+        whatsappPhone: {
+            type: 'string',
+            nullable: true
+        },
+        whatsappOptIn: {
+            type: 'boolean'
+        },
+        alertLowStock: {
+            type: 'boolean'
+        }
+    }
+} as const;
+
+export const NotificationSettingsSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        tenantId: {
+            type: 'string'
+        },
+        whatsappPhone: {
+            type: 'string',
+            nullable: true
+        },
+        whatsappOptIn: {
+            type: 'boolean'
+        },
+        alertLowStock: {
+            type: 'boolean'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'tenantId',
+        'whatsappPhone',
+        'whatsappOptIn',
+        'alertLowStock',
+        'updatedAt'
+    ]
+} as const;
+
 export const CreateCategoryDtoSchema = {
     type: 'object',
     properties: {

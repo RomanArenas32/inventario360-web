@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { PhoneInput, PhoneValue, parsePhone, formatPhone } from '@/components/ui/phone-input';
+import { PhoneInput, type PhoneValue, parsePhone, formatPhone } from '@/components/ui/phone-input';
 import { ChevronRight, MessageCircle, Puzzle } from 'lucide-react';
 
 type NotificationSettings = {
@@ -103,11 +103,7 @@ export default function SettingsPage() {
             <form onSubmit={(e) => void handleSave(e)} className="space-y-5">
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">Número de WhatsApp</Label>
-                <PhoneInput
-                  value={phone}
-                  onChange={setPhone}
-                  placeholder="11 2345-6789"
-                />
+                <PhoneInput value={phone} onChange={setPhone} placeholder="11 2345-6789" />
               </div>
 
               {/* Opt-in */}
