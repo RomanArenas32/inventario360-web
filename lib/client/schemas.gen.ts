@@ -705,10 +705,6 @@ export const UpdateProductDtoSchema = {
             type: 'number',
             minimum: 0
         },
-        stock: {
-            type: 'number',
-            minimum: 0
-        },
         minStock: {
             type: 'number',
             minimum: 0
@@ -724,4 +720,102 @@ export const UpdateProductDtoSchema = {
             nullable: true
         }
     }
+} as const;
+
+export const CreateStockMovementDtoSchema = {
+    type: 'object',
+    properties: {
+        productId: {
+            type: 'string',
+            format: 'uuid'
+        },
+        type: {
+            type: 'string',
+            enum: [
+                'entry',
+                'exit',
+                'adjustment'
+            ]
+        },
+        quantity: {
+            type: 'number',
+            minimum: 0
+        },
+        reason: {
+            type: 'string',
+            maxLength: 255
+        }
+    },
+    required: [
+        'productId',
+        'type',
+        'quantity',
+        'reason'
+    ]
+} as const;
+
+export const StockMovementSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        type: {
+            type: 'string',
+            enum: [
+                'entry',
+                'exit',
+                'adjustment'
+            ]
+        },
+        quantity: {
+            type: 'number'
+        },
+        reason: {
+            type: 'string'
+        },
+        stockBefore: {
+            type: 'number'
+        },
+        stockAfter: {
+            type: 'number'
+        },
+        productId: {
+            type: 'string'
+        },
+        product: {
+            $ref: '#/components/schemas/Product'
+        },
+        tenantId: {
+            type: 'string'
+        },
+        tenant: {
+            $ref: '#/components/schemas/Tenant'
+        },
+        userId: {
+            type: 'string'
+        },
+        user: {
+            $ref: '#/components/schemas/User'
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'type',
+        'quantity',
+        'reason',
+        'stockBefore',
+        'stockAfter',
+        'productId',
+        'product',
+        'tenantId',
+        'tenant',
+        'userId',
+        'user',
+        'createdAt'
+    ]
 } as const;

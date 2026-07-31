@@ -198,11 +198,33 @@ export type UpdateProductDto = {
     code?: string;
     costPrice?: number;
     salePrice?: number;
-    stock?: number;
     minStock?: number;
     imageUrl?: string;
     isActive?: boolean;
     categoryId?: string | null;
+};
+
+export type CreateStockMovementDto = {
+    productId: string;
+    type: 'entry' | 'exit' | 'adjustment';
+    quantity: number;
+    reason: string;
+};
+
+export type StockMovement = {
+    id: string;
+    type: 'entry' | 'exit' | 'adjustment';
+    quantity: number;
+    reason: string;
+    stockBefore: number;
+    stockAfter: number;
+    productId: string;
+    product: Product;
+    tenantId: string;
+    tenant: Tenant;
+    userId: string;
+    user: User;
+    createdAt: string;
 };
 
 export type AdminControllerFindAllTenantsData = {
@@ -758,3 +780,35 @@ export type ProductsControllerUpdateResponses = {
 };
 
 export type ProductsControllerUpdateResponse = ProductsControllerUpdateResponses[keyof ProductsControllerUpdateResponses];
+
+export type StockMovementsControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        productId?: string;
+        type?: 'entry' | 'exit' | 'adjustment';
+        limit?: number;
+        offset?: number;
+        sortBy?: string;
+        sortOrder?: 'ASC' | 'DESC';
+        groupBy?: string;
+    };
+    url: '/stock-movements';
+};
+
+export type StockMovementsControllerFindAllResponses = {
+    200: unknown;
+};
+
+export type StockMovementsControllerCreateData = {
+    body: CreateStockMovementDto;
+    path?: never;
+    query?: never;
+    url: '/stock-movements';
+};
+
+export type StockMovementsControllerCreateResponses = {
+    201: StockMovement;
+};
+
+export type StockMovementsControllerCreateResponse = StockMovementsControllerCreateResponses[keyof StockMovementsControllerCreateResponses];

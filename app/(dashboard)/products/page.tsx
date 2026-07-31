@@ -133,7 +133,7 @@ export default function ProductsPage() {
         description: form.description || undefined,
         costPrice: form.costPrice ? parseFloat(form.costPrice) : undefined,
         salePrice: form.salePrice ? parseFloat(form.salePrice) : undefined,
-        stock: parseInt(form.stock, 10),
+        ...(editing ? {} : { stock: parseInt(form.stock, 10) }),
         minStock: parseInt(form.minStock, 10),
         categoryId: form.categoryId || (editing ? null : undefined),
         isActive: form.isActive,
@@ -162,8 +162,10 @@ export default function ProductsPage() {
       await api.delete(`/products/${id}`);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success('Producto eliminado');
-    } catch {
-      toast.error('Error al eliminar el producto');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al eliminar el producto';
+
+      toast.error(message);
     }
   }
 
@@ -330,7 +332,12 @@ export default function ProductsPage() {
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Sin categoría" />
+                  <SelectValue placeholder="Sin categoría">
+                    {form.categoryId
+                      ? (categories.find((category) => category.id === form.categoryId)?.name ??
+                        'Sin categoría')
+                      : 'Sin categoría'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NO_CATEGORY_VALUE}>Sin categoría</SelectItem>
@@ -369,12 +376,22 @@ export default function ProductsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-sm font-medium mb-1.5">Stock actual</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  value={form.stock}
-                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                />
+
+                {editing ? (
+                  <>
+                    <Input type="number" value={form.stock} disabled />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Modificalo desde Stock → Registrar movimiento.
+                    </p>
+                  </>
+                ) : (
+                  <Input
+                    type="number"
+                    min="0"
+                    value={form.stock}
+                    onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                  />
+                )}
               </div>
               <div>
                 <Label className="text-sm font-medium mb-1.5">Stock mínimo</Label>
