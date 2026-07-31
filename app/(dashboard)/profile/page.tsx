@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PageHeader } from '@/components/shared/page-header';
 
 type Me = { name: string; email: string };
 
@@ -79,10 +80,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-lg space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Mi perfil</h1>
-        <p className="text-muted-foreground mt-1">{me.email}</p>
-      </div>
+      <PageHeader title="Mi perfil" description={me.email} />
 
       {/* Personal info */}
       <Card className="p-5 shadow-sm">

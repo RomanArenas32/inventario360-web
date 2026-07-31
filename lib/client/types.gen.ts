@@ -245,7 +245,11 @@ export type StockMovement = {
 export type AdminControllerFindAllTenantsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        search?: string;
+        plan?: string;
+        isActive?: string;
+    };
     url: '/admin/tenants';
 };
 
@@ -341,7 +345,10 @@ export type TenantsControllerCompleteOnboardingResponse = TenantsControllerCompl
 export type TenantsControllerGetMembersData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        search?: string;
+        role?: string;
+    };
     url: '/tenants/members';
 };
 
@@ -676,7 +683,10 @@ export type NotificationSettingsControllerUpsertSettingsResponse = NotificationS
 export type CategoriesControllerFindAllData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        search?: string;
+        hasDescription?: string;
+    };
     url: '/categories';
 };
 
@@ -745,7 +755,12 @@ export type CategoriesControllerUpdateResponse = CategoriesControllerUpdateRespo
 export type ProductsControllerFindAllData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        search?: string;
+        categoryId?: string;
+        isActive?: string;
+        stock?: string;
+    };
     url: '/products';
 };
 

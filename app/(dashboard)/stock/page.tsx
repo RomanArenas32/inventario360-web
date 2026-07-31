@@ -1,23 +1,25 @@
 'use client';
 
 import { api } from '@/lib/api';
+import type { Product, StockMovement } from '@/lib/client';
 import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { PageHeader } from '@/components/shared/page-header';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -26,44 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { StockMovementDialog } from './_components/stock-movement-dialog';
 
-type Product = {
-  id: string;
-  name: string;
-  code: string;
-  stock: number;
-  minStock: number;
-  isActive: boolean;
-  category: { id: string; name: string } | null;
-};
-
-type MovementType = 'entry' | 'exit' | 'adjustment';
-
-type MovementForm = {
-  productId: string;
-  type: MovementType;
-  quantity: string;
-  reason: string;
-};
-
-type StockMovement = {
-  id: string;
-  type: MovementType;
-  quantity: number;
-  reason: string;
-  stockBefore: number;
-  stockAfter: number;
-  createdAt: string;
-  product: {
-    id: string;
-    name: string;
-    code: string;
-  };
-  user: {
-    id: string;
-    name: string;
-  };
-};
+type MovementType = StockMovement['type'];
 
 type StockMovementPage = {
   data: StockMovement[];
@@ -71,19 +38,6 @@ type StockMovementPage = {
   limit: number;
   offset: number;
   hasMore: boolean;
-};
-
-const EMPTY_MOVEMENT: MovementForm = {
-  productId: '',
-  type: 'entry',
-  quantity: '1',
-  reason: '',
-};
-
-const MOVEMENT_TYPE_LABELS: Record<MovementType, string> = {
-  entry: 'Entrada — suma stock',
-  exit: 'Salida — resta stock',
-  adjustment: 'Ajuste — establece el stock real',
 };
 
 const MOVEMENT_HISTORY_LABELS: Record<MovementType, string> = {
@@ -96,20 +50,16 @@ export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'low' | 'ok'>('all');
+  const [search, setSearch] = useState('');
   const [showMovementForm, setShowMovementForm] = useState(false);
-  const [movementForm, setMovementForm] = useState<MovementForm>(EMPTY_MOVEMENT);
-  const [submittingMovement, setSubmittingMovement] = useState(false);
-  const [movementError, setMovementError] = useState('');
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(true);
   const [movementTotal, setMovementTotal] = useState(0);
 
   const loadMovements = useCallback(async () => {
     setLoadingMovements(true);
-
     try {
       const page = await api.get<StockMovementPage>('/stock-movements?limit=20&offset=0');
-
       setMovements(page.data);
       setMovementTotal(page.total);
     } catch {
@@ -120,131 +70,112 @@ export default function StockPage() {
     }
   }, []);
 
-  useEffect(() => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
-    void api
-      .get<Product[]>('/products')
-      .then(setProducts)
-      .finally(() => setLoading(false));
-
-    void loadMovements();
-  }, [loadMovements]);
-
-  function openMovementForm(productId = '') {
-    setMovementForm({
-      ...EMPTY_MOVEMENT,
-      productId,
-    });
-    setMovementError('');
-    setShowMovementForm(true);
-  }
-
-  async function handleMovementSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const quantity = Number(movementForm.quantity);
-    const reason = movementForm.reason.trim();
-
-    if (!movementForm.productId) {
-      setMovementError('Seleccioná un producto');
-      return;
-    }
-
-    if (!Number.isInteger(quantity) || quantity < 0) {
-      setMovementError('La cantidad debe ser un número entero válido');
-      return;
-    }
-
-    if (movementForm.type !== 'adjustment' && quantity < 1) {
-      setMovementError('La cantidad debe ser mayor que cero');
-      return;
-    }
-
-    if (!reason) {
-      setMovementError('El motivo es obligatorio');
-      return;
-    }
-
-    setSubmittingMovement(true);
-    setMovementError('');
-
     try {
-      const movement = await api.post<{
-        productId: string;
-        stockAfter: number;
-      }>('/stock-movements', {
-        productId: movementForm.productId,
-        type: movementForm.type,
-        quantity,
-        reason,
-      });
-
-      setProducts((currentProducts) =>
-        currentProducts.map((product) =>
-          product.id === movement.productId ? { ...product, stock: movement.stockAfter } : product,
-        ),
-      );
-
-      toast.success('Movimiento registrado');
-      setShowMovementForm(false);
-      setMovementForm(EMPTY_MOVEMENT);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'No se pudo registrar el movimiento';
-
-      setMovementError(message);
-      toast.error(message);
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (filter !== 'all') params.set('stock', filter);
+      const qs = params.toString();
+      const prods = await api.get<Product[]>(`/products${qs ? `?${qs}` : ''}`);
+      setProducts(prods);
     } finally {
-      setSubmittingMovement(false);
+      setLoading(false);
     }
-  }
+  }, [search, filter]);
 
-  const filtered = products.filter((p) => {
-    if (filter === 'low') return p.stock <= p.minStock;
-    if (filter === 'ok') return p.stock > p.minStock;
-    return true;
-  });
+  useEffect(() => {
+    void loadProducts();
+    void loadMovements();
+  }, [loadProducts, loadMovements]);
 
   const lowCount = products.filter((p) => p.stock <= p.minStock).length;
-  const selectedProduct = products.find((product) => product.id === movementForm.productId);
+  const hasFilters = filter !== 'all';
 
-  const filterBtns: { key: typeof filter; label: string }[] = [
-    { key: 'all', label: 'Todos' },
-    { key: 'low', label: 'Stock bajo' },
-    { key: 'ok', label: 'Stock OK' },
-  ];
+  const FILTER_LABELS: Record<typeof filter, string> = {
+    all: 'Todos',
+    low: 'Stock bajo',
+    ok: 'Stock OK',
+  };
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Stock</h1>
-          <p className="mt-1 text-muted-foreground">
-            {lowCount > 0
-              ? `${lowCount} producto${lowCount !== 1 ? 's' : ''} con stock bajo`
-              : 'Todo el stock en orden'}
-          </p>
+      <PageHeader
+        title="Stock"
+        description={
+          lowCount > 0
+            ? `${lowCount} producto${lowCount !== 1 ? 's' : ''} con stock bajo`
+            : 'Todo el stock en orden'
+        }
+        action={
+          <Button
+            onClick={() => setShowMovementForm(true)}
+            disabled={!products.some((p) => p.isActive)}
+          >
+            + Registrar movimiento
+          </Button>
+        }
+      />
+
+      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1 max-w-sm">
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            placeholder="Buscar por nombre o código..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
         </div>
 
-        <Button
-          onClick={() => openMovementForm()}
-          disabled={!products.some((product) => product.isActive)}
-        >
-          + Registrar movimiento
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'sm' }),
+              'gap-1.5',
+              hasFilters && 'border-primary text-primary',
+            )}
+          >
+            <SlidersHorizontal size={13} />
+            Filtrar
+            {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-44">
+            <DropdownMenuRadioGroup
+              value={filter}
+              onValueChange={(v) => setFilter(v as typeof filter)}
+            >
+              <DropdownMenuLabel>Estado de stock</DropdownMenuLabel>
+              <DropdownMenuRadioItem value="all">Todos</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="low">Stock bajo</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="ok">Stock OK</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <div className="flex gap-2 mb-4">
-        {filterBtns.map(({ key, label }) => (
-          <Button
-            key={key}
-            size="sm"
-            variant={filter === key ? 'default' : 'outline'}
-            onClick={() => setFilter(key)}
+      {hasFilters && (
+        <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+          <Badge variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 text-xs font-normal">
+            {FILTER_LABELS[filter]}
+            <button
+              onClick={() => setFilter('all')}
+              className="rounded-sm opacity-60 hover:opacity-100 transition-opacity"
+            >
+              <X size={11} />
+            </button>
+          </Badge>
+          <button
+            onClick={() => setFilter('all')}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
           >
-            {label}
-          </Button>
-        ))}
-      </div>
+            Limpiar
+          </button>
+        </div>
+      )}
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
@@ -252,7 +183,7 @@ export default function StockPage() {
             cols={5}
             headers={['Producto', 'Código', 'Categoría', 'Stock', 'Estado']}
           />
-        ) : filtered.length === 0 ? (
+        ) : products.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             No hay productos en esta vista.
           </div>
@@ -273,7 +204,7 @@ export default function StockPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((p) => {
+              {products.map((p) => {
                 const isLow = p.stock <= p.minStock;
                 return (
                   <TableRow
@@ -325,7 +256,6 @@ export default function StockPage() {
           <h2 className="text-lg font-semibold text-foreground">Historial de movimientos</h2>
           <p className="text-sm text-muted-foreground">Últimos movimientos registrados</p>
         </div>
-
         <span className="text-sm text-muted-foreground">{movementTotal} en total</span>
       </div>
 
@@ -353,55 +283,46 @@ export default function StockPage() {
                   <TableHead className="px-4 py-3">Usuario</TableHead>
                 </TableRow>
               </TableHeader>
-
               <TableBody>
-                {movements.map((movement) => (
-                  <TableRow key={movement.id}>
+                {movements.map((m) => (
+                  <TableRow key={m.id}>
                     <TableCell className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                      {new Date(movement.createdAt).toLocaleString('es-AR', {
+                      {new Date(m.createdAt).toLocaleString('es-AR', {
                         dateStyle: 'short',
                         timeStyle: 'short',
                       })}
                     </TableCell>
-
                     <TableCell className="px-4 py-3">
-                      <div className="font-medium">{movement.product.name}</div>
-                      <div className="text-xs text-muted-foreground">{movement.product.code}</div>
+                      <div className="font-medium">{m.product.name}</div>
+                      <div className="text-xs text-muted-foreground">{m.product.code}</div>
                     </TableCell>
-
                     <TableCell className="px-4 py-3">
                       <Badge
                         className={
-                          movement.type === 'entry'
+                          m.type === 'entry'
                             ? 'border-0 bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400'
-                            : movement.type === 'exit'
+                            : m.type === 'exit'
                               ? 'border-0 bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'
                               : 'border-0 bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400'
                         }
                       >
-                        {MOVEMENT_HISTORY_LABELS[movement.type]}
+                        {MOVEMENT_HISTORY_LABELS[m.type]}
                       </Badge>
                     </TableCell>
-
                     <TableCell className="px-4 py-3 text-right font-medium">
-                      {movement.type === 'entry'
-                        ? `+${movement.quantity}`
-                        : movement.type === 'exit'
-                          ? `-${movement.quantity}`
-                          : movement.quantity}
+                      {m.type === 'entry'
+                        ? `+${m.quantity}`
+                        : m.type === 'exit'
+                          ? `-${m.quantity}`
+                          : m.quantity}
                     </TableCell>
-
                     <TableCell className="whitespace-nowrap px-4 py-3 text-right">
-                      {movement.stockBefore} → {movement.stockAfter}
+                      {m.stockBefore} → {m.stockAfter}
                     </TableCell>
-
                     <TableCell className="max-w-64 px-4 py-3 text-muted-foreground">
-                      {movement.reason}
+                      {m.reason}
                     </TableCell>
-
-                    <TableCell className="whitespace-nowrap px-4 py-3">
-                      {movement.user.name}
-                    </TableCell>
+                    <TableCell className="whitespace-nowrap px-4 py-3">{m.user.name}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -410,136 +331,12 @@ export default function StockPage() {
         )}
       </Card>
 
-      <Dialog
+      <StockMovementDialog
         open={showMovementForm}
-        onOpenChange={(open) => {
-          setShowMovementForm(open);
-
-          if (!open) {
-            setMovementError('');
-            setMovementForm(EMPTY_MOVEMENT);
-          }
-        }}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Registrar movimiento</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={(event) => void handleMovementSubmit(event)} className="space-y-4">
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">Producto *</Label>
-              <Select
-                value={movementForm.productId}
-                onValueChange={(value) =>
-                  setMovementForm({
-                    ...movementForm,
-                    productId: value ?? '',
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Seleccioná un producto">
-                    {selectedProduct
-                      ? `${selectedProduct.name} — ${selectedProduct.code}`
-                      : 'Seleccioná un producto'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {products
-                    .filter((product) => product.isActive)
-                    .map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.name} — {product.code}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {selectedProduct && (
-              <div className="rounded-lg bg-muted px-3 py-2 text-sm">
-                Stock actual: <span className="font-semibold">{selectedProduct.stock}</span>
-              </div>
-            )}
-
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">Tipo de movimiento *</Label>
-              <Select
-                value={movementForm.type}
-                onValueChange={(value) => {
-                  if (value) {
-                    setMovementForm({
-                      ...movementForm,
-                      type: value as MovementType,
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue>{MOVEMENT_TYPE_LABELS[movementForm.type]}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="entry">Entrada — suma stock</SelectItem>
-                  <SelectItem value="exit">Salida — resta stock</SelectItem>
-                  <SelectItem value="adjustment">Ajuste — establece el stock real</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">
-                {movementForm.type === 'adjustment' ? 'Stock contado *' : 'Cantidad *'}
-              </Label>
-              <Input
-                required
-                type="number"
-                min={movementForm.type === 'adjustment' ? 0 : 1}
-                step="1"
-                value={movementForm.quantity}
-                onChange={(event) =>
-                  setMovementForm({
-                    ...movementForm,
-                    quantity: event.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">Motivo *</Label>
-              <Textarea
-                required
-                maxLength={255}
-                value={movementForm.reason}
-                onChange={(event) =>
-                  setMovementForm({
-                    ...movementForm,
-                    reason: event.target.value,
-                  })
-                }
-                placeholder="Ej: Compra al proveedor, venta, uso interno o conteo físico"
-              />
-            </div>
-
-            {movementError && <p className="text-sm text-destructive">{movementError}</p>}
-
-            <div className="flex gap-3 pt-1">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowMovementForm(false)}
-                className="flex-1"
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={submittingMovement} className="flex-1">
-                {submittingMovement ? 'Guardando...' : 'Registrar'}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+        onOpenChange={setShowMovementForm}
+        products={products}
+        onSuccess={() => void loadProducts()}
+      />
     </div>
   );
 }

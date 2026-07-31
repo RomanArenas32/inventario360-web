@@ -1,6 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
+import type { NotificationSettings } from '@/lib/client';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
@@ -8,12 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PhoneInput, type PhoneValue, parsePhone, formatPhone } from '@/components/ui/phone-input';
 import { ChevronRight, MessageCircle, Puzzle } from 'lucide-react';
-
-type NotificationSettings = {
-  whatsappPhone: string | null;
-  whatsappOptIn: boolean;
-  alertLowStock: boolean;
-};
+import { PageHeader } from '@/components/shared/page-header';
 
 const OTHER_INTEGRATIONS = [
   {
@@ -29,7 +25,9 @@ const OTHER_INTEGRATIONS = [
 ];
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<NotificationSettings>({
+  const [settings, setSettings] = useState<
+    Pick<NotificationSettings, 'whatsappPhone' | 'whatsappOptIn' | 'alertLowStock'>
+  >({
     whatsappPhone: null,
     whatsappOptIn: false,
     alertLowStock: true,
@@ -73,12 +71,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Integraciones</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Conectá tu negocio con otras plataformas.
-        </p>
-      </div>
+      <PageHeader title="Integraciones" description="Conectá tu negocio con otras plataformas." />
 
       {/* WhatsApp */}
       <section>
