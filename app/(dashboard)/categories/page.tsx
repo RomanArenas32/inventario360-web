@@ -198,6 +198,7 @@ export default function CategoriesPage() {
       </Card>
 
       <CategoryFormDialog
+        key={editing?.id ?? 'new-category'}
         open={showForm}
         onOpenChange={setShowForm}
         category={editing}

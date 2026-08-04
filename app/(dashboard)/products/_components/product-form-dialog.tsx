@@ -42,6 +42,22 @@ const EMPTY: FormState = {
 
 const NO_CATEGORY_VALUE = 'none';
 
+function getInitialForm(product: Product | null): FormState {
+  if (!product) return EMPTY;
+
+  return {
+    name: product.name,
+    code: product.code,
+    description: product.description ?? '',
+    costPrice: product.costPrice?.toString() ?? '',
+    salePrice: product.salePrice?.toString() ?? '',
+    stock: product.stock.toString(),
+    minStock: product.minStock.toString(),
+    categoryId: product.category?.id ?? '',
+    isActive: product.isActive,
+  };
+}
+
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,27 +67,13 @@ type Props = {
 };
 
 export function ProductFormDialog({ open, onOpenChange, product, categories, onSuccess }: Props) {
-  const [form, setForm] = useState<FormState>(
-    product
-      ? {
-          name: product.name,
-          code: product.code,
-          description: product.description ?? '',
-          costPrice: product.costPrice?.toString() ?? '',
-          salePrice: product.salePrice?.toString() ?? '',
-          stock: product.stock.toString(),
-          minStock: product.minStock.toString(),
-          categoryId: product.category?.id ?? '',
-          isActive: product.isActive,
-        }
-      : EMPTY,
-  );
+  const [form, setForm] = useState<FormState>(() => getInitialForm(product));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      setForm(product ? form : EMPTY);
+      setForm(getInitialForm(product));
       setError('');
     }
     onOpenChange(open);
@@ -242,7 +244,7 @@ export function ProductFormDialog({ open, onOpenChange, product, categories, onS
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               className="flex-1"
             >
               Cancelar

@@ -99,7 +99,7 @@ export function StockMovementDialog({
         reason,
       });
       toast.success('Movimiento registrado');
-      onOpenChange(false);
+      handleOpenChange(false);
       onSuccess();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'No se pudo registrar el movimiento';
@@ -200,7 +200,7 @@ export function StockMovementDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               className="flex-1"
             >
               Cancelar
