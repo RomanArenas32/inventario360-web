@@ -335,7 +335,10 @@ export default function StockPage() {
         open={showMovementForm}
         onOpenChange={setShowMovementForm}
         products={products}
-        onSuccess={() => void loadProducts()}
+        onSuccess={() => {
+          void loadProducts();
+          void loadMovements();
+        }}
       />
     </div>
   );

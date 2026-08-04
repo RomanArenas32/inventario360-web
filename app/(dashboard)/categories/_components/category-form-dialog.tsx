@@ -27,7 +27,18 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess }: 
   const [error, setError] = useState('');
 
   function handleOpenChange(open: boolean) {
-    if (!open) setError('');
+    if (!open) {
+      setForm(
+        category
+          ? {
+              name: category.name,
+              description: category.description ?? '',
+            }
+          : EMPTY,
+      );
+      setError('');
+    }
+
     onOpenChange(open);
   }
 
@@ -44,7 +55,7 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess }: 
         await api.post('/categories', body);
         toast.success('Categoría creada');
       }
-      onOpenChange(false);
+      handleOpenChange(false);
       onSuccess();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al guardar';
@@ -84,7 +95,7 @@ export function CategoryFormDialog({ open, onOpenChange, category, onSuccess }: 
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               className="flex-1"
             >
               Cancelar

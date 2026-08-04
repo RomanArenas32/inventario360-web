@@ -328,6 +328,7 @@ export default function ProductsPage() {
       </Card>
 
       <ProductFormDialog
+        key={editing?.id ?? 'new-product'}
         open={showForm}
         onOpenChange={setShowForm}
         product={editing}
