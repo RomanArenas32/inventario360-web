@@ -29,6 +29,7 @@ const BUSINESS_TYPES = [
   { value: 'restaurante', label: 'Restaurante', icon: '🍽️', desc: 'Gastronomía' },
   { value: 'tienda_ropa', label: 'Indumentaria', icon: '👗', desc: 'Moda' },
   { value: 'tienda_electronica', label: 'Electrónica', icon: '💻', desc: 'Tecnología' },
+  { value: 'otro', label: 'Otro', icon: '🏪', desc: 'Otro tipo' },
 ];
 
 const STEP_META = [

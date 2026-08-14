@@ -9,7 +9,8 @@ export const BusinessTypeSchema = {
         'barberia',
         'restaurante',
         'tienda_ropa',
-        'tienda_electronica'
+        'tienda_electronica',
+        'otro'
     ]
 } as const;
 
@@ -149,7 +150,8 @@ export const TenantSchema = {
                 'barberia',
                 'restaurante',
                 'tienda_ropa',
-                'tienda_electronica'
+                'tienda_electronica',
+                'otro'
             ],
             type: 'string'
         },
@@ -540,6 +542,51 @@ export const NotificationSettingsSchema = {
         'whatsappOptIn',
         'alertLowStock',
         'updatedAt'
+    ]
+} as const;
+
+export const NotificationSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        tenantId: {
+            type: 'string'
+        },
+        type: {
+            type: 'string',
+            enum: [
+                'low_stock'
+            ]
+        },
+        title: {
+            type: 'string'
+        },
+        body: {
+            type: 'string'
+        },
+        read: {
+            type: 'boolean'
+        },
+        data: {
+            type: 'object',
+            nullable: true
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'tenantId',
+        'type',
+        'title',
+        'body',
+        'read',
+        'data',
+        'createdAt'
     ]
 } as const;
 
