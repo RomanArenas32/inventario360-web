@@ -11,7 +11,8 @@ export const BusinessType = {
     BARBERIA: 'barberia',
     RESTAURANTE: 'restaurante',
     TIENDA_ROPA: 'tienda_ropa',
-    TIENDA_ELECTRONICA: 'tienda_electronica'
+    TIENDA_ELECTRONICA: 'tienda_electronica',
+    OTRO: 'otro'
 } as const;
 
 export type BusinessType = typeof BusinessType[keyof typeof BusinessType];
@@ -54,7 +55,7 @@ export type User = {
 export type Tenant = {
     id: string;
     name: string;
-    businessType: 'almacen' | 'kiosco' | 'ferreteria' | 'barberia' | 'restaurante' | 'tienda_ropa' | 'tienda_electronica';
+    businessType: 'almacen' | 'kiosco' | 'ferreteria' | 'barberia' | 'restaurante' | 'tienda_ropa' | 'tienda_electronica' | 'otro';
     phone: string;
     plan: 'basic' | 'pro' | 'enterprise';
     isOnboarded: boolean;
@@ -153,6 +154,19 @@ export type NotificationSettings = {
     whatsappOptIn: boolean;
     alertLowStock: boolean;
     updatedAt: string;
+};
+
+export type Notification = {
+    id: string;
+    tenantId: string;
+    type: 'low_stock';
+    title: string;
+    body: string;
+    read: boolean;
+    data: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
 };
 
 export type CreateCategoryDto = {
@@ -679,6 +693,58 @@ export type NotificationSettingsControllerUpsertSettingsResponses = {
 };
 
 export type NotificationSettingsControllerUpsertSettingsResponse = NotificationSettingsControllerUpsertSettingsResponses[keyof NotificationSettingsControllerUpsertSettingsResponses];
+
+export type NotificationsControllerGetAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/notifications';
+};
+
+export type NotificationsControllerGetAllResponses = {
+    200: Array<Notification>;
+};
+
+export type NotificationsControllerGetAllResponse = NotificationsControllerGetAllResponses[keyof NotificationsControllerGetAllResponses];
+
+export type NotificationsControllerGetUnreadCountData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/notifications/unread-count';
+};
+
+export type NotificationsControllerGetUnreadCountResponses = {
+    200: unknown;
+};
+
+export type NotificationsControllerMarkAllReadData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/notifications/read-all';
+};
+
+export type NotificationsControllerMarkAllReadResponses = {
+    204: void;
+};
+
+export type NotificationsControllerMarkAllReadResponse = NotificationsControllerMarkAllReadResponses[keyof NotificationsControllerMarkAllReadResponses];
+
+export type NotificationsControllerMarkReadData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/notifications/{id}/read';
+};
+
+export type NotificationsControllerMarkReadResponses = {
+    204: void;
+};
+
+export type NotificationsControllerMarkReadResponse = NotificationsControllerMarkReadResponses[keyof NotificationsControllerMarkReadResponses];
 
 export type CategoriesControllerFindAllData = {
     body?: never;

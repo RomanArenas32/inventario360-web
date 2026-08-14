@@ -24,6 +24,7 @@ import {
   Warehouse,
   CalendarDays,
 } from 'lucide-react';
+import { NotificationBell, NotificationBellMobile } from '@/components/shared/notification-bell';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -199,6 +200,7 @@ export default function Sidebar() {
 
   const bottomExtra = (collapsed: boolean) => (
     <>
+      <NotificationBell collapsed={collapsed} />
       {isOwner && (
         <Link
           href="/settings"
@@ -259,6 +261,7 @@ export default function Sidebar() {
       collapsedHeader={collapsedHeader}
       bottomExtra={bottomExtra}
       mobileHeader={mobileHeader}
+      mobileBadge={<NotificationBellMobile />}
       onLogout={() => void handleLogout()}
     />
   );
