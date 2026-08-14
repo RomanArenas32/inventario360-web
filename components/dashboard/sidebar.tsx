@@ -18,7 +18,6 @@ import {
   LayoutDashboard,
   Package,
   Settings,
-  Tag,
   User,
   Users,
   Warehouse,
@@ -33,7 +32,6 @@ import { usePathname, useRouter } from 'next/navigation';
 const MODULE_NAV: Record<string, SidebarNavItem> = {
   products: { href: '/products', label: 'Productos', icon: Package },
   turns: { href: '/turns', label: 'Turnos', icon: CalendarDays },
-  categories: { href: '/categories', label: 'Categorías', icon: Tag },
   stock: { href: '/stock', label: 'Stock', icon: Warehouse },
 };
 

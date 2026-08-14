@@ -107,7 +107,7 @@ export function NotificationBell({ collapsed = false }: Props) {
             opacity: collapsed ? 0 : 1,
             transition: 'max-width 300ms ease-in-out, opacity 200ms ease-in-out',
           }}
-          className="overflow-hidden whitespace-nowrap flex items-center gap-2"
+          className="overflow-hidden whitespace-nowrap flex items-center gap-2 hover:cursor-pointer"
         >
           Notificaciones
           {hasUnread && (
