@@ -8,6 +8,7 @@ import type { SidebarNavItem } from '@/components/shared/app-sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -163,21 +164,23 @@ export default function Sidebar() {
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="start" sideOffset={0}>
-          <DropdownMenuLabel>Negocios</DropdownMenuLabel>
-          {data?.allTenants.map((t) => (
-            <DropdownMenuItem key={t.id} onClick={() => void handleSwitchTenant(t.id, onClose)}>
-              <span className="flex items-center gap-2 flex-1 min-w-0">
-                <Check
-                  size={12}
-                  className={t.id === data.activeTenantId ? 'opacity-100' : 'opacity-0'}
-                />
-                <span className="truncate">{t.name}</span>
-              </span>
-              <span className="ml-2 text-xs text-muted-foreground shrink-0">
-                {ROLE_LABEL[t.role] ?? t.role}
-              </span>
-            </DropdownMenuItem>
-          ))}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Negocios</DropdownMenuLabel>
+            {data?.allTenants.map((t) => (
+              <DropdownMenuItem key={t.id} onClick={() => void handleSwitchTenant(t.id, onClose)}>
+                <span className="flex items-center gap-2 flex-1 min-w-0">
+                  <Check
+                    size={12}
+                    className={t.id === data.activeTenantId ? 'opacity-100' : 'opacity-0'}
+                  />
+                  <span className="truncate">{t.name}</span>
+                </span>
+                <span className="ml-2 text-xs text-muted-foreground shrink-0">
+                  {ROLE_LABEL[t.role] ?? t.role}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     );

@@ -117,12 +117,7 @@ export function NotificationBell({ collapsed = false }: Props) {
           )}
         </span>
       </PopoverTrigger>
-      <PopoverContent
-        side="right"
-        align="end"
-        sideOffset={8}
-        className="w-80 p-0 overflow-hidden"
-      >
+      <PopoverContent side="right" align="end" sideOffset={8} className="w-80 p-0 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <span className="text-sm font-semibold text-foreground">Notificaciones</span>
@@ -162,7 +157,9 @@ export function NotificationBell({ collapsed = false }: Props) {
             notifications.map((n) => (
               <button
                 key={n.id}
-                onClick={() => { if (!n.read) void handleMarkRead(n.id); }}
+                onClick={() => {
+                  if (!n.read) void handleMarkRead(n.id);
+                }}
                 className={`w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-muted/50 transition-colors ${
                   n.read ? 'opacity-60' : ''
                 }`}
@@ -179,12 +176,12 @@ export function NotificationBell({ collapsed = false }: Props) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium text-foreground leading-tight">{n.title}</p>
-                    {!n.read && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-                    )}
+                    {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{n.body}</p>
-                  <p className="text-[11px] text-muted-foreground/60 mt-1">{timeAgo(n.createdAt)}</p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-1">
+                    {timeAgo(n.createdAt)}
+                  </p>
                 </div>
               </button>
             ))
@@ -253,9 +250,7 @@ export function NotificationBellMobile() {
     <Popover open={open} onOpenChange={(v) => void handleOpen(v)}>
       <PopoverTrigger className="relative p-2 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
         <Bell size={18} />
-        {hasUnread && (
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-        )}
+        {hasUnread && <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />}
       </PopoverTrigger>
       <PopoverContent side="bottom" align="end" sideOffset={8} className="w-80 p-0 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
@@ -294,7 +289,9 @@ export function NotificationBellMobile() {
             notifications.map((n) => (
               <button
                 key={n.id}
-                onClick={() => { if (!n.read) void handleMarkRead(n.id); }}
+                onClick={() => {
+                  if (!n.read) void handleMarkRead(n.id);
+                }}
                 className={`w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-muted/50 transition-colors ${
                   n.read ? 'opacity-60' : ''
                 }`}
@@ -311,12 +308,12 @@ export function NotificationBellMobile() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium text-foreground leading-tight">{n.title}</p>
-                    {!n.read && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-                    )}
+                    {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{n.body}</p>
-                  <p className="text-[11px] text-muted-foreground/60 mt-1">{timeAgo(n.createdAt)}</p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-1">
+                    {timeAgo(n.createdAt)}
+                  </p>
                 </div>
               </button>
             ))

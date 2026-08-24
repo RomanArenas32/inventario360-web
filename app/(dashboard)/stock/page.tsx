@@ -149,7 +149,10 @@ export default function StockPage() {
       {/* Filtros */}
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center">
         <div className="relative flex-1 max-w-sm">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             placeholder="Buscar por nombre o código..."
             value={search}
@@ -160,14 +163,21 @@ export default function StockPage() {
 
         <DropdownMenu>
           <DropdownMenuTrigger
-            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'gap-1.5', hasFilters && 'border-primary text-primary')}
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'sm' }),
+              'gap-1.5',
+              hasFilters && 'border-primary text-primary',
+            )}
           >
             <SlidersHorizontal size={13} />
             Filtrar
             {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-44">
-            <DropdownMenuRadioGroup value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+            <DropdownMenuRadioGroup
+              value={filter}
+              onValueChange={(v) => setFilter(v as typeof filter)}
+            >
               <DropdownMenuLabel>Estado de stock</DropdownMenuLabel>
               <DropdownMenuRadioItem value="all">Todos</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="low">Stock bajo</DropdownMenuRadioItem>
@@ -181,11 +191,17 @@ export default function StockPage() {
         <div className="flex items-center gap-1.5 mb-4 flex-wrap">
           <Badge variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 text-xs font-normal">
             {FILTER_LABELS[filter]}
-            <button onClick={() => setFilter('all')} className="rounded-sm opacity-60 hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => setFilter('all')}
+              className="rounded-sm opacity-60 hover:opacity-100 transition-opacity"
+            >
               <X size={11} />
             </button>
           </Badge>
-          <button onClick={() => setFilter('all')} className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-1">
+          <button
+            onClick={() => setFilter('all')}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
+          >
             Limpiar
           </button>
         </div>
@@ -194,9 +210,14 @@ export default function StockPage() {
       {/* Tabla de stock */}
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
-          <TableSkeleton cols={6} headers={['Producto', 'Código', 'Categoría', 'Stock actual', 'Stock mínimo', 'Estado']} />
+          <TableSkeleton
+            cols={6}
+            headers={['Producto', 'Código', 'Categoría', 'Stock actual', 'Stock mínimo', 'Estado']}
+          />
         ) : products.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">No hay productos en esta vista.</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">
+            No hay productos en esta vista.
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -204,10 +225,14 @@ export default function StockPage() {
                 <TableHead className="px-4 py-3 text-muted-foreground">Producto</TableHead>
                 <TableHead className="px-4 py-3 text-muted-foreground">Código</TableHead>
                 <TableHead className="px-4 py-3 text-muted-foreground">Categoría</TableHead>
-                <TableHead className="px-4 py-3 text-right text-muted-foreground">Stock actual</TableHead>
+                <TableHead className="px-4 py-3 text-right text-muted-foreground">
+                  Stock actual
+                </TableHead>
                 <TableHead className="px-4 py-3 text-right text-muted-foreground">Mínimo</TableHead>
                 <TableHead className="px-4 py-3 text-muted-foreground">Estado</TableHead>
-                <TableHead className="px-4 py-3 text-right text-muted-foreground">Movimiento</TableHead>
+                <TableHead className="px-4 py-3 text-right text-muted-foreground">
+                  Movimiento
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -216,20 +241,38 @@ export default function StockPage() {
                 return (
                   <TableRow
                     key={p.id}
-                    className={isLow ? 'bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/20' : ''}
+                    className={
+                      isLow
+                        ? 'bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/20'
+                        : ''
+                    }
                   >
-                    <TableCell className="px-4 py-3 font-medium text-foreground">{p.name}</TableCell>
-                    <TableCell className="px-4 py-3 text-muted-foreground font-mono text-xs">{p.code}</TableCell>
-                    <TableCell className="px-4 py-3 text-muted-foreground">{p.category?.name ?? '—'}</TableCell>
-                    <TableCell className={`px-4 py-3 text-right font-bold ${isLow ? 'text-amber-500' : 'text-foreground'}`}>
+                    <TableCell className="px-4 py-3 font-medium text-foreground">
+                      {p.name}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                      {p.code}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground">
+                      {p.category?.name ?? '—'}
+                    </TableCell>
+                    <TableCell
+                      className={`px-4 py-3 text-right font-bold ${isLow ? 'text-amber-500' : 'text-foreground'}`}
+                    >
                       {p.stock}
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-right text-muted-foreground">{p.minStock}</TableCell>
+                    <TableCell className="px-4 py-3 text-right text-muted-foreground">
+                      {p.minStock}
+                    </TableCell>
                     <TableCell className="px-4 py-3">
                       {isLow ? (
-                        <Badge className="bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0">Stock bajo</Badge>
+                        <Badge className="bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-0">
+                          Stock bajo
+                        </Badge>
                       ) : (
-                        <Badge className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 border-0">OK</Badge>
+                        <Badge className="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 border-0">
+                          OK
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right">
@@ -257,15 +300,31 @@ export default function StockPage() {
       <div className="mb-4 mt-8 flex items-end justify-between">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Historial de movimientos</h2>
-          <p className="text-sm text-muted-foreground">{movementTotal} movimiento{movementTotal !== 1 ? 's' : ''} en total</p>
+          <p className="text-sm text-muted-foreground">
+            {movementTotal} movimiento{movementTotal !== 1 ? 's' : ''} en total
+          </p>
         </div>
         {totalPages > 1 && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
               <ArrowLeft size={14} />
             </Button>
-            <span>Página {currentPage} de {totalPages}</span>
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={currentPage >= totalPages} onClick={() => setPage((p) => p + 1)}>
+            <span>
+              Página {currentPage} de {totalPages}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
               <ArrowRight size={14} />
             </Button>
           </div>
@@ -274,10 +333,15 @@ export default function StockPage() {
 
       <Card className="overflow-hidden p-0 shadow-sm">
         {loadingMovements ? (
-          <TableSkeleton cols={7} headers={['Fecha', 'Producto', 'Tipo', 'Cantidad', 'Stock', 'Motivo', 'Usuario']} />
+          <TableSkeleton
+            cols={7}
+            headers={['Fecha', 'Producto', 'Tipo', 'Cantidad', 'Stock', 'Motivo', 'Usuario']}
+          />
         ) : movements.length === 0 ? (
           <div className="p-8 text-center text-sm text-muted-foreground">
-            {movementTotal === 0 ? 'Todavía no hay movimientos de stock.' : 'No hay movimientos en esta página.'}
+            {movementTotal === 0
+              ? 'Todavía no hay movimientos de stock.'
+              : 'No hay movimientos en esta página.'}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -297,7 +361,10 @@ export default function StockPage() {
                 {movements.map((m) => (
                   <TableRow key={m.id}>
                     <TableCell className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                      {new Date(m.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })}
+                      {new Date(m.createdAt).toLocaleString('es-AR', {
+                        dateStyle: 'short',
+                        timeStyle: 'short',
+                      })}
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="font-medium">{m.product.name}</div>
@@ -317,12 +384,18 @@ export default function StockPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right font-medium">
-                      {m.type === 'entry' ? `+${m.quantity}` : m.type === 'exit' ? `-${m.quantity}` : m.quantity}
+                      {m.type === 'entry'
+                        ? `+${m.quantity}`
+                        : m.type === 'exit'
+                          ? `-${m.quantity}`
+                          : m.quantity}
                     </TableCell>
                     <TableCell className="whitespace-nowrap px-4 py-3 text-right">
                       {m.stockBefore} → {m.stockAfter}
                     </TableCell>
-                    <TableCell className="max-w-64 px-4 py-3 text-muted-foreground">{m.reason}</TableCell>
+                    <TableCell className="max-w-64 px-4 py-3 text-muted-foreground">
+                      {m.reason}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap px-4 py-3">{m.user.name}</TableCell>
                   </TableRow>
                 ))}
@@ -335,11 +408,23 @@ export default function StockPage() {
       {/* Paginación inferior */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 mt-4 text-sm text-muted-foreground">
-          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 0}
+            onClick={() => setPage((p) => p - 1)}
+          >
             <ArrowLeft size={13} className="mr-1" /> Anterior
           </Button>
-          <span>Página {currentPage} de {totalPages}</span>
-          <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage((p) => p + 1)}>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
             Siguiente <ArrowRight size={13} className="ml-1" />
           </Button>
         </div>

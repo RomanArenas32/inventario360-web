@@ -99,6 +99,10 @@ export const UserSchema = {
             type: 'string',
             nullable: true
         },
+        expoPushToken: {
+            type: 'string',
+            nullable: true
+        },
         globalRole: {
             type: 'string',
             enum: [
@@ -126,6 +130,7 @@ export const UserSchema = {
         'email',
         'password',
         'avatarUrl',
+        'expoPushToken',
         'globalRole',
         'isActive',
         'memberships',
@@ -185,6 +190,11 @@ export const TenantSchema = {
                 $ref: '#/components/schemas/TenantMembership'
             }
         },
+        trialEndsAt: {
+            format: 'date-time',
+            type: 'string',
+            nullable: true
+        },
         createdAt: {
             format: 'date-time',
             type: 'string'
@@ -200,6 +210,7 @@ export const TenantSchema = {
         'isActive',
         'staffModules',
         'memberships',
+        'trialEndsAt',
         'createdAt'
     ]
 } as const;
@@ -285,10 +296,7 @@ export const OnboardingDtoSchema = {
             type: 'string',
             maxLength: 30
         }
-    },
-    required: [
-        'businessType'
-    ]
+    }
 } as const;
 
 export const AddMemberDtoSchema = {
@@ -361,6 +369,20 @@ export const ChangePasswordDtoSchema = {
     required: [
         'currentPassword',
         'newPassword'
+    ]
+} as const;
+
+export const SavePushTokenDtoSchema = {
+    type: 'object',
+    properties: {
+        token: {
+            type: 'string',
+            nullable: true,
+            default: null
+        }
+    },
+    required: [
+        'token'
     ]
 } as const;
 
@@ -507,6 +529,12 @@ export const UpsertNotificationSettingsDtoSchema = {
         },
         alertLowStock: {
             type: 'boolean'
+        },
+        alertNewSale: {
+            type: 'boolean'
+        },
+        alertTurnAssigned: {
+            type: 'boolean'
         }
     }
 } as const;
@@ -530,6 +558,12 @@ export const NotificationSettingsSchema = {
         alertLowStock: {
             type: 'boolean'
         },
+        alertNewSale: {
+            type: 'boolean'
+        },
+        alertTurnAssigned: {
+            type: 'boolean'
+        },
         updatedAt: {
             format: 'date-time',
             type: 'string'
@@ -541,6 +575,8 @@ export const NotificationSettingsSchema = {
         'whatsappPhone',
         'whatsappOptIn',
         'alertLowStock',
+        'alertNewSale',
+        'alertTurnAssigned',
         'updatedAt'
     ]
 } as const;
@@ -557,7 +593,9 @@ export const NotificationSchema = {
         type: {
             type: 'string',
             enum: [
-                'low_stock'
+                'low_stock',
+                'new_sale',
+                'turn_assigned'
             ]
         },
         title: {
@@ -819,6 +857,236 @@ export const UpdateProductDtoSchema = {
     }
 } as const;
 
+export const SaleItemDtoSchema = {
+    type: 'object',
+    properties: {
+        productId: {
+            type: 'string',
+            format: 'uuid'
+        },
+        description: {
+            type: 'string',
+            maxLength: 200
+        },
+        unitPrice: {
+            type: 'number',
+            minimum: 0
+        },
+        quantity: {
+            type: 'number',
+            minimum: 1
+        }
+    },
+    required: [
+        'quantity'
+    ]
+} as const;
+
+export const CreateSaleDtoSchema = {
+    type: 'object',
+    properties: {
+        items: {
+            minItems: 1,
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SaleItemDto'
+            }
+        },
+        paymentMethod: {
+            type: 'string',
+            enum: [
+                'cash',
+                'card',
+                'transfer'
+            ]
+        },
+        notes: {
+            type: 'string'
+        },
+        customDate: {
+            type: 'string'
+        },
+        discountPct: {
+            type: 'number',
+            minimum: 0,
+            maximum: 100
+        }
+    },
+    required: [
+        'items',
+        'paymentMethod'
+    ]
+} as const;
+
+export const SaleSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        total: {
+            type: 'number'
+        },
+        profit: {
+            type: 'number'
+        },
+        paymentMethod: {
+            enum: [
+                'cash',
+                'card',
+                'transfer'
+            ],
+            type: 'string'
+        },
+        notes: {
+            type: 'string'
+        },
+        itemCount: {
+            type: 'number'
+        },
+        items: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SaleItem'
+            }
+        },
+        tenantId: {
+            type: 'string'
+        },
+        tenant: {
+            $ref: '#/components/schemas/Tenant'
+        },
+        userId: {
+            type: 'string'
+        },
+        user: {
+            $ref: '#/components/schemas/User'
+        },
+        saleNumber: {
+            type: 'number'
+        },
+        discount: {
+            type: 'number'
+        },
+        refundedAt: {
+            format: 'date-time',
+            type: 'string',
+            nullable: true
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'total',
+        'profit',
+        'paymentMethod',
+        'notes',
+        'itemCount',
+        'items',
+        'tenantId',
+        'tenant',
+        'userId',
+        'user',
+        'saleNumber',
+        'discount',
+        'refundedAt',
+        'createdAt'
+    ]
+} as const;
+
+export const SaleItemSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        saleId: {
+            type: 'string'
+        },
+        sale: {
+            $ref: '#/components/schemas/Sale'
+        },
+        productId: {
+            type: 'string',
+            nullable: true
+        },
+        product: {
+            nullable: true,
+            type: 'object',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/Product'
+                }
+            ]
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        quantity: {
+            type: 'number'
+        },
+        unitPrice: {
+            type: 'number'
+        },
+        costPrice: {
+            type: 'number'
+        },
+        refundedQuantity: {
+            type: 'number'
+        }
+    },
+    required: [
+        'id',
+        'saleId',
+        'sale',
+        'productId',
+        'product',
+        'description',
+        'quantity',
+        'unitPrice',
+        'costPrice',
+        'refundedQuantity'
+    ]
+} as const;
+
+export const PartialRefundItemDtoSchema = {
+    type: 'object',
+    properties: {
+        saleItemId: {
+            type: 'string',
+            format: 'uuid'
+        },
+        quantity: {
+            type: 'number',
+            minimum: 1
+        }
+    },
+    required: [
+        'saleItemId',
+        'quantity'
+    ]
+} as const;
+
+export const PartialRefundDtoSchema = {
+    type: 'object',
+    properties: {
+        items: {
+            minItems: 1,
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/PartialRefundItemDto'
+            }
+        }
+    },
+    required: [
+        'items'
+    ]
+} as const;
+
 export const CreateStockMovementDtoSchema = {
     type: 'object',
     properties: {
@@ -915,4 +1183,188 @@ export const StockMovementSchema = {
         'user',
         'createdAt'
     ]
+} as const;
+
+export const TurnSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        clientName: {
+            type: 'string'
+        },
+        clientPhone: {
+            type: 'string'
+        },
+        service: {
+            type: 'string'
+        },
+        startTime: {
+            format: 'date-time',
+            type: 'string',
+            nullable: true
+        },
+        date: {
+            type: 'string'
+        },
+        duration: {
+            type: 'number'
+        },
+        price: {
+            type: 'number',
+            nullable: true
+        },
+        status: {
+            enum: [
+                'pending',
+                'in_progress',
+                'done',
+                'cancelled',
+                'no_show'
+            ],
+            type: 'string'
+        },
+        notes: {
+            type: 'string'
+        },
+        tenantId: {
+            type: 'string'
+        },
+        tenant: {
+            $ref: '#/components/schemas/Tenant'
+        },
+        assignedUserId: {
+            type: 'string'
+        },
+        assignedUser: {
+            nullable: true,
+            type: 'object',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/User'
+                }
+            ]
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'clientName',
+        'clientPhone',
+        'service',
+        'startTime',
+        'date',
+        'duration',
+        'price',
+        'status',
+        'notes',
+        'tenantId',
+        'tenant',
+        'assignedUserId',
+        'assignedUser',
+        'createdAt'
+    ]
+} as const;
+
+export const CreateTurnDtoSchema = {
+    type: 'object',
+    properties: {
+        clientName: {
+            type: 'string'
+        },
+        clientPhone: {
+            type: 'string',
+            nullable: true
+        },
+        service: {
+            type: 'string'
+        },
+        startTime: {
+            type: 'string',
+            nullable: true
+        },
+        date: {
+            type: 'string'
+        },
+        duration: {
+            type: 'number',
+            minimum: 5,
+            maximum: 480
+        },
+        notes: {
+            type: 'string',
+            nullable: true
+        },
+        assignedUserId: {
+            type: 'string',
+            nullable: true,
+            format: 'uuid'
+        },
+        price: {
+            type: 'number',
+            nullable: true,
+            minimum: 0
+        }
+    },
+    required: [
+        'clientName',
+        'service',
+        'duration'
+    ]
+} as const;
+
+export const UpdateTurnDtoSchema = {
+    type: 'object',
+    properties: {
+        clientName: {
+            type: 'string'
+        },
+        clientPhone: {
+            type: 'string',
+            nullable: true
+        },
+        service: {
+            type: 'string'
+        },
+        startTime: {
+            type: 'string',
+            nullable: true
+        },
+        date: {
+            type: 'string'
+        },
+        duration: {
+            type: 'number',
+            minimum: 5,
+            maximum: 480
+        },
+        notes: {
+            type: 'string',
+            nullable: true
+        },
+        assignedUserId: {
+            type: 'string',
+            nullable: true,
+            format: 'uuid'
+        },
+        price: {
+            type: 'number',
+            nullable: true,
+            minimum: 0
+        },
+        status: {
+            type: 'string',
+            enum: [
+                'pending',
+                'in_progress',
+                'done',
+                'cancelled',
+                'no_show'
+            ]
+        }
+    }
 } as const;

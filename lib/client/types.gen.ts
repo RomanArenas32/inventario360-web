@@ -46,6 +46,7 @@ export type User = {
     email: string;
     password: string | null;
     avatarUrl: string | null;
+    expoPushToken: string | null;
     globalRole: 'admin' | 'user';
     isActive: boolean;
     memberships: Array<TenantMembership>;
@@ -62,6 +63,7 @@ export type Tenant = {
     isActive: boolean;
     staffModules: Array<string> | null;
     memberships: Array<TenantMembership>;
+    trialEndsAt: string | null;
     createdAt: string;
 };
 
@@ -82,7 +84,7 @@ export type LoginDto = {
 };
 
 export type OnboardingDto = {
-    businessType: BusinessType;
+    businessType?: BusinessType;
     businessName?: string;
     phone?: string;
 };
@@ -106,6 +108,10 @@ export type UpdateProfileDto = {
 export type ChangePasswordDto = {
     currentPassword: string;
     newPassword: string;
+};
+
+export type SavePushTokenDto = {
+    token: string | null;
 };
 
 export type AcceptInvitationDto = {
@@ -145,6 +151,8 @@ export type UpsertNotificationSettingsDto = {
     whatsappPhone?: string | null;
     whatsappOptIn?: boolean;
     alertLowStock?: boolean;
+    alertNewSale?: boolean;
+    alertTurnAssigned?: boolean;
 };
 
 export type NotificationSettings = {
@@ -153,13 +161,15 @@ export type NotificationSettings = {
     whatsappPhone: string | null;
     whatsappOptIn: boolean;
     alertLowStock: boolean;
+    alertNewSale: boolean;
+    alertTurnAssigned: boolean;
     updatedAt: string;
 };
 
 export type Notification = {
     id: string;
     tenantId: string;
-    type: 'low_stock';
+    type: 'low_stock' | 'new_sale' | 'turn_assigned';
     title: string;
     body: string;
     read: boolean;
@@ -233,6 +243,61 @@ export type UpdateProductDto = {
     categoryId?: string | null;
 };
 
+export type SaleItemDto = {
+    productId?: string;
+    description?: string;
+    unitPrice?: number;
+    quantity: number;
+};
+
+export type CreateSaleDto = {
+    items: Array<SaleItemDto>;
+    paymentMethod: 'cash' | 'card' | 'transfer';
+    notes?: string;
+    customDate?: string;
+    discountPct?: number;
+};
+
+export type Sale = {
+    id: string;
+    total: number;
+    profit: number;
+    paymentMethod: 'cash' | 'card' | 'transfer';
+    notes: string;
+    itemCount: number;
+    items: Array<SaleItem>;
+    tenantId: string;
+    tenant: Tenant;
+    userId: string;
+    user: User;
+    saleNumber: number;
+    discount: number;
+    refundedAt: string | null;
+    createdAt: string;
+};
+
+export type SaleItem = {
+    id: string;
+    saleId: string;
+    sale: Sale;
+    productId: string | null;
+    product: Product | null;
+    description: string | null;
+    quantity: number;
+    unitPrice: number;
+    costPrice: number;
+    refundedQuantity: number;
+};
+
+export type PartialRefundItemDto = {
+    saleItemId: string;
+    quantity: number;
+};
+
+export type PartialRefundDto = {
+    items: Array<PartialRefundItemDto>;
+};
+
 export type CreateStockMovementDto = {
     productId: string;
     type: 'entry' | 'exit' | 'adjustment';
@@ -254,6 +319,49 @@ export type StockMovement = {
     userId: string;
     user: User;
     createdAt: string;
+};
+
+export type Turn = {
+    id: string;
+    clientName: string;
+    clientPhone: string;
+    service: string;
+    startTime: string | null;
+    date: string;
+    duration: number;
+    price: number | null;
+    status: 'pending' | 'in_progress' | 'done' | 'cancelled' | 'no_show';
+    notes: string;
+    tenantId: string;
+    tenant: Tenant;
+    assignedUserId: string;
+    assignedUser: User | null;
+    createdAt: string;
+};
+
+export type CreateTurnDto = {
+    clientName: string;
+    clientPhone?: string | null;
+    service: string;
+    startTime?: string | null;
+    date?: string;
+    duration: number;
+    notes?: string | null;
+    assignedUserId?: string | null;
+    price?: number | null;
+};
+
+export type UpdateTurnDto = {
+    clientName?: string;
+    clientPhone?: string | null;
+    service?: string;
+    startTime?: string | null;
+    date?: string;
+    duration?: number;
+    notes?: string | null;
+    assignedUserId?: string | null;
+    price?: number | null;
+    status?: 'pending' | 'in_progress' | 'done' | 'cancelled' | 'no_show';
 };
 
 export type AdminControllerFindAllTenantsData = {
@@ -453,6 +561,17 @@ export type TenantsControllerUpdateSettingsResponses = {
     200: unknown;
 };
 
+export type TenantsControllerUpdateStaffModulesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenants/staff-modules';
+};
+
+export type TenantsControllerUpdateStaffModulesResponses = {
+    200: unknown;
+};
+
 export type UsersControllerUpdateProfileData = {
     body: UpdateProfileDto;
     path?: never;
@@ -474,6 +593,19 @@ export type UsersControllerChangePasswordData = {
 export type UsersControllerChangePasswordResponses = {
     200: unknown;
 };
+
+export type UsersControllerSavePushTokenData = {
+    body: SavePushTokenDto;
+    path?: never;
+    query?: never;
+    url: '/users/me/push-token';
+};
+
+export type UsersControllerSavePushTokenResponses = {
+    204: void;
+};
+
+export type UsersControllerSavePushTokenResponse = UsersControllerSavePushTokenResponses[keyof UsersControllerSavePushTokenResponses];
 
 export type InvitationsControllerValidateData = {
     body?: never;
@@ -526,6 +658,30 @@ export type InvitationsControllerGoogleCallbackData = {
 
 export type InvitationsControllerGoogleCallbackResponses = {
     200: unknown;
+};
+
+export type InvitationsControllerMineData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invitations/mine';
+};
+
+export type InvitationsControllerMineResponses = {
+    200: unknown;
+};
+
+export type InvitationsControllerAcceptMineData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/invitations/{id}/accept-mine';
+};
+
+export type InvitationsControllerAcceptMineResponses = {
+    201: unknown;
 };
 
 export type AuthControllerLoginData = {
@@ -594,6 +750,28 @@ export type AuthControllerGoogleCallbackData = {
 
 export type AuthControllerGoogleCallbackResponses = {
     200: unknown;
+};
+
+export type AuthControllerGoogleMobileLoginData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/google/mobile';
+};
+
+export type AuthControllerGoogleMobileLoginResponses = {
+    201: unknown;
+};
+
+export type AuthControllerRegisterTenantData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/register-tenant';
+};
+
+export type AuthControllerRegisterTenantResponses = {
+    201: unknown;
 };
 
 export type MessagesControllerFindAllData = {
@@ -745,6 +923,21 @@ export type NotificationsControllerMarkReadResponses = {
 };
 
 export type NotificationsControllerMarkReadResponse = NotificationsControllerMarkReadResponses[keyof NotificationsControllerMarkReadResponses];
+
+export type NotificationsControllerDeleteData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/notifications/{id}';
+};
+
+export type NotificationsControllerDeleteResponses = {
+    204: void;
+};
+
+export type NotificationsControllerDeleteResponse = NotificationsControllerDeleteResponses[keyof NotificationsControllerDeleteResponses];
 
 export type CategoriesControllerFindAllData = {
     body?: never;
@@ -905,12 +1098,155 @@ export type ProductsControllerUpdateResponses = {
 
 export type ProductsControllerUpdateResponse = ProductsControllerUpdateResponses[keyof ProductsControllerUpdateResponses];
 
+export type SalesControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        period?: 'week' | 'today' | 'yesterday' | 'last_week' | 'month' | 'last_month';
+        paymentMethod?: 'cash' | 'card' | 'transfer';
+        search?: string;
+        limit?: number;
+        offset?: number;
+    };
+    url: '/sales';
+};
+
+export type SalesControllerFindAllResponses = {
+    200: unknown;
+};
+
+export type SalesControllerCreateData = {
+    body: CreateSaleDto;
+    path?: never;
+    query?: never;
+    url: '/sales';
+};
+
+export type SalesControllerCreateResponses = {
+    201: Sale;
+};
+
+export type SalesControllerCreateResponse = SalesControllerCreateResponses[keyof SalesControllerCreateResponses];
+
+export type SalesControllerGetSummaryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        period?: string;
+    };
+    url: '/sales/summary';
+};
+
+export type SalesControllerGetSummaryResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type SalesControllerGetSummaryResponse = SalesControllerGetSummaryResponses[keyof SalesControllerGetSummaryResponses];
+
+export type SalesControllerGetTopProductsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        period?: string;
+        limit?: string;
+    };
+    url: '/sales/top-products';
+};
+
+export type SalesControllerGetTopProductsResponses = {
+    200: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type SalesControllerGetTopProductsResponse = SalesControllerGetTopProductsResponses[keyof SalesControllerGetTopProductsResponses];
+
+export type SalesControllerGetMonthlySummaryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        year?: string;
+        month?: string;
+    };
+    url: '/sales/monthly-summary';
+};
+
+export type SalesControllerGetMonthlySummaryResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type SalesControllerGetMonthlySummaryResponse = SalesControllerGetMonthlySummaryResponses[keyof SalesControllerGetMonthlySummaryResponses];
+
+export type SalesControllerGetMonthlyChartData = {
+    body?: never;
+    path?: never;
+    query?: {
+        year?: string;
+    };
+    url: '/sales/monthly-chart';
+};
+
+export type SalesControllerGetMonthlyChartResponses = {
+    200: unknown;
+};
+
+export type SalesControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/sales/{id}';
+};
+
+export type SalesControllerFindOneResponses = {
+    200: Sale;
+};
+
+export type SalesControllerFindOneResponse = SalesControllerFindOneResponses[keyof SalesControllerFindOneResponses];
+
+export type SalesControllerRefundData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/sales/{id}/refund';
+};
+
+export type SalesControllerRefundResponses = {
+    201: Sale;
+};
+
+export type SalesControllerRefundResponse = SalesControllerRefundResponses[keyof SalesControllerRefundResponses];
+
+export type SalesControllerPartialRefundData = {
+    body: PartialRefundDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/sales/{id}/partial-refund';
+};
+
+export type SalesControllerPartialRefundResponses = {
+    201: Sale;
+};
+
+export type SalesControllerPartialRefundResponse = SalesControllerPartialRefundResponses[keyof SalesControllerPartialRefundResponses];
+
 export type StockMovementsControllerFindAllData = {
     body?: never;
     path?: never;
     query?: {
         productId?: string;
         type?: 'entry' | 'exit' | 'adjustment';
+        search?: string;
+        period?: 'week' | 'today' | 'yesterday' | 'month';
         limit?: number;
         offset?: number;
         sortBy?: string;
@@ -936,3 +1272,76 @@ export type StockMovementsControllerCreateResponses = {
 };
 
 export type StockMovementsControllerCreateResponse = StockMovementsControllerCreateResponses[keyof StockMovementsControllerCreateResponses];
+
+export type TurnsControllerFindByDateData = {
+    body?: never;
+    path?: never;
+    query: {
+        date: string;
+    };
+    url: '/turns';
+};
+
+export type TurnsControllerFindByDateResponses = {
+    200: Array<Turn>;
+};
+
+export type TurnsControllerFindByDateResponse = TurnsControllerFindByDateResponses[keyof TurnsControllerFindByDateResponses];
+
+export type TurnsControllerCreateData = {
+    body: CreateTurnDto;
+    path?: never;
+    query?: never;
+    url: '/turns';
+};
+
+export type TurnsControllerCreateResponses = {
+    201: Turn;
+};
+
+export type TurnsControllerCreateResponse = TurnsControllerCreateResponses[keyof TurnsControllerCreateResponses];
+
+export type TurnsControllerFindHistoryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        offset?: unknown;
+        limit?: unknown;
+        search?: unknown;
+    };
+    url: '/turns/history';
+};
+
+export type TurnsControllerFindHistoryResponses = {
+    200: unknown;
+};
+
+export type TurnsControllerFindByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/turns/{id}';
+};
+
+export type TurnsControllerFindByIdResponses = {
+    200: Turn;
+};
+
+export type TurnsControllerFindByIdResponse = TurnsControllerFindByIdResponses[keyof TurnsControllerFindByIdResponses];
+
+export type TurnsControllerUpdateData = {
+    body: UpdateTurnDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/turns/{id}';
+};
+
+export type TurnsControllerUpdateResponses = {
+    200: Turn;
+};
+
+export type TurnsControllerUpdateResponse = TurnsControllerUpdateResponses[keyof TurnsControllerUpdateResponses];

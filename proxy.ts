@@ -13,6 +13,7 @@ export function proxy(request: NextRequest) {
   const isTenantLogin = pathname === '/login';
   const isPublicTenantRoute = pathname.startsWith('/login'); // /login, /login/invitation, etc.
   const isOnboardingRoute = pathname === '/onboarding';
+  const isRegisterRoute = pathname === '/register';
 
   // ── /admin/* routes ─────────────────────────────────────────
   if (isAdminRoute) {
@@ -44,12 +45,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Tenant without onboarding → redirect to onboarding
-  if (token && !isAdmin && !isOnboarded && !isOnboardingRoute) {
+  // Tenant without onboarding → redirect to onboarding (skip for /register, which precedes onboarding)
+  if (token && !isAdmin && !isOnboarded && !isOnboardingRoute && !isRegisterRoute) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
   // Onboarded tenant tries to go back to onboarding → redirect to dashboard
+  // Note: /register is allowed even when onboarded (multi-business creation)
   if (token && !isAdmin && isOnboarded && isOnboardingRoute) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }

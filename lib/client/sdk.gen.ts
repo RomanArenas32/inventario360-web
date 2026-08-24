@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AdminAuthControllerLoginData, AdminAuthControllerLoginResponses, AdminAuthControllerLogoutData, AdminAuthControllerLogoutResponses, AdminAuthControllerMeData, AdminAuthControllerMeResponses, AdminControllerCreateTenantData, AdminControllerCreateTenantResponses, AdminControllerDeleteTenantData, AdminControllerDeleteTenantResponses, AdminControllerFindAllTenantsData, AdminControllerFindAllTenantsResponses, AdminControllerUpdateTenantData, AdminControllerUpdateTenantResponses, AuthControllerGoogleCallbackData, AuthControllerGoogleCallbackResponses, AuthControllerGoogleStartData, AuthControllerGoogleStartResponses, AuthControllerLoginData, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerMeData, AuthControllerMeResponses, AuthControllerSwitchTenantData, AuthControllerSwitchTenantResponses, CategoriesControllerCreateData, CategoriesControllerCreateResponses, CategoriesControllerFindAllData, CategoriesControllerFindAllResponses, CategoriesControllerFindOneData, CategoriesControllerFindOneResponses, CategoriesControllerRemoveData, CategoriesControllerRemoveResponses, CategoriesControllerUpdateData, CategoriesControllerUpdateResponses, InvitationsControllerAcceptData, InvitationsControllerAcceptResponses, InvitationsControllerGoogleCallbackData, InvitationsControllerGoogleCallbackResponses, InvitationsControllerGoogleStartData, InvitationsControllerGoogleStartResponses, InvitationsControllerValidateData, InvitationsControllerValidateResponses, MessagesControllerCountPendingData, MessagesControllerCountPendingResponses, MessagesControllerCreateData, MessagesControllerCreateResponses, MessagesControllerFindAllData, MessagesControllerFindAllResponses, MessagesControllerRemoveData, MessagesControllerRemoveResponses, MessagesControllerUpdateData, MessagesControllerUpdateResponses, NotificationsControllerGetAllData, NotificationsControllerGetAllResponses, NotificationsControllerGetUnreadCountData, NotificationsControllerGetUnreadCountResponses, NotificationsControllerMarkAllReadData, NotificationsControllerMarkAllReadResponses, NotificationsControllerMarkReadData, NotificationsControllerMarkReadResponses, NotificationSettingsControllerGetSettingsData, NotificationSettingsControllerGetSettingsResponses, NotificationSettingsControllerUpsertSettingsData, NotificationSettingsControllerUpsertSettingsResponses, ProductsControllerCreateData, ProductsControllerCreateResponses, ProductsControllerFindAllData, ProductsControllerFindAllResponses, ProductsControllerFindLowStockData, ProductsControllerFindLowStockResponses, ProductsControllerFindOneData, ProductsControllerFindOneResponses, ProductsControllerRemoveData, ProductsControllerRemoveResponses, ProductsControllerUpdateData, ProductsControllerUpdateResponses, StockMovementsControllerCreateData, StockMovementsControllerCreateResponses, StockMovementsControllerFindAllData, StockMovementsControllerFindAllResponses, TenantsControllerAddMemberData, TenantsControllerAddMemberResponses, TenantsControllerCompleteOnboardingData, TenantsControllerCompleteOnboardingResponses, TenantsControllerGetMembersData, TenantsControllerGetMembersResponses, TenantsControllerGetPendingInvitationsData, TenantsControllerGetPendingInvitationsResponses, TenantsControllerGetSettingsData, TenantsControllerGetSettingsResponses, TenantsControllerRemoveMemberData, TenantsControllerRemoveMemberResponses, TenantsControllerRevokeInvitationData, TenantsControllerRevokeInvitationResponses, TenantsControllerUpdateMemberData, TenantsControllerUpdateMemberResponses, TenantsControllerUpdateSettingsData, TenantsControllerUpdateSettingsResponses, UsersControllerChangePasswordData, UsersControllerChangePasswordResponses, UsersControllerUpdateProfileData, UsersControllerUpdateProfileResponses } from './types.gen';
+import type { AdminAuthControllerLoginData, AdminAuthControllerLoginResponses, AdminAuthControllerLogoutData, AdminAuthControllerLogoutResponses, AdminAuthControllerMeData, AdminAuthControllerMeResponses, AdminControllerCreateTenantData, AdminControllerCreateTenantResponses, AdminControllerDeleteTenantData, AdminControllerDeleteTenantResponses, AdminControllerFindAllTenantsData, AdminControllerFindAllTenantsResponses, AdminControllerUpdateTenantData, AdminControllerUpdateTenantResponses, AuthControllerGoogleCallbackData, AuthControllerGoogleCallbackResponses, AuthControllerGoogleMobileLoginData, AuthControllerGoogleMobileLoginResponses, AuthControllerGoogleStartData, AuthControllerGoogleStartResponses, AuthControllerLoginData, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerMeData, AuthControllerMeResponses, AuthControllerRegisterTenantData, AuthControllerRegisterTenantResponses, AuthControllerSwitchTenantData, AuthControllerSwitchTenantResponses, CategoriesControllerCreateData, CategoriesControllerCreateResponses, CategoriesControllerFindAllData, CategoriesControllerFindAllResponses, CategoriesControllerFindOneData, CategoriesControllerFindOneResponses, CategoriesControllerRemoveData, CategoriesControllerRemoveResponses, CategoriesControllerUpdateData, CategoriesControllerUpdateResponses, InvitationsControllerAcceptData, InvitationsControllerAcceptMineData, InvitationsControllerAcceptMineResponses, InvitationsControllerAcceptResponses, InvitationsControllerGoogleCallbackData, InvitationsControllerGoogleCallbackResponses, InvitationsControllerGoogleStartData, InvitationsControllerGoogleStartResponses, InvitationsControllerMineData, InvitationsControllerMineResponses, InvitationsControllerValidateData, InvitationsControllerValidateResponses, MessagesControllerCountPendingData, MessagesControllerCountPendingResponses, MessagesControllerCreateData, MessagesControllerCreateResponses, MessagesControllerFindAllData, MessagesControllerFindAllResponses, MessagesControllerRemoveData, MessagesControllerRemoveResponses, MessagesControllerUpdateData, MessagesControllerUpdateResponses, NotificationsControllerDeleteData, NotificationsControllerDeleteResponses, NotificationsControllerGetAllData, NotificationsControllerGetAllResponses, NotificationsControllerGetUnreadCountData, NotificationsControllerGetUnreadCountResponses, NotificationsControllerMarkAllReadData, NotificationsControllerMarkAllReadResponses, NotificationsControllerMarkReadData, NotificationsControllerMarkReadResponses, NotificationSettingsControllerGetSettingsData, NotificationSettingsControllerGetSettingsResponses, NotificationSettingsControllerUpsertSettingsData, NotificationSettingsControllerUpsertSettingsResponses, ProductsControllerCreateData, ProductsControllerCreateResponses, ProductsControllerFindAllData, ProductsControllerFindAllResponses, ProductsControllerFindLowStockData, ProductsControllerFindLowStockResponses, ProductsControllerFindOneData, ProductsControllerFindOneResponses, ProductsControllerRemoveData, ProductsControllerRemoveResponses, ProductsControllerUpdateData, ProductsControllerUpdateResponses, SalesControllerCreateData, SalesControllerCreateResponses, SalesControllerFindAllData, SalesControllerFindAllResponses, SalesControllerFindOneData, SalesControllerFindOneResponses, SalesControllerGetMonthlyChartData, SalesControllerGetMonthlyChartResponses, SalesControllerGetMonthlySummaryData, SalesControllerGetMonthlySummaryResponses, SalesControllerGetSummaryData, SalesControllerGetSummaryResponses, SalesControllerGetTopProductsData, SalesControllerGetTopProductsResponses, SalesControllerPartialRefundData, SalesControllerPartialRefundResponses, SalesControllerRefundData, SalesControllerRefundResponses, StockMovementsControllerCreateData, StockMovementsControllerCreateResponses, StockMovementsControllerFindAllData, StockMovementsControllerFindAllResponses, TenantsControllerAddMemberData, TenantsControllerAddMemberResponses, TenantsControllerCompleteOnboardingData, TenantsControllerCompleteOnboardingResponses, TenantsControllerGetMembersData, TenantsControllerGetMembersResponses, TenantsControllerGetPendingInvitationsData, TenantsControllerGetPendingInvitationsResponses, TenantsControllerGetSettingsData, TenantsControllerGetSettingsResponses, TenantsControllerRemoveMemberData, TenantsControllerRemoveMemberResponses, TenantsControllerRevokeInvitationData, TenantsControllerRevokeInvitationResponses, TenantsControllerUpdateMemberData, TenantsControllerUpdateMemberResponses, TenantsControllerUpdateSettingsData, TenantsControllerUpdateSettingsResponses, TenantsControllerUpdateStaffModulesData, TenantsControllerUpdateStaffModulesResponses, TurnsControllerCreateData, TurnsControllerCreateResponses, TurnsControllerFindByDateData, TurnsControllerFindByDateResponses, TurnsControllerFindByIdData, TurnsControllerFindByIdResponses, TurnsControllerFindHistoryData, TurnsControllerFindHistoryResponses, TurnsControllerUpdateData, TurnsControllerUpdateResponses, UsersControllerChangePasswordData, UsersControllerChangePasswordResponses, UsersControllerSavePushTokenData, UsersControllerSavePushTokenResponses, UsersControllerUpdateProfileData, UsersControllerUpdateProfileResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -90,7 +90,9 @@ export const tenantsControllerUpdateMember = <ThrowOnError extends boolean = fal
 
 export const tenantsControllerGetSettings = <ThrowOnError extends boolean = false>(options?: Options<TenantsControllerGetSettingsData, ThrowOnError>) => (options?.client ?? client).get<TenantsControllerGetSettingsResponses, unknown, ThrowOnError>({ url: '/tenants/settings', ...options });
 
-export const tenantsControllerUpdateSettings = <ThrowOnError extends boolean = false>(options?: Options<TenantsControllerUpdateSettingsData, ThrowOnError>) => (options?.client ?? client).put<TenantsControllerUpdateSettingsResponses, unknown, ThrowOnError>({ url: '/tenants/settings', ...options });
+export const tenantsControllerUpdateSettings = <ThrowOnError extends boolean = false>(options?: Options<TenantsControllerUpdateSettingsData, ThrowOnError>) => (options?.client ?? client).patch<TenantsControllerUpdateSettingsResponses, unknown, ThrowOnError>({ url: '/tenants/settings', ...options });
+
+export const tenantsControllerUpdateStaffModules = <ThrowOnError extends boolean = false>(options?: Options<TenantsControllerUpdateStaffModulesData, ThrowOnError>) => (options?.client ?? client).patch<TenantsControllerUpdateStaffModulesResponses, unknown, ThrowOnError>({ url: '/tenants/staff-modules', ...options });
 
 export const usersControllerUpdateProfile = <ThrowOnError extends boolean = false>(options: Options<UsersControllerUpdateProfileData, ThrowOnError>) => (options.client ?? client).patch<UsersControllerUpdateProfileResponses, unknown, ThrowOnError>({
     url: '/users/me',
@@ -103,6 +105,15 @@ export const usersControllerUpdateProfile = <ThrowOnError extends boolean = fals
 
 export const usersControllerChangePassword = <ThrowOnError extends boolean = false>(options: Options<UsersControllerChangePasswordData, ThrowOnError>) => (options.client ?? client).patch<UsersControllerChangePasswordResponses, unknown, ThrowOnError>({
     url: '/users/me/password',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const usersControllerSavePushToken = <ThrowOnError extends boolean = false>(options: Options<UsersControllerSavePushTokenData, ThrowOnError>) => (options.client ?? client).post<UsersControllerSavePushTokenResponses, unknown, ThrowOnError>({
+    url: '/users/me/push-token',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -125,6 +136,10 @@ export const invitationsControllerGoogleStart = <ThrowOnError extends boolean = 
 
 export const invitationsControllerGoogleCallback = <ThrowOnError extends boolean = false>(options: Options<InvitationsControllerGoogleCallbackData, ThrowOnError>) => (options.client ?? client).get<InvitationsControllerGoogleCallbackResponses, unknown, ThrowOnError>({ url: '/invitations/google/callback', ...options });
 
+export const invitationsControllerMine = <ThrowOnError extends boolean = false>(options?: Options<InvitationsControllerMineData, ThrowOnError>) => (options?.client ?? client).get<InvitationsControllerMineResponses, unknown, ThrowOnError>({ url: '/invitations/mine', ...options });
+
+export const invitationsControllerAcceptMine = <ThrowOnError extends boolean = false>(options: Options<InvitationsControllerAcceptMineData, ThrowOnError>) => (options.client ?? client).post<InvitationsControllerAcceptMineResponses, unknown, ThrowOnError>({ url: '/invitations/{id}/accept-mine', ...options });
+
 export const authControllerLogin = <ThrowOnError extends boolean = false>(options: Options<AuthControllerLoginData, ThrowOnError>) => (options.client ?? client).post<AuthControllerLoginResponses, unknown, ThrowOnError>({
     url: '/auth/login',
     ...options,
@@ -143,6 +158,10 @@ export const authControllerMe = <ThrowOnError extends boolean = false>(options?:
 export const authControllerGoogleStart = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerGoogleStartData, ThrowOnError>) => (options?.client ?? client).get<AuthControllerGoogleStartResponses, unknown, ThrowOnError>({ url: '/auth/google', ...options });
 
 export const authControllerGoogleCallback = <ThrowOnError extends boolean = false>(options: Options<AuthControllerGoogleCallbackData, ThrowOnError>) => (options.client ?? client).get<AuthControllerGoogleCallbackResponses, unknown, ThrowOnError>({ url: '/auth/google/callback', ...options });
+
+export const authControllerGoogleMobileLogin = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerGoogleMobileLoginData, ThrowOnError>) => (options?.client ?? client).post<AuthControllerGoogleMobileLoginResponses, unknown, ThrowOnError>({ url: '/auth/google/mobile', ...options });
+
+export const authControllerRegisterTenant = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerRegisterTenantData, ThrowOnError>) => (options?.client ?? client).post<AuthControllerRegisterTenantResponses, unknown, ThrowOnError>({ url: '/auth/register-tenant', ...options });
 
 export const messagesControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<MessagesControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<MessagesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/messages', ...options });
 
@@ -186,6 +205,8 @@ export const notificationsControllerGetUnreadCount = <ThrowOnError extends boole
 export const notificationsControllerMarkAllRead = <ThrowOnError extends boolean = false>(options?: Options<NotificationsControllerMarkAllReadData, ThrowOnError>) => (options?.client ?? client).patch<NotificationsControllerMarkAllReadResponses, unknown, ThrowOnError>({ url: '/notifications/read-all', ...options });
 
 export const notificationsControllerMarkRead = <ThrowOnError extends boolean = false>(options: Options<NotificationsControllerMarkReadData, ThrowOnError>) => (options.client ?? client).patch<NotificationsControllerMarkReadResponses, unknown, ThrowOnError>({ url: '/notifications/{id}/read', ...options });
+
+export const notificationsControllerDelete = <ThrowOnError extends boolean = false>(options: Options<NotificationsControllerDeleteData, ThrowOnError>) => (options.client ?? client).delete<NotificationsControllerDeleteResponses, unknown, ThrowOnError>({ url: '/notifications/{id}', ...options });
 
 export const categoriesControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<CategoriesControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<CategoriesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/categories', ...options });
 
@@ -237,10 +258,66 @@ export const productsControllerUpdate = <ThrowOnError extends boolean = false>(o
     }
 });
 
+export const salesControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<SalesControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<SalesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/sales', ...options });
+
+export const salesControllerCreate = <ThrowOnError extends boolean = false>(options: Options<SalesControllerCreateData, ThrowOnError>) => (options.client ?? client).post<SalesControllerCreateResponses, unknown, ThrowOnError>({
+    url: '/sales',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const salesControllerGetSummary = <ThrowOnError extends boolean = false>(options?: Options<SalesControllerGetSummaryData, ThrowOnError>) => (options?.client ?? client).get<SalesControllerGetSummaryResponses, unknown, ThrowOnError>({ url: '/sales/summary', ...options });
+
+export const salesControllerGetTopProducts = <ThrowOnError extends boolean = false>(options?: Options<SalesControllerGetTopProductsData, ThrowOnError>) => (options?.client ?? client).get<SalesControllerGetTopProductsResponses, unknown, ThrowOnError>({ url: '/sales/top-products', ...options });
+
+export const salesControllerGetMonthlySummary = <ThrowOnError extends boolean = false>(options?: Options<SalesControllerGetMonthlySummaryData, ThrowOnError>) => (options?.client ?? client).get<SalesControllerGetMonthlySummaryResponses, unknown, ThrowOnError>({ url: '/sales/monthly-summary', ...options });
+
+export const salesControllerGetMonthlyChart = <ThrowOnError extends boolean = false>(options?: Options<SalesControllerGetMonthlyChartData, ThrowOnError>) => (options?.client ?? client).get<SalesControllerGetMonthlyChartResponses, unknown, ThrowOnError>({ url: '/sales/monthly-chart', ...options });
+
+export const salesControllerFindOne = <ThrowOnError extends boolean = false>(options: Options<SalesControllerFindOneData, ThrowOnError>) => (options.client ?? client).get<SalesControllerFindOneResponses, unknown, ThrowOnError>({ url: '/sales/{id}', ...options });
+
+export const salesControllerRefund = <ThrowOnError extends boolean = false>(options: Options<SalesControllerRefundData, ThrowOnError>) => (options.client ?? client).post<SalesControllerRefundResponses, unknown, ThrowOnError>({ url: '/sales/{id}/refund', ...options });
+
+export const salesControllerPartialRefund = <ThrowOnError extends boolean = false>(options: Options<SalesControllerPartialRefundData, ThrowOnError>) => (options.client ?? client).post<SalesControllerPartialRefundResponses, unknown, ThrowOnError>({
+    url: '/sales/{id}/partial-refund',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const stockMovementsControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<StockMovementsControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<StockMovementsControllerFindAllResponses, unknown, ThrowOnError>({ url: '/stock-movements', ...options });
 
 export const stockMovementsControllerCreate = <ThrowOnError extends boolean = false>(options: Options<StockMovementsControllerCreateData, ThrowOnError>) => (options.client ?? client).post<StockMovementsControllerCreateResponses, unknown, ThrowOnError>({
     url: '/stock-movements',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const turnsControllerFindByDate = <ThrowOnError extends boolean = false>(options: Options<TurnsControllerFindByDateData, ThrowOnError>) => (options.client ?? client).get<TurnsControllerFindByDateResponses, unknown, ThrowOnError>({ url: '/turns', ...options });
+
+export const turnsControllerCreate = <ThrowOnError extends boolean = false>(options: Options<TurnsControllerCreateData, ThrowOnError>) => (options.client ?? client).post<TurnsControllerCreateResponses, unknown, ThrowOnError>({
+    url: '/turns',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const turnsControllerFindHistory = <ThrowOnError extends boolean = false>(options?: Options<TurnsControllerFindHistoryData, ThrowOnError>) => (options?.client ?? client).get<TurnsControllerFindHistoryResponses, unknown, ThrowOnError>({ url: '/turns/history', ...options });
+
+export const turnsControllerFindById = <ThrowOnError extends boolean = false>(options: Options<TurnsControllerFindByIdData, ThrowOnError>) => (options.client ?? client).get<TurnsControllerFindByIdResponses, unknown, ThrowOnError>({ url: '/turns/{id}', ...options });
+
+export const turnsControllerUpdate = <ThrowOnError extends boolean = false>(options: Options<TurnsControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<TurnsControllerUpdateResponses, unknown, ThrowOnError>({
+    url: '/turns/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
