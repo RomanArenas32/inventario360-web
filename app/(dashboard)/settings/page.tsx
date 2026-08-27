@@ -6,9 +6,10 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PhoneInput, type PhoneValue, parsePhone, formatPhone } from '@/components/ui/phone-input';
-import { ChevronRight, MessageCircle, Puzzle } from 'lucide-react';
+import { Bell, Building2, ChevronRight, MessageCircle, Puzzle } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 
 const OTHER_INTEGRATIONS = [
@@ -24,54 +25,248 @@ const OTHER_INTEGRATIONS = [
   },
 ];
 
+type PushNotifSettings = Pick<
+  NotificationSettings,
+  'alertLowStock' | 'alertNewSale' | 'alertTurnAssigned'
+>;
+
+type WhatsAppSettings = Pick<
+  NotificationSettings,
+  'whatsappPhone' | 'whatsappOptIn' | 'alertLowStock'
+>;
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+        checked ? 'bg-primary' : 'bg-input'
+      }`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-background shadow-lg transition-transform ${
+          checked ? 'translate-x-4' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  );
+}
+
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<
-    Pick<NotificationSettings, 'whatsappPhone' | 'whatsappOptIn' | 'alertLowStock'>
-  >({
+  // Business name
+  const [businessName, setBusinessName] = useState('');
+  const [savingName, setSavingName] = useState(false);
+
+  // Push notifications
+  const [push, setPush] = useState<PushNotifSettings>({
+    alertLowStock: true,
+    alertNewSale: true,
+    alertTurnAssigned: true,
+  });
+  const [savingPush, setSavingPush] = useState(false);
+
+  // WhatsApp
+  const [whatsapp, setWhatsapp] = useState<WhatsAppSettings>({
     whatsappPhone: null,
     whatsappOptIn: false,
     alertLowStock: true,
   });
   const [phone, setPhone] = useState<PhoneValue>({ countryCode: '+54', number: '' });
+  const [savingWhatsapp, setSavingWhatsapp] = useState(false);
+
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     void Promise.all([
       api.get<NotificationSettings | null>('/notification-settings').catch(() => null),
-      api.get<{ tenant: { phone: string | null } | null }>('/auth/me').catch(() => null),
-    ]).then(([notifData, meData]) => {
-      if (notifData) setSettings(notifData);
-
-      const savedPhone = notifData?.whatsappPhone;
-      const tenantPhone = meData?.tenant?.phone;
-      const phoneToUse = savedPhone ?? tenantPhone ?? '';
-      setPhone(parsePhone(phoneToUse));
-
+      api
+        .get<{ name?: string; tenant?: { phone?: string | null } | null }>('/auth/me')
+        .catch(() => null),
+      api.get<{ name?: string } | null>('/tenants/settings').catch(() => null),
+    ]).then(([notifData, meData, tenantData]) => {
+      if (notifData) {
+        setPush({
+          alertLowStock: notifData.alertLowStock,
+          alertNewSale: notifData.alertNewSale,
+          alertTurnAssigned: notifData.alertTurnAssigned,
+        });
+        setWhatsapp({
+          whatsappPhone: notifData.whatsappPhone,
+          whatsappOptIn: notifData.whatsappOptIn,
+          alertLowStock: notifData.alertLowStock,
+        });
+        const savedPhone = notifData.whatsappPhone;
+        const tenantPhone = meData?.tenant?.phone;
+        setPhone(parsePhone(savedPhone ?? tenantPhone ?? ''));
+      }
+      if (tenantData?.name) setBusinessName(tenantData.name);
       setLoading(false);
     });
   }, []);
 
-  async function handleSave(e: React.FormEvent) {
+  async function handleSaveName(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
+    if (!businessName.trim()) return;
+    setSavingName(true);
     try {
-      const payload = { ...settings, whatsappPhone: formatPhone(phone) || null };
-      const updated = await api.put<NotificationSettings>('/notification-settings', payload);
-      setSettings(updated);
-      toast.success('Configuración guardada');
+      await api.patch('/tenants/settings', { name: businessName.trim() });
+      toast.success('Nombre actualizado');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
-      setSaving(false);
+      setSavingName(false);
     }
   }
 
-  const isConnected = Boolean(settings.whatsappPhone && settings.whatsappOptIn);
+  async function handleSavePush() {
+    setSavingPush(true);
+    try {
+      await api.put('/notification-settings', push);
+      toast.success('Notificaciones actualizadas');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Error al guardar');
+    } finally {
+      setSavingPush(false);
+    }
+  }
+
+  async function handleSaveWhatsapp(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingWhatsapp(true);
+    try {
+      const payload = { ...whatsapp, whatsappPhone: formatPhone(phone) || null };
+      const updated = await api.put<NotificationSettings>('/notification-settings', payload);
+      setWhatsapp({
+        whatsappPhone: updated.whatsappPhone,
+        whatsappOptIn: updated.whatsappOptIn,
+        alertLowStock: updated.alertLowStock,
+      });
+      toast.success('WhatsApp actualizado');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Error al guardar');
+    } finally {
+      setSavingWhatsapp(false);
+    }
+  }
+
+  const isConnected = Boolean(whatsapp.whatsappPhone && whatsapp.whatsappOptIn);
+
+  const skeletonRow = (
+    <div className="flex items-center justify-between py-3">
+      <div className="space-y-1.5">
+        <div className="h-3.5 bg-muted rounded w-32 animate-pulse" />
+        <div className="h-3 bg-muted rounded w-48 animate-pulse" />
+      </div>
+      <div className="h-5 w-9 bg-muted rounded-full animate-pulse" />
+    </div>
+  );
 
   return (
     <div className="max-w-2xl space-y-8">
-      <PageHeader title="Integraciones" description="Conectá tu negocio con otras plataformas." />
+      <PageHeader title="Configuración" description="Administrá tu negocio e integraciones." />
+
+      {/* Business name */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Building2 size={16} className="text-muted-foreground" />
+          <h2 className="text-base font-semibold text-foreground">Mi negocio</h2>
+        </div>
+        <Card className="p-5 shadow-sm">
+          {loading ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-4 bg-muted rounded w-32" />
+              <div className="h-9 bg-muted rounded" />
+              <div className="h-9 bg-muted rounded w-24" />
+            </div>
+          ) : (
+            <form onSubmit={(e) => void handleSaveName(e)} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Nombre del negocio</Label>
+                <Input
+                  required
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  placeholder="Nombre de tu negocio"
+                  autoCapitalize="words"
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={savingName || !businessName.trim()}
+                className="w-full sm:w-auto"
+              >
+                {savingName ? 'Guardando...' : 'Guardar nombre'}
+              </Button>
+            </form>
+          )}
+        </Card>
+      </section>
+
+      {/* Push notifications */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Bell size={16} className="text-muted-foreground" />
+          <h2 className="text-base font-semibold text-foreground">Notificaciones push</h2>
+        </div>
+        <Card className="p-5 shadow-sm">
+          <p className="text-xs text-muted-foreground mb-4">
+            El equipo recibe una alerta en la app cuando ocurre cada evento.
+          </p>
+          {loading ? (
+            <div className="divide-y divide-border">
+              {skeletonRow}
+              {skeletonRow}
+              {skeletonRow}
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {(
+                [
+                  {
+                    key: 'alertNewSale',
+                    label: 'Nueva venta registrada',
+                    desc: 'Notifica a todos excepto quien realizó la venta',
+                  },
+                  {
+                    key: 'alertTurnAssigned',
+                    label: 'Turno asignado',
+                    desc: 'Notifica al empleado asignado cuando otro le agrega un turno',
+                  },
+                  {
+                    key: 'alertLowStock',
+                    label: 'Stock bajo',
+                    desc: 'Notifica cuando un producto baja del mínimo configurado',
+                  },
+                ] as { key: keyof PushNotifSettings; label: string; desc: string }[]
+              ).map(({ key, label, desc }) => (
+                <div key={key} className="flex items-center justify-between py-3 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                  </div>
+                  <Toggle
+                    checked={push[key]}
+                    onChange={(v) => setPush((prev) => ({ ...prev, [key]: v }))}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {!loading && (
+            <Button
+              type="button"
+              onClick={() => void handleSavePush()}
+              disabled={savingPush}
+              className="mt-4 w-full sm:w-auto"
+            >
+              {savingPush ? 'Guardando...' : 'Guardar notificaciones'}
+            </Button>
+          )}
+        </Card>
+      </section>
 
       {/* WhatsApp */}
       <section>
@@ -93,18 +288,17 @@ export default function SettingsPage() {
               <div className="h-9 bg-muted rounded w-32" />
             </div>
           ) : (
-            <form onSubmit={(e) => void handleSave(e)} className="space-y-5">
+            <form onSubmit={(e) => void handleSaveWhatsapp(e)} className="space-y-5">
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">Número de WhatsApp</Label>
                 <PhoneInput value={phone} onChange={setPhone} placeholder="11 2345-6789" />
               </div>
 
-              {/* Opt-in */}
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={settings.whatsappOptIn}
-                  onChange={(e) => setSettings({ ...settings, whatsappOptIn: e.target.checked })}
+                  checked={whatsapp.whatsappOptIn}
+                  onChange={(e) => setWhatsapp({ ...whatsapp, whatsappOptIn: e.target.checked })}
                   className="mt-0.5 h-4 w-4 rounded border-border accent-primary cursor-pointer"
                 />
                 <div>
@@ -117,8 +311,7 @@ export default function SettingsPage() {
                 </div>
               </label>
 
-              {/* Tipos de alertas */}
-              {settings.whatsappOptIn && (
+              {whatsapp.whatsappOptIn && (
                 <div className="border border-border rounded-lg divide-y divide-border">
                   <div className="flex items-center justify-between px-4 py-3">
                     <div>
@@ -127,29 +320,16 @@ export default function SettingsPage() {
                         Cuando un producto cae al mínimo configurado
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={settings.alertLowStock}
-                      onClick={() =>
-                        setSettings({ ...settings, alertLowStock: !settings.alertLowStock })
-                      }
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
-                        settings.alertLowStock ? 'bg-primary' : 'bg-input'
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-background shadow-lg transition-transform ${
-                          settings.alertLowStock ? 'translate-x-4' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
+                    <Toggle
+                      checked={whatsapp.alertLowStock}
+                      onChange={(v) => setWhatsapp({ ...whatsapp, alertLowStock: v })}
+                    />
                   </div>
                 </div>
               )}
 
-              <Button type="submit" disabled={saving} className="w-full sm:w-auto">
-                {saving ? 'Guardando...' : 'Guardar'}
+              <Button type="submit" disabled={savingWhatsapp} className="w-full sm:w-auto">
+                {savingWhatsapp ? 'Guardando...' : 'Guardar'}
               </Button>
             </form>
           )}

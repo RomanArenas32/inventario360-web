@@ -74,16 +74,53 @@ function LoginContent() {
     setLoading(true);
     try {
       await api.post('/auth/login', form);
-      const me = await api.get<{ role: string; tenant: { isOnboarded: boolean } | null }>(
-        '/auth/me',
-      );
-      setSession(me.role, me.tenant?.isOnboarded ?? false);
+      const me = await api.get<{
+        role: string;
+        tenant: { id: string; isOnboarded: boolean } | null;
+        tenants: { id: string; name: string; role: string }[];
+      }>('/auth/me');
+
       if (me.role === 'admin') {
+        setSession(me.role, true);
         router.push('/admin/dashboard');
-      } else if (!me.tenant) {
+        return;
+      }
+
+      if (me.tenants.length === 0) {
+        setSession(me.role, false);
         router.push('/register');
+        return;
+      }
+
+      // Multiple tenants or no active tenant → try last session, else selector
+      if (me.tenants.length > 1 || !me.tenant) {
+        const lastTenantId =
+          typeof window !== 'undefined' ? localStorage.getItem('lastTenantId') : null;
+        const lastTenant = lastTenantId ? me.tenants.find((t) => t.id === lastTenantId) : null;
+
+        if (lastTenant) {
+          await api.post('/auth/switch-tenant', { tenantId: lastTenant.id });
+          setSession(me.role, true);
+          localStorage.setItem('lastTenantId', lastTenant.id);
+          router.push('/dashboard');
+        } else {
+          setSession(me.role, false);
+          router.push('/select-tenant');
+        }
+        return;
+      }
+
+      // Single tenant
+      const tenantRole = me.tenants.find((t) => t.id === me.tenant!.id)?.role ?? null;
+      const isOwner = tenantRole === 'owner';
+      localStorage.setItem('lastTenantId', me.tenant.id);
+
+      if (!me.tenant.isOnboarded && isOwner) {
+        setSession(me.role, false);
+        router.push('/onboarding');
       } else {
-        router.push(me.tenant.isOnboarded ? '/dashboard' : '/onboarding');
+        setSession(me.role, true);
+        router.push('/dashboard');
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Error al iniciar sesión');
