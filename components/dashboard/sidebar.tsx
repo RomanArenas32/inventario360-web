@@ -23,6 +23,8 @@ import {
   Users,
   Warehouse,
   CalendarDays,
+  ShoppingCart,
+  Scissors,
 } from 'lucide-react';
 import { NotificationBell, NotificationBellMobile } from '@/components/shared/notification-bell';
 import Image from 'next/image';
@@ -34,6 +36,8 @@ const MODULE_NAV: Record<string, SidebarNavItem> = {
   products: { href: '/products', label: 'Productos', icon: Package },
   turns: { href: '/turns', label: 'Turnos', icon: CalendarDays },
   stock: { href: '/stock', label: 'Stock', icon: Warehouse },
+  sales: { href: '/sales', label: 'Ventas', icon: ShoppingCart },
+  services: { href: '/services', label: 'Servicios', icon: Scissors },
 };
 
 type TenantOption = { id: string; name: string; role: string };
