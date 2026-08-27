@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { CalendarDays } from 'lucide-react';
-import TurnBlock from '@/components/turns/TurnBlock';
+import TurnBlock from './_components/turn-block';
+import { PageHeader } from '@/components/shared/page-header';
 
 const morning = ['08:00', '09:00', '10:00', '11:00'];
 const afternoon = ['16:00', '17:00', '18:00', '19:00'];
@@ -44,13 +44,7 @@ export default function TurnsPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
-        <CalendarDays size={20} />
-        <div>
-          <h1 className="text-2xl font-bold">Turnos</h1>
-          <p className="text-sm text-muted-foreground">Bloques de 1 hora — Mañana y Tarde</p>
-        </div>
-      </div>
+      <PageHeader title="Turnos" description="Bloques de 1 hora — Mañana y Tarde" />
 
       <Card className="p-4 mb-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">

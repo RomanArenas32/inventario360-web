@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, Sparkles, Store, XCircle } from 'lucide-react';
+import { PageHeader } from '@/components/shared/page-header';
 
 type Tenant = {
   id: string;
@@ -57,8 +58,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-      <p className="text-muted-foreground mt-1">Resumen de la plataforma</p>
+      <PageHeader title="Dashboard" description="Resumen de la plataforma" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
         {stats.map((stat) => (

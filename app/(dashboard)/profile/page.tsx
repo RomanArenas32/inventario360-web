@@ -2,12 +2,18 @@
 
 import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PageHeader } from '@/components/shared/page-header';
+import { Plus, Building2 } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-type Me = { name: string; email: string };
+type Tenant = { id: string; name: string; role: string };
+type Me = { name: string; email: string; tenants: Tenant[] };
 
 export default function ProfilePage() {
   const [me, setMe] = useState<Me | null>(null);
@@ -26,7 +32,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     void api.get<Me>('/auth/me').then((data) => {
-      setMe(data);
+      setMe({ ...data, tenants: data.tenants ?? [] });
       setName(data.name);
     });
   }, []);
@@ -79,10 +85,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-lg space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Mi perfil</h1>
-        <p className="text-muted-foreground mt-1">{me.email}</p>
-      </div>
+      <PageHeader title="Mi perfil" description={me.email} />
 
       {/* Personal info */}
       <Card className="p-5 shadow-sm">
@@ -112,6 +115,37 @@ export default function ProfilePage() {
             {savingProfile ? 'Guardando...' : 'Guardar cambios'}
           </Button>
         </form>
+      </Card>
+
+      {/* Businesses */}
+      <Card className="p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-foreground">Mis negocios</h2>
+          <Link
+            href="/register"
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'gap-1.5 text-xs')}
+          >
+            <Plus size={13} />
+            Crear negocio
+          </Link>
+        </div>
+        <div className="space-y-2">
+          {me.tenants.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pertenecés a ningún negocio.</p>
+          ) : (
+            me.tenants.map((t) => (
+              <div key={t.id} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+                <Building2 size={15} className="text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{t.name}</p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {t.role === 'owner' ? 'Dueño' : 'Empleado'}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </Card>
 
       {/* Change password */}

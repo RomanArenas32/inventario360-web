@@ -1,8 +1,9 @@
 'use client';
 
 import { api } from '@/lib/api';
+import { PageHeader } from '@/components/shared/page-header';
 import { Plan } from '@/lib/client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -28,7 +29,21 @@ import {
   XCircle,
   Clock,
   UserCheck,
+  Search,
+  SlidersHorizontal,
+  X,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
 import { PhoneInput, formatPhone, type PhoneValue } from '@/components/ui/phone-input';
 import {
   Dialog,
@@ -112,20 +127,52 @@ export default function ComerciosPage() {
   const [toggleTarget, setToggleTarget] = useState<Tenant | null>(null);
   const [toggling, setToggling] = useState(false);
   const [detailTenant, setDetailTenant] = useState<Tenant | null>(null);
+  const [search, setSearch] = useState('');
+  const [planFilter, setPlanFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
-  async function load() {
+  const hasFilters = !!planFilter || statusFilter !== 'all';
+  const hasActiveFilters = !!search || hasFilters;
+
+  const chips = [
+    ...(planFilter
+      ? [
+          {
+            key: 'plan',
+            label: planFilter.charAt(0).toUpperCase() + planFilter.slice(1),
+            onRemove: () => setPlanFilter(''),
+          },
+        ]
+      : []),
+    ...(statusFilter !== 'all'
+      ? [
+          {
+            key: 'status',
+            label: statusFilter === 'active' ? 'Activo' : 'Inactivo',
+            onRemove: () => setStatusFilter('all'),
+          },
+        ]
+      : []),
+  ];
+
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.get<Tenant[]>('/admin/tenants');
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (planFilter) params.set('plan', planFilter);
+      if (statusFilter !== 'all') params.set('isActive', String(statusFilter === 'active'));
+      const qs = params.toString();
+      const data = await api.get<Tenant[]>(`/admin/tenants${qs ? `?${qs}` : ''}`);
       setTenants(data);
     } finally {
       setLoading(false);
     }
-  }
+  }, [search, planFilter, statusFilter]);
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -184,13 +231,90 @@ export default function ComerciosPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Comercios</h1>
-          <p className="text-muted-foreground mt-1">Gestión de clientes de la plataforma</p>
+      <PageHeader
+        title="Comercios"
+        description="Gestión de clientes de la plataforma"
+        action={<Button onClick={() => setShowCreate(true)}>+ Nuevo comercio</Button>}
+      />
+
+      <div
+        className={`flex flex-col gap-2 sm:flex-row sm:items-center ${chips.length > 0 ? 'mb-2' : 'mb-4'}`}
+      >
+        <div className="relative flex-1 max-w-sm">
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            placeholder="Buscar por nombre, dueño o email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
         </div>
-        <Button onClick={() => setShowCreate(true)}>+ Nuevo comercio</Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'sm' }),
+              'gap-1.5',
+              hasFilters && 'border-primary text-primary',
+            )}
+          >
+            <SlidersHorizontal size={13} />
+            Filtrar
+            {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-44">
+            <DropdownMenuRadioGroup value={planFilter} onValueChange={setPlanFilter}>
+              <DropdownMenuLabel>Plan</DropdownMenuLabel>
+              <DropdownMenuRadioItem value="">Todos</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="basic">Basic</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="pro">Pro</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="enterprise">Enterprise</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={statusFilter}
+              onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
+            >
+              <DropdownMenuLabel>Estado</DropdownMenuLabel>
+              <DropdownMenuRadioItem value="all">Todos</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="active">Activo</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="inactive">Inactivo</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {chips.length > 0 && (
+        <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+          {chips.map((chip) => (
+            <Badge
+              key={chip.key}
+              variant="secondary"
+              className="gap-1 pl-2.5 pr-1.5 py-1 text-xs font-normal"
+            >
+              {chip.label}
+              <button
+                onClick={chip.onRemove}
+                className="rounded-sm opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <X size={11} />
+              </button>
+            </Badge>
+          ))}
+          <button
+            onClick={() => {
+              setPlanFilter('');
+              setStatusFilter('all');
+            }}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
+          >
+            Limpiar todo
+          </button>
+        </div>
+      )}
 
       <Card className="p-0 shadow-sm overflow-hidden">
         {loading ? (
@@ -200,7 +324,9 @@ export default function ComerciosPage() {
           />
         ) : tenants.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
-            No hay comercios registrados. Creá el primero.
+            {hasActiveFilters
+              ? 'No se encontraron comercios con ese criterio.'
+              : 'No hay comercios registrados. Creá el primero.'}
           </div>
         ) : (
           <Table>

@@ -1,10 +1,21 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, Suspense } from 'react';
+import { PageHeader } from '@/components/shared/page-header';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -32,10 +43,13 @@ import {
   Mail,
   Package,
   Pencil,
+  Search,
+  SlidersHorizontal,
   Tag,
   Trash2,
   UserPlus,
   Users,
+  X,
   Warehouse,
 } from 'lucide-react';
 
@@ -129,7 +143,28 @@ function Avatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' }) {
 // ── Componente principal ───────────────────────────────────────────────────────
 
 export default function TeamPage() {
-  const [tab, setTab] = useState<'members' | 'permissions'>('members');
+  return (
+    <Suspense>
+      <TeamContent />
+    </Suspense>
+  );
+}
+
+function TeamContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab: 'members' | 'permissions' =
+    searchParams.get('tab') === 'permisos' ? 'permissions' : 'members';
+
+  function setTab(value: 'members' | 'permissions') {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === 'permissions') {
+      params.set('tab', 'permisos');
+    } else {
+      params.delete('tab');
+    }
+    router.replace(`?${params.toString()}`);
+  }
 
   // Members state
   const [members, setMembers] = useState<Member[]>([]);
@@ -149,15 +184,33 @@ export default function TeamPage() {
   );
   const nameInputRef = useRef<HTMLInputElement>(null);
 
+  // Search + filter
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'owner' | 'staff'>('all');
+
+  const filteredPending = pending.filter(
+    (inv) =>
+      !search ||
+      inv.name.toLowerCase().includes(search.toLowerCase()) ||
+      inv.email.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const hasFilters = roleFilter !== 'all';
+
   // Permissions state
   const [staffModules, setStaffModules] = useState<Module[] | null>(null);
   const [savingModules, setSavingModules] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (roleFilter !== 'all') params.set('role', roleFilter);
+      const qs = params.toString();
+
       const [membersData, pendingData, me] = await Promise.all([
-        api.get<Member[]>('/tenants/members'),
+        api.get<Member[]>(`/tenants/members${qs ? `?${qs}` : ''}`),
         api.get<PendingInvitation[]>('/tenants/invitations/pending'),
         api.get<{ id: string }>('/auth/me'),
       ]);
@@ -167,15 +220,18 @@ export default function TeamPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [search, roleFilter]);
 
   useEffect(() => {
-    void load();
     void api
       .get<{ staffModules: Module[] | null }>('/tenants/settings')
       .then((data) => setStaffModules(data.staffModules ?? [...ALL_MODULES]))
       .catch(() => setStaffModules([...ALL_MODULES]));
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   function openAdd() {
     setForm(EMPTY);
@@ -269,9 +325,8 @@ export default function TeamPage() {
   const totalCount = members.length + pending.length;
 
   return (
-    <div className="max-w-3xl">
-      {/* Título */}
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-5">Equipo</h1>
+    <div>
+      <PageHeader title="Equipo" description="Gestioná los miembros y permisos de tu negocio" />
 
       {/* Tabs */}
       <div className="flex border-b border-border mb-6">
@@ -302,6 +357,67 @@ export default function TeamPage() {
               Agregar miembro
             </Button>
           </div>
+
+          <div
+            className={`flex flex-col gap-2 sm:flex-row sm:items-center ${hasFilters ? 'mb-2' : 'mb-4'}`}
+          >
+            <div className="relative flex-1 max-w-sm">
+              <Search
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                placeholder="Buscar por nombre o email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'sm' }),
+                  'gap-1.5',
+                  hasFilters && 'border-primary text-primary',
+                )}
+              >
+                <SlidersHorizontal size={13} />
+                Filtrar
+                {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-44">
+                <DropdownMenuRadioGroup
+                  value={roleFilter}
+                  onValueChange={(v) => setRoleFilter(v as typeof roleFilter)}
+                >
+                  <DropdownMenuLabel>Rol</DropdownMenuLabel>
+                  <DropdownMenuRadioItem value="all">Todos</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="owner">Dueño</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="staff">Empleado</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {hasFilters && (
+            <div className="flex items-center gap-1.5 mb-4">
+              <Badge variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 text-xs font-normal">
+                {roleFilter === 'owner' ? 'Dueño' : 'Empleado'}
+                <button
+                  onClick={() => setRoleFilter('all')}
+                  className="rounded-sm opacity-60 hover:opacity-100 transition-opacity"
+                >
+                  <X size={11} />
+                </button>
+              </Badge>
+              <button
+                onClick={() => setRoleFilter('all')}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors ml-1"
+              >
+                Limpiar
+              </button>
+            </div>
+          )}
 
           {loading ? (
             <div className="space-y-3">
@@ -413,17 +529,17 @@ export default function TeamPage() {
                 </div>
               ))}
 
-              {pending.length > 0 && (
+              {filteredPending.length > 0 && (
                 <>
                   <div className="flex items-center gap-3 pt-4 pb-1">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
                       Invitaciones pendientes
                     </span>
                     <div className="flex-1 h-px bg-border" />
-                    <span className="text-xs text-muted-foreground">{pending.length}</span>
+                    <span className="text-xs text-muted-foreground">{filteredPending.length}</span>
                   </div>
 
-                  {pending.map((inv) => (
+                  {filteredPending.map((inv) => (
                     <div
                       key={inv.invitationId}
                       className="group flex items-center gap-4 px-4 py-3.5 rounded-xl border border-dashed border-border bg-card/50 hover:bg-card transition-all duration-150"
@@ -466,7 +582,7 @@ export default function TeamPage() {
 
       {/* ── Tab: Permisos ── */}
       {tab === 'permissions' && (
-        <div className="max-w-lg">
+        <div className="max-w-2xl">
           <p className="text-sm text-muted-foreground mb-5">
             Elegí qué secciones pueden ver los empleados de tu negocio. Los dueños siempre tienen
             acceso completo.

@@ -1,41 +1,43 @@
-'use client';
-
-import { api } from '@/lib/api';
-import { useEffect, useState } from 'react';
+import { cookies } from 'next/headers';
+import type { Category, Product } from '@/lib/client';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, CheckCircle2, Package, Tag } from 'lucide-react';
+import { PageHeader } from '@/components/shared/page-header';
 
-type Product = { id: string; stock: number; minStock: number; isActive: boolean };
-type Category = { id: string };
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-export default function DashboardPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [lowStock, setLowStock] = useState<Product[]>([]);
+async function fetchJson<T>(url: string, token: string): Promise<T | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { Cookie: `inv360_token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json() as Promise<T>;
+  } catch {
+    return null;
+  }
+}
 
-  useEffect(() => {
-    void Promise.all([
-      api
-        .get<Product[]>('/products')
-        .then(setProducts)
-        .catch(() => null),
-      api
-        .get<Category[]>('/categories')
-        .then(setCategories)
-        .catch(() => null),
-      api
-        .get<Product[]>('/products/low-stock')
-        .then(setLowStock)
-        .catch(() => null),
-    ]);
-  }, []);
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('inv360_token')?.value ?? '';
 
-  const active = products.filter((p) => p.isActive).length;
+  const [products, categories, lowStock] = await Promise.all([
+    fetchJson<Product[]>(`${API_URL}/products`, token),
+    fetchJson<Category[]>(`${API_URL}/categories`, token),
+    fetchJson<Product[]>(`${API_URL}/products/low-stock`, token),
+  ]);
+
+  const productList = products ?? [];
+  const categoryList = categories ?? [];
+  const lowStockList = lowStock ?? [];
+  const active = productList.filter((p) => p.isActive).length;
 
   const stats = [
     {
       label: 'Productos',
-      value: products.length,
+      value: productList.length,
       color: 'text-blue-500',
       icon: Package,
       iconBg: 'bg-blue-50 dark:bg-blue-950/50 text-blue-500',
@@ -49,14 +51,14 @@ export default function DashboardPage() {
     },
     {
       label: 'Stock bajo',
-      value: lowStock.length,
+      value: lowStockList.length,
       color: 'text-amber-500',
       icon: AlertTriangle,
       iconBg: 'bg-amber-50 dark:bg-amber-950/50 text-amber-500',
     },
     {
       label: 'Categorías',
-      value: categories.length,
+      value: categoryList.length,
       color: 'text-purple-500',
       icon: Tag,
       iconBg: 'bg-purple-50 dark:bg-purple-950/50 text-purple-500',
@@ -65,8 +67,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-      <p className="text-muted-foreground mt-1">Resumen de tu inventario</p>
+      <PageHeader title="Dashboard" description="Resumen de tu inventario" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
         {stats.map((stat) => (
@@ -86,12 +87,13 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {lowStock.length > 0 && (
+      {lowStockList.length > 0 && (
         <div className="mt-6 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
           <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-              Alerta: {lowStock.length} producto{lowStock.length !== 1 ? 's' : ''} con stock bajo
+              Alerta: {lowStockList.length} producto{lowStockList.length !== 1 ? 's' : ''} con stock
+              bajo
             </p>
             <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">
               Revisá la sección de Stock para ver el detalle.

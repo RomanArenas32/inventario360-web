@@ -1,12 +1,14 @@
 'use client';
 
 import { api } from '@/lib/api';
+import type { ContactMessage } from '@/lib/client';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
   DropdownMenu,
@@ -19,22 +21,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SlidersHorizontal, Layers2, X } from 'lucide-react';
+import { SlidersHorizontal, Layers2, Search, X } from 'lucide-react';
+import { PageHeader } from '@/components/shared/page-header';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
-type Message = {
-  id: string;
-  name: string;
-  email: string;
-  businessType: string | null;
-  phone: string | null;
-  message: string;
-  status: string;
-  isUser: boolean;
-  notes: string | null;
-  createdAt: string;
-};
+type Message = ContactMessage;
 
 type PaginatedResult = {
   data: Message[];
@@ -126,6 +118,8 @@ export default function MensajesPage() {
   const [isUserFilter, setIsUserFilter] = useState<IsUserFilter>('all');
   // Agrupamiento (cliente)
   const [groupBy, setGroupBy] = useState<GroupBy | 'none'>('none');
+  // Búsqueda (cliente)
+  const [search, setSearch] = useState('');
 
   const [selected, setSelected] = useState<Message | null>(null);
   const [notes, setNotes] = useState('');
@@ -197,9 +191,17 @@ export default function MensajesPage() {
 
   // Mensajes visibles después de filtros cliente
   const visible = useMemo(() => {
-    if (isUserFilter === 'all') return messages;
-    return messages.filter((m) => (isUserFilter === 'client' ? m.isUser : !m.isUser));
-  }, [messages, isUserFilter]);
+    return messages.filter((m) => {
+      const matchUser =
+        isUserFilter === 'all' || (isUserFilter === 'client' ? m.isUser : !m.isUser);
+      const matchSearch =
+        !search ||
+        m.name.toLowerCase().includes(search.toLowerCase()) ||
+        m.email.toLowerCase().includes(search.toLowerCase()) ||
+        m.message.toLowerCase().includes(search.toLowerCase());
+      return matchUser && matchSearch;
+    });
+  }, [messages, isUserFilter, search]);
 
   // Agrupados
   const grouped = useMemo(
@@ -328,14 +330,24 @@ export default function MensajesPage() {
     <div className="flex gap-4 h-full">
       {/* Lista */}
       <div className="flex-1 min-w-0">
-        {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-foreground">Mensajes</h1>
-          <p className="text-muted-foreground mt-0.5 text-sm">Solicitudes de acceso y consultas</p>
-        </div>
+        <PageHeader title="Mensajes" description="Solicitudes de acceso y consultas" />
 
         {/* Toolbar */}
-        <div className={`flex items-center gap-2 ${chips.length > 0 ? 'mb-2' : 'mb-4'} flex-wrap`}>
+        <div
+          className={`flex flex-col gap-2 sm:flex-row sm:items-center ${chips.length > 0 ? 'mb-2' : 'mb-4'} flex-wrap`}
+        >
+          <div className="relative flex-1 max-w-sm">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              placeholder="Buscar por nombre, email o mensaje..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
           {/* Filtrar */}
           <DropdownMenu>
             <DropdownMenuTrigger

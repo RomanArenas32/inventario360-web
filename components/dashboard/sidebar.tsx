@@ -8,6 +8,7 @@ import type { SidebarNavItem } from '@/components/shared/app-sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -18,12 +19,14 @@ import {
   LayoutDashboard,
   Package,
   Settings,
-  Tag,
   User,
   Users,
   Warehouse,
   CalendarDays,
+  ShoppingCart,
+  Scissors,
 } from 'lucide-react';
+import { NotificationBell, NotificationBellMobile } from '@/components/shared/notification-bell';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -32,8 +35,9 @@ import { usePathname, useRouter } from 'next/navigation';
 const MODULE_NAV: Record<string, SidebarNavItem> = {
   products: { href: '/products', label: 'Productos', icon: Package },
   turns: { href: '/turns', label: 'Turnos', icon: CalendarDays },
-  categories: { href: '/categories', label: 'Categorías', icon: Tag },
   stock: { href: '/stock', label: 'Stock', icon: Warehouse },
+  sales: { href: '/sales', label: 'Ventas', icon: ShoppingCart },
+  services: { href: '/services', label: 'Servicios', icon: Scissors },
 };
 
 type TenantOption = { id: string; name: string; role: string };
@@ -164,21 +168,23 @@ export default function Sidebar() {
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="start" sideOffset={0}>
-          <DropdownMenuLabel>Negocios</DropdownMenuLabel>
-          {data?.allTenants.map((t) => (
-            <DropdownMenuItem key={t.id} onClick={() => void handleSwitchTenant(t.id, onClose)}>
-              <span className="flex items-center gap-2 flex-1 min-w-0">
-                <Check
-                  size={12}
-                  className={t.id === data.activeTenantId ? 'opacity-100' : 'opacity-0'}
-                />
-                <span className="truncate">{t.name}</span>
-              </span>
-              <span className="ml-2 text-xs text-muted-foreground shrink-0">
-                {ROLE_LABEL[t.role] ?? t.role}
-              </span>
-            </DropdownMenuItem>
-          ))}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Negocios</DropdownMenuLabel>
+            {data?.allTenants.map((t) => (
+              <DropdownMenuItem key={t.id} onClick={() => void handleSwitchTenant(t.id, onClose)}>
+                <span className="flex items-center gap-2 flex-1 min-w-0">
+                  <Check
+                    size={12}
+                    className={t.id === data.activeTenantId ? 'opacity-100' : 'opacity-0'}
+                  />
+                  <span className="truncate">{t.name}</span>
+                </span>
+                <span className="ml-2 text-xs text-muted-foreground shrink-0">
+                  {ROLE_LABEL[t.role] ?? t.role}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -199,6 +205,7 @@ export default function Sidebar() {
 
   const bottomExtra = (collapsed: boolean) => (
     <>
+      <NotificationBell collapsed={collapsed} />
       {isOwner && (
         <Link
           href="/settings"
@@ -259,6 +266,7 @@ export default function Sidebar() {
       collapsedHeader={collapsedHeader}
       bottomExtra={bottomExtra}
       mobileHeader={mobileHeader}
+      mobileBadge={<NotificationBellMobile />}
       onLogout={() => void handleLogout()}
     />
   );

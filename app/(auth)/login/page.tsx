@@ -3,10 +3,12 @@
 import { api } from '@/lib/api';
 import { setSession } from '@/lib/auth';
 import AuthSplitLayout from '@/components/auth/auth-split-layout';
-import InventoryMascot from '@/components/auth/inventory-mascot';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type FormEvent, useEffect, useState, Suspense } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -33,32 +35,8 @@ function GoogleIcon() {
   );
 }
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { PhoneInput, formatPhone, type PhoneValue } from '@/components/ui/phone-input';
-
 const ERROR_MESSAGES: Record<string, string> = {
-  no_account: 'No existe una cuenta asociada a este correo.',
-  no_tenant: 'Tu cuenta no tiene ningún negocio asociado.',
   google_failed: 'No se pudo autenticar con Google. Intentá de nuevo.',
-};
-
-type ContactForm = {
-  name: string;
-  email: string;
-  businessType: string;
-  phone: PhoneValue;
-  message: string;
-};
-const EMPTY_CONTACT: ContactForm = {
-  name: '',
-  email: '',
-  businessType: '',
-  phone: { countryCode: '+54', number: '' },
-  message: '',
 };
 
 export default function LoginPage() {
@@ -91,27 +69,58 @@ function LoginContent() {
     return () => clearTimeout(t);
   }, [oauthError, router]);
 
-  const [showContact, setShowContact] = useState(false);
-  const [contact, setContact] = useState<ContactForm>(EMPTY_CONTACT);
-  const [contactLoading, setContactLoading] = useState(false);
-  const [contactSent, setContactSent] = useState(false);
-  const [contactError, setContactError] = useState('');
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
       await api.post('/auth/login', form);
-      const me = await api.get<{ role: string; tenant: { isOnboarded: boolean } | null }>(
-        '/auth/me',
-      );
-      setSession(me.role, me.tenant?.isOnboarded ?? false);
+      const me = await api.get<{
+        role: string;
+        tenant: { id: string; isOnboarded: boolean } | null;
+        tenants: { id: string; name: string; role: string }[];
+      }>('/auth/me');
+
       if (me.role === 'admin') {
+        setSession(me.role, true);
         router.push('/admin/dashboard');
-      } else if (!me.tenant) {
-        router.push('/select-tenant');
+        return;
+      }
+
+      if (me.tenants.length === 0) {
+        setSession(me.role, false);
+        router.push('/register');
+        return;
+      }
+
+      // Multiple tenants or no active tenant → try last session, else selector
+      if (me.tenants.length > 1 || !me.tenant) {
+        const lastTenantId =
+          typeof window !== 'undefined' ? localStorage.getItem('lastTenantId') : null;
+        const lastTenant = lastTenantId ? me.tenants.find((t) => t.id === lastTenantId) : null;
+
+        if (lastTenant) {
+          await api.post('/auth/switch-tenant', { tenantId: lastTenant.id });
+          setSession(me.role, true);
+          localStorage.setItem('lastTenantId', lastTenant.id);
+          router.push('/dashboard');
+        } else {
+          setSession(me.role, false);
+          router.push('/select-tenant');
+        }
+        return;
+      }
+
+      // Single tenant
+      const tenantRole = me.tenants.find((t) => t.id === me.tenant!.id)?.role ?? null;
+      const isOwner = tenantRole === 'owner';
+      localStorage.setItem('lastTenantId', me.tenant.id);
+
+      if (!me.tenant.isOnboarded && isOwner) {
+        setSession(me.role, false);
+        router.push('/onboarding');
       } else {
-        router.push(me.tenant.isOnboarded ? '/dashboard' : '/onboarding');
+        setSession(me.role, true);
+        router.push('/dashboard');
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Error al iniciar sesión');
@@ -120,32 +129,11 @@ function LoginContent() {
     }
   }
 
-  async function handleContact(e: FormEvent) {
-    e.preventDefault();
-    setContactLoading(true);
-    setContactError('');
-    try {
-      await api.post('/messages', { ...contact, phone: formatPhone(contact.phone) || undefined });
-      setContactSent(true);
-    } catch (err: unknown) {
-      setContactError(err instanceof Error ? err.message : 'Error al enviar');
-    } finally {
-      setContactLoading(false);
-    }
-  }
-
-  function closeContact() {
-    setShowContact(false);
-    setContactSent(false);
-    setContact(EMPTY_CONTACT);
-    setContactError('');
-  }
-
   return (
     <AuthSplitLayout>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Inventario360</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Iniciá sesión en tu cuenta</p>
+        <h1 className="text-2xl font-bold text-foreground">Bienvenido</h1>
+        <p className="text-muted-foreground mt-1 text-sm">Iniciá sesión o registrate con Google</p>
       </div>
 
       <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
@@ -197,101 +185,12 @@ function LoginContent() {
         Continuar con Google
       </Button>
 
-      <div className="mt-5 flex justify-center">
-        <InventoryMascot onRequestAccount={() => setShowContact(true)} />
-      </div>
-
-      {/* Modal solicitar acceso */}
-      <Dialog
-        open={showContact}
-        onOpenChange={(open) => {
-          if (!open) closeContact();
-        }}
-      >
-        <DialogContent className="max-w-sm">
-          {contactSent ? (
-            <div className="text-center py-4">
-              <div className="text-3xl mb-3">✓</div>
-              <h2 className="text-lg font-bold text-foreground">¡Solicitud recibida!</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Registramos tus datos y nos pondremos en contacto a la brevedad.
-              </p>
-              <Button onClick={closeContact} className="mt-4 w-full">
-                Cerrar
-              </Button>
-            </div>
-          ) : (
-            <>
-              <DialogHeader>
-                <DialogTitle>Pidenos tu cuenta</DialogTitle>
-              </DialogHeader>
-              <p className="text-sm text-muted-foreground -mt-2">
-                Dejá tus datos y nos pondremos en contacto con vos.
-              </p>
-              <form onSubmit={(e) => void handleContact(e)} className="space-y-3">
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1">Nombre y apellido *</Label>
-                  <Input
-                    required
-                    value={contact.name}
-                    onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                    placeholder="Ej: Ana Pérez"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1">Email *</Label>
-                  <Input
-                    required
-                    type="email"
-                    value={contact.email}
-                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                    placeholder="tu@email.com"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1">
-                    Rubro o tipo de comercio *
-                  </Label>
-                  <Input
-                    required
-                    maxLength={100}
-                    value={contact.businessType}
-                    onChange={(e) => setContact({ ...contact, businessType: e.target.value })}
-                    placeholder="Ej: Barbería, farmacia, taller mecánico"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1">Teléfono</Label>
-                  <PhoneInput
-                    value={contact.phone}
-                    onChange={(v) => setContact({ ...contact, phone: v })}
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1">Mensaje *</Label>
-                  <Textarea
-                    required
-                    rows={3}
-                    value={contact.message}
-                    onChange={(e) => setContact({ ...contact, message: e.target.value })}
-                    className="resize-none"
-                    placeholder="Contanos sobre tu comercio..."
-                  />
-                </div>
-                {contactError && <p className="text-sm text-destructive">{contactError}</p>}
-                <div className="flex gap-3 pt-1">
-                  <Button type="button" variant="outline" onClick={closeContact} className="flex-1">
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={contactLoading} className="flex-1">
-                    {contactLoading ? 'Enviando...' : 'Enviar'}
-                  </Button>
-                </div>
-              </form>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        ¿Primera vez?{' '}
+        <span className="text-foreground font-medium">
+          Google te registra automáticamente — 30 días gratis.
+        </span>
+      </p>
     </AuthSplitLayout>
   );
 }
