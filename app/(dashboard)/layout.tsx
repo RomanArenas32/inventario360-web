@@ -10,7 +10,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!token) redirect('/login');
 
   const res = await fetch(`${API_URL}/auth/me`, {
-    headers: { Cookie: `inv360_token=${token}` },
+    headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   });
 

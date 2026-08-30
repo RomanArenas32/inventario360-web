@@ -1,7 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { setSession } from '@/lib/auth';
+import { setSession, setToken } from '@/lib/auth';
 import AuthSplitLayout from '@/components/auth/auth-split-layout';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type FormEvent, useEffect, useState, Suspense } from 'react';
@@ -73,7 +73,8 @@ function LoginContent() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/login', form);
+      const loginRes = await api.post<{ access_token: string }>('/auth/login', form);
+      setToken(loginRes.access_token);
       const me = await api.get<{
         role: string;
         tenant: { id: string; isOnboarded: boolean } | null;

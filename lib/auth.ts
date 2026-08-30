@@ -1,3 +1,4 @@
+const TOKEN_KEY = 'inv360_token';
 const ROLE_KEY = 'inv360_role';
 const ONBOARDED_KEY = 'inv360_onboarded';
 const MAX_AGE = 60 * 60 * 24 * 7;
@@ -10,7 +11,16 @@ function clearCookie(key: string) {
   document.cookie = `${key}=; path=/; max-age=0`;
 }
 
-// Called after login — token is set as HttpOnly cookie by the server
+export function getToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)inv360_token=([^;]+)/);
+  return match?.[1] ?? null;
+}
+
+export function setToken(token: string) {
+  setCookie(TOKEN_KEY, token);
+}
+
 export function setSession(role: string, isOnboarded: boolean) {
   setCookie(ROLE_KEY, role);
   setCookie(ONBOARDED_KEY, String(isOnboarded));
@@ -20,8 +30,8 @@ export function setOnboarded(value: boolean) {
   setCookie(ONBOARDED_KEY, String(value));
 }
 
-// Clears role/onboarded cookies; token cookie is cleared by POST /auth/logout
 export function clearSession() {
+  clearCookie(TOKEN_KEY);
   clearCookie(ROLE_KEY);
   clearCookie(ONBOARDED_KEY);
 }

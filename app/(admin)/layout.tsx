@@ -6,10 +6,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const token = cookieStore.get('inv360_token')!.value; // middleware garantiza que existe
+  const token = cookieStore.get('inv360_token')?.value;
+  if (!token) redirect('/admin/login');
 
   const res = await fetch(`${API_URL}/admin/auth/me`, {
-    headers: { Cookie: `inv360_token=${token}` },
+    headers: { Authorization: `Bearer ${token}` },
     cache: 'no-store',
   });
 
