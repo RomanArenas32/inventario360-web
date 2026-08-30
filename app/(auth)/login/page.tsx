@@ -93,20 +93,18 @@ function LoginContent() {
         return;
       }
 
-      // Multiple tenants or no active tenant → try last session, else selector
+      // Multiple tenants or no active tenant → try last session, else pick first
       if (me.tenants.length > 1 || !me.tenant) {
         const lastTenantId =
           typeof window !== 'undefined' ? localStorage.getItem('lastTenantId') : null;
-        const lastTenant = lastTenantId ? me.tenants.find((t) => t.id === lastTenantId) : null;
+        const target =
+          (lastTenantId ? me.tenants.find((t) => t.id === lastTenantId) : null) ?? me.tenants[0];
 
-        if (lastTenant) {
-          await api.post('/auth/switch-tenant', { tenantId: lastTenant.id });
+        if (target) {
+          await api.post('/auth/switch-tenant', { tenantId: target.id });
           setSession(me.role, true);
-          localStorage.setItem('lastTenantId', lastTenant.id);
+          localStorage.setItem('lastTenantId', target.id);
           router.push('/dashboard');
-        } else {
-          setSession(me.role, false);
-          router.push('/select-tenant');
         }
         return;
       }
