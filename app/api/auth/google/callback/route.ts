@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const response = NextResponse.redirect(new URL(destination, req.url));
 
   response.cookies.set('inv360_token', token, {
-    httpOnly: true,
+    httpOnly: false,
     secure: true,
     sameSite: 'lax',
     maxAge: MAX_AGE,

@@ -1,11 +1,15 @@
+import { getToken } from './auth';
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    credentials: 'include', // sends HttpOnly cookie automatically
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
