@@ -6,7 +6,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const token = cookieStore.get('inv360_token')!.value; // middleware garantiza que existe
+  const token = cookieStore.get('inv360_token')?.value;
+  if (!token) redirect('/login');
 
   const res = await fetch(`${API_URL}/auth/me`, {
     headers: { Cookie: `inv360_token=${token}` },
