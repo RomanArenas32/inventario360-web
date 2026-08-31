@@ -9,7 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 async function fetchJson<T>(url: string, token: string): Promise<T | null> {
   try {
     const res = await fetch(url, {
-      headers: { Cookie: `inv360_token=${token}` },
+      headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -21,7 +21,7 @@ async function fetchJson<T>(url: string, token: string): Promise<T | null> {
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('inv360_token')?.value ?? '';
+  const token = cookieStore.get('inv360_at')?.value ?? '';
 
   const [products, categories, lowStock] = await Promise.all([
     fetchJson<Product[]>(`${API_URL}/products`, token),

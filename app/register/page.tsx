@@ -1,7 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { setOnboarded } from '@/lib/auth';
+import { setOnboarded, setToken } from '@/lib/auth';
 import AuthSplitLayout from '@/components/auth/auth-split-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,10 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
     try {
-      await api.post('/auth/register-tenant', { name: businessName.trim() });
+      const reg = await api.post<{ access_token: string }>('/auth/register-tenant', {
+        name: businessName.trim(),
+      });
+      setToken(reg.access_token);
 
       // Save selected modules if not all
       if (selected.length < ALL_MODULE_IDS.length) {
