@@ -101,7 +101,9 @@ function LoginContent() {
           (lastTenantId ? me.tenants.find((t) => t.id === lastTenantId) : null) ?? me.tenants[0];
 
         if (target) {
-          const sw = await api.post<{ access_token: string }>('/auth/switch-tenant', { tenantId: target.id });
+          const sw = await api.post<{ access_token: string }>('/auth/switch-tenant', {
+            tenantId: target.id,
+          });
           setToken(sw.access_token);
           setSession(me.role, true);
           localStorage.setItem('lastTenantId', target.id);

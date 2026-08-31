@@ -40,7 +40,9 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
     try {
-      const reg = await api.post<{ access_token: string }>('/auth/register-tenant', { name: businessName.trim() });
+      const reg = await api.post<{ access_token: string }>('/auth/register-tenant', {
+        name: businessName.trim(),
+      });
       setToken(reg.access_token);
 
       // Save selected modules if not all
