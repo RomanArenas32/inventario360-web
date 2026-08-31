@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'inv360_token';
+const TOKEN_KEY = 'inv360_at';
 const ROLE_KEY = 'inv360_role';
 const ONBOARDED_KEY = 'inv360_onboarded';
 const MAX_AGE = 60 * 60 * 24 * 7;
@@ -13,7 +13,7 @@ function clearCookie(key: string) {
 
 export function getToken(): string | null {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)inv360_token=([^;]+)/);
+  const match = document.cookie.match(/(?:^|;\s*)inv360_at=([^;]+)/);
   return match?.[1] ?? null;
 }
 

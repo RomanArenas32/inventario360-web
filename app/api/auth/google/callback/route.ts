@@ -15,9 +15,9 @@ export async function GET(req: NextRequest) {
   const destination = rawDest.startsWith('/') ? rawDest : '/dashboard';
   const response = NextResponse.redirect(new URL(destination, req.url));
 
-  response.cookies.set('inv360_token', token, {
+  response.cookies.set('inv360_at', token, {
     httpOnly: false,
-    secure: true,
+    secure: false,
     sameSite: 'lax',
     maxAge: MAX_AGE,
     path: '/',

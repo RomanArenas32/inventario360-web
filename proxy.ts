@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get('inv360_token')?.value;
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get('inv360_at')?.value;
   const role = request.cookies.get('inv360_role')?.value;
   const isOnboarded = request.cookies.get('inv360_onboarded')?.value === 'true';
   const { pathname } = request.nextUrl;
@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin');
   const isAdminLogin = pathname === '/admin/login';
   const isTenantLogin = pathname === '/login';
-  const isPublicTenantRoute = pathname.startsWith('/login'); // /login, /login/invitation, etc.
+  const isPublicTenantRoute = pathname.startsWith('/login') || pathname.startsWith('/api/'); // /login, /login/invitation, /api/* routes
   const isOnboardingRoute = pathname === '/onboarding';
   const isRegisterRoute = pathname === '/register';
   const isSelectTenantRoute = pathname === '/select-tenant';
