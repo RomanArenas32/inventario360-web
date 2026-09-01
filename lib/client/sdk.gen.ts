@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AdminAuthControllerLoginData, AdminAuthControllerLoginResponses, AdminAuthControllerLogoutData, AdminAuthControllerLogoutResponses, AdminAuthControllerMeData, AdminAuthControllerMeResponses, AdminControllerCreateTenantData, AdminControllerCreateTenantResponses, AdminControllerDeleteTenantData, AdminControllerDeleteTenantResponses, AdminControllerFindAllTenantsData, AdminControllerFindAllTenantsResponses, AdminControllerUpdateTenantData, AdminControllerUpdateTenantResponses, AuthControllerGoogleCallbackData, AuthControllerGoogleCallbackResponses, AuthControllerGoogleMobileLoginData, AuthControllerGoogleMobileLoginResponses, AuthControllerGoogleStartData, AuthControllerGoogleStartResponses, AuthControllerLoginData, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerMeData, AuthControllerMeResponses, AuthControllerRegisterTenantData, AuthControllerRegisterTenantResponses, AuthControllerSwitchTenantData, AuthControllerSwitchTenantResponses, CategoriesControllerCreateData, CategoriesControllerCreateResponses, CategoriesControllerFindAllData, CategoriesControllerFindAllResponses, CategoriesControllerFindOneData, CategoriesControllerFindOneResponses, CategoriesControllerRemoveData, CategoriesControllerRemoveResponses, CategoriesControllerUpdateData, CategoriesControllerUpdateResponses, InvitationsControllerAcceptData, InvitationsControllerAcceptMineData, InvitationsControllerAcceptMineResponses, InvitationsControllerAcceptResponses, InvitationsControllerGoogleCallbackData, InvitationsControllerGoogleCallbackResponses, InvitationsControllerGoogleStartData, InvitationsControllerGoogleStartResponses, InvitationsControllerMineData, InvitationsControllerMineResponses, InvitationsControllerValidateData, InvitationsControllerValidateResponses, MessagesControllerCountPendingData, MessagesControllerCountPendingResponses, MessagesControllerCreateData, MessagesControllerCreateResponses, MessagesControllerFindAllData, MessagesControllerFindAllResponses, MessagesControllerRemoveData, MessagesControllerRemoveResponses, MessagesControllerUpdateData, MessagesControllerUpdateResponses, NotificationsControllerDeleteData, NotificationsControllerDeleteResponses, NotificationsControllerGetAllData, NotificationsControllerGetAllResponses, NotificationsControllerGetUnreadCountData, NotificationsControllerGetUnreadCountResponses, NotificationsControllerMarkAllReadData, NotificationsControllerMarkAllReadResponses, NotificationsControllerMarkReadData, NotificationsControllerMarkReadResponses, NotificationSettingsControllerGetSettingsData, NotificationSettingsControllerGetSettingsResponses, NotificationSettingsControllerUpsertSettingsData, NotificationSettingsControllerUpsertSettingsResponses, ProductsControllerCreateData, ProductsControllerCreateResponses, ProductsControllerFindAllData, ProductsControllerFindAllResponses, ProductsControllerFindLowStockData, ProductsControllerFindLowStockResponses, ProductsControllerFindOneData, ProductsControllerFindOneResponses, ProductsControllerRemoveData, ProductsControllerRemoveResponses, ProductsControllerUpdateData, ProductsControllerUpdateResponses, SalesControllerCreateData, SalesControllerCreateResponses, SalesControllerFindAllData, SalesControllerFindAllResponses, SalesControllerFindOneData, SalesControllerFindOneResponses, SalesControllerGetMonthlyChartData, SalesControllerGetMonthlyChartResponses, SalesControllerGetMonthlySummaryData, SalesControllerGetMonthlySummaryResponses, SalesControllerGetSummaryData, SalesControllerGetSummaryResponses, SalesControllerGetTopProductsData, SalesControllerGetTopProductsResponses, SalesControllerPartialRefundData, SalesControllerPartialRefundResponses, SalesControllerRefundData, SalesControllerRefundResponses, StockMovementsControllerCreateData, StockMovementsControllerCreateResponses, StockMovementsControllerFindAllData, StockMovementsControllerFindAllResponses, TenantsControllerAddMemberData, TenantsControllerAddMemberResponses, TenantsControllerCompleteOnboardingData, TenantsControllerCompleteOnboardingResponses, TenantsControllerGetMembersData, TenantsControllerGetMembersResponses, TenantsControllerGetPendingInvitationsData, TenantsControllerGetPendingInvitationsResponses, TenantsControllerGetSettingsData, TenantsControllerGetSettingsResponses, TenantsControllerRemoveMemberData, TenantsControllerRemoveMemberResponses, TenantsControllerRevokeInvitationData, TenantsControllerRevokeInvitationResponses, TenantsControllerUpdateMemberData, TenantsControllerUpdateMemberResponses, TenantsControllerUpdateSettingsData, TenantsControllerUpdateSettingsResponses, TenantsControllerUpdateStaffModulesData, TenantsControllerUpdateStaffModulesResponses, TurnsControllerCreateData, TurnsControllerCreateResponses, TurnsControllerFindByDateData, TurnsControllerFindByDateResponses, TurnsControllerFindByIdData, TurnsControllerFindByIdResponses, TurnsControllerFindHistoryData, TurnsControllerFindHistoryResponses, TurnsControllerUpdateData, TurnsControllerUpdateResponses, UsersControllerChangePasswordData, UsersControllerChangePasswordResponses, UsersControllerSavePushTokenData, UsersControllerSavePushTokenResponses, UsersControllerUpdateProfileData, UsersControllerUpdateProfileResponses } from './types.gen';
+import type { AdminAuthControllerLoginData, AdminAuthControllerLoginResponses, AdminAuthControllerLogoutData, AdminAuthControllerLogoutResponses, AdminAuthControllerMeData, AdminAuthControllerMeResponses, AdminControllerCreateTenantData, AdminControllerCreateTenantResponses, AdminControllerDeleteTenantData, AdminControllerDeleteTenantResponses, AdminControllerFindAllTenantsData, AdminControllerFindAllTenantsResponses, AdminControllerUpdateTenantData, AdminControllerUpdateTenantResponses, AuthControllerGoogleCallbackData, AuthControllerGoogleCallbackResponses, AuthControllerGoogleMobileLoginData, AuthControllerGoogleMobileLoginResponses, AuthControllerGoogleStartData, AuthControllerGoogleStartResponses, AuthControllerLoginData, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerMeData, AuthControllerMeResponses, AuthControllerRegisterTenantData, AuthControllerRegisterTenantResponses, AuthControllerSignupData, AuthControllerSignupResponses, AuthControllerSwitchTenantData, AuthControllerSwitchTenantResponses, CategoriesControllerCreateData, CategoriesControllerCreateResponses, CategoriesControllerFindAllData, CategoriesControllerFindAllResponses, CategoriesControllerFindOneData, CategoriesControllerFindOneResponses, CategoriesControllerRemoveData, CategoriesControllerRemoveResponses, CategoriesControllerUpdateData, CategoriesControllerUpdateResponses, InvitationsControllerAcceptData, InvitationsControllerAcceptMineData, InvitationsControllerAcceptMineResponses, InvitationsControllerAcceptResponses, InvitationsControllerGoogleCallbackData, InvitationsControllerGoogleCallbackResponses, InvitationsControllerGoogleStartData, InvitationsControllerGoogleStartResponses, InvitationsControllerMineData, InvitationsControllerMineResponses, InvitationsControllerValidateData, InvitationsControllerValidateResponses, MessagesControllerCountPendingData, MessagesControllerCountPendingResponses, MessagesControllerCreateData, MessagesControllerCreateResponses, MessagesControllerFindAllData, MessagesControllerFindAllResponses, MessagesControllerRemoveData, MessagesControllerRemoveResponses, MessagesControllerUpdateData, MessagesControllerUpdateResponses, NotificationsControllerDeleteData, NotificationsControllerDeleteResponses, NotificationsControllerGetAllData, NotificationsControllerGetAllResponses, NotificationsControllerGetUnreadCountData, NotificationsControllerGetUnreadCountResponses, NotificationsControllerMarkAllReadData, NotificationsControllerMarkAllReadResponses, NotificationsControllerMarkReadData, NotificationsControllerMarkReadResponses, NotificationSettingsControllerGetSettingsData, NotificationSettingsControllerGetSettingsResponses, NotificationSettingsControllerUpsertSettingsData, NotificationSettingsControllerUpsertSettingsResponses, ProductsControllerBulkImportData, ProductsControllerBulkImportResponses, ProductsControllerCreateData, ProductsControllerCreateResponses, ProductsControllerFindAllData, ProductsControllerFindAllResponses, ProductsControllerFindByCodeData, ProductsControllerFindByCodeResponses, ProductsControllerFindLowStockData, ProductsControllerFindLowStockResponses, ProductsControllerFindOneData, ProductsControllerFindOneResponses, ProductsControllerRemoveData, ProductsControllerRemoveResponses, ProductsControllerUpdateData, ProductsControllerUpdateResponses, SalesControllerCreateData, SalesControllerCreateResponses, SalesControllerFindAllData, SalesControllerFindAllResponses, SalesControllerFindOneData, SalesControllerFindOneResponses, SalesControllerGetMonthlyChartData, SalesControllerGetMonthlyChartResponses, SalesControllerGetMonthlySummaryData, SalesControllerGetMonthlySummaryResponses, SalesControllerGetSummaryData, SalesControllerGetSummaryResponses, SalesControllerGetTopProductsData, SalesControllerGetTopProductsResponses, SalesControllerPartialRefundData, SalesControllerPartialRefundResponses, SalesControllerRefundData, SalesControllerRefundResponses, ServicesControllerCreateData, ServicesControllerCreateResponses, ServicesControllerFindAllData, ServicesControllerFindAllResponses, ServicesControllerFindOneData, ServicesControllerFindOneResponses, ServicesControllerRemoveData, ServicesControllerRemoveResponses, ServicesControllerUpdateData, ServicesControllerUpdateResponses, StockMovementsControllerCreateData, StockMovementsControllerCreateResponses, StockMovementsControllerFindAllData, StockMovementsControllerFindAllResponses, TenantsControllerAddMemberData, TenantsControllerAddMemberResponses, TenantsControllerCompleteOnboardingData, TenantsControllerCompleteOnboardingResponses, TenantsControllerGetMembersData, TenantsControllerGetMembersResponses, TenantsControllerGetPendingInvitationsData, TenantsControllerGetPendingInvitationsResponses, TenantsControllerGetSettingsData, TenantsControllerGetSettingsResponses, TenantsControllerRemoveMemberData, TenantsControllerRemoveMemberResponses, TenantsControllerRevokeInvitationData, TenantsControllerRevokeInvitationResponses, TenantsControllerUpdateMemberData, TenantsControllerUpdateMemberResponses, TenantsControllerUpdateSettingsData, TenantsControllerUpdateSettingsResponses, TenantsControllerUpdateStaffModulesData, TenantsControllerUpdateStaffModulesResponses, TurnsControllerCreateData, TurnsControllerCreateResponses, TurnsControllerFindByDateData, TurnsControllerFindByDateResponses, TurnsControllerFindByIdData, TurnsControllerFindByIdResponses, TurnsControllerFindHistoryData, TurnsControllerFindHistoryResponses, TurnsControllerUpdateData, TurnsControllerUpdateResponses, UsersControllerChangePasswordData, UsersControllerChangePasswordResponses, UsersControllerSavePushTokenData, UsersControllerSavePushTokenResponses, UsersControllerUpdateProfileData, UsersControllerUpdateProfileResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -140,6 +140,15 @@ export const invitationsControllerMine = <ThrowOnError extends boolean = false>(
 
 export const invitationsControllerAcceptMine = <ThrowOnError extends boolean = false>(options: Options<InvitationsControllerAcceptMineData, ThrowOnError>) => (options.client ?? client).post<InvitationsControllerAcceptMineResponses, unknown, ThrowOnError>({ url: '/invitations/{id}/accept-mine', ...options });
 
+export const authControllerSignup = <ThrowOnError extends boolean = false>(options: Options<AuthControllerSignupData, ThrowOnError>) => (options.client ?? client).post<AuthControllerSignupResponses, unknown, ThrowOnError>({
+    url: '/auth/signup',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const authControllerLogin = <ThrowOnError extends boolean = false>(options: Options<AuthControllerLoginData, ThrowOnError>) => (options.client ?? client).post<AuthControllerLoginResponses, unknown, ThrowOnError>({
     url: '/auth/login',
     ...options,
@@ -161,7 +170,14 @@ export const authControllerGoogleCallback = <ThrowOnError extends boolean = fals
 
 export const authControllerGoogleMobileLogin = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerGoogleMobileLoginData, ThrowOnError>) => (options?.client ?? client).post<AuthControllerGoogleMobileLoginResponses, unknown, ThrowOnError>({ url: '/auth/google/mobile', ...options });
 
-export const authControllerRegisterTenant = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerRegisterTenantData, ThrowOnError>) => (options?.client ?? client).post<AuthControllerRegisterTenantResponses, unknown, ThrowOnError>({ url: '/auth/register-tenant', ...options });
+export const authControllerRegisterTenant = <ThrowOnError extends boolean = false>(options: Options<AuthControllerRegisterTenantData, ThrowOnError>) => (options.client ?? client).post<AuthControllerRegisterTenantResponses, unknown, ThrowOnError>({
+    url: '/auth/register-tenant',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 export const messagesControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<MessagesControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<MessagesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/messages', ...options });
 
@@ -243,6 +259,17 @@ export const productsControllerCreate = <ThrowOnError extends boolean = false>(o
     }
 });
 
+export const productsControllerBulkImport = <ThrowOnError extends boolean = false>(options: Options<ProductsControllerBulkImportData, ThrowOnError>) => (options.client ?? client).post<ProductsControllerBulkImportResponses, unknown, ThrowOnError>({
+    url: '/products/bulk-import',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const productsControllerFindByCode = <ThrowOnError extends boolean = false>(options: Options<ProductsControllerFindByCodeData, ThrowOnError>) => (options.client ?? client).get<ProductsControllerFindByCodeResponses, unknown, ThrowOnError>({ url: '/products/by-code', ...options });
+
 export const productsControllerFindLowStock = <ThrowOnError extends boolean = false>(options?: Options<ProductsControllerFindLowStockData, ThrowOnError>) => (options?.client ?? client).get<ProductsControllerFindLowStockResponses, unknown, ThrowOnError>({ url: '/products/low-stock', ...options });
 
 export const productsControllerRemove = <ThrowOnError extends boolean = false>(options: Options<ProductsControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<ProductsControllerRemoveResponses, unknown, ThrowOnError>({ url: '/products/{id}', ...options });
@@ -283,6 +310,30 @@ export const salesControllerRefund = <ThrowOnError extends boolean = false>(opti
 
 export const salesControllerPartialRefund = <ThrowOnError extends boolean = false>(options: Options<SalesControllerPartialRefundData, ThrowOnError>) => (options.client ?? client).post<SalesControllerPartialRefundResponses, unknown, ThrowOnError>({
     url: '/sales/{id}/partial-refund',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const servicesControllerFindAll = <ThrowOnError extends boolean = false>(options?: Options<ServicesControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<ServicesControllerFindAllResponses, unknown, ThrowOnError>({ url: '/services', ...options });
+
+export const servicesControllerCreate = <ThrowOnError extends boolean = false>(options: Options<ServicesControllerCreateData, ThrowOnError>) => (options.client ?? client).post<ServicesControllerCreateResponses, unknown, ThrowOnError>({
+    url: '/services',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const servicesControllerRemove = <ThrowOnError extends boolean = false>(options: Options<ServicesControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<ServicesControllerRemoveResponses, unknown, ThrowOnError>({ url: '/services/{id}', ...options });
+
+export const servicesControllerFindOne = <ThrowOnError extends boolean = false>(options: Options<ServicesControllerFindOneData, ThrowOnError>) => (options.client ?? client).get<ServicesControllerFindOneResponses, unknown, ThrowOnError>({ url: '/services/{id}', ...options });
+
+export const servicesControllerUpdate = <ThrowOnError extends boolean = false>(options: Options<ServicesControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<ServicesControllerUpdateResponses, unknown, ThrowOnError>({
+    url: '/services/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',

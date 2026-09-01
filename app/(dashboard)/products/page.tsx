@@ -31,6 +31,8 @@ import {
 } from '@/components/ui/table';
 import { ProductFormDialog } from './_components/product-form-dialog';
 import { DeleteProductDialog } from './_components/delete-product-dialog';
+import { CsvImportDialog } from './_components/csv-import-dialog';
+import { Upload } from 'lucide-react';
 import { CategoryFormDialog } from '../categories/_components/category-form-dialog';
 import { DeleteCategoryDialog } from '../categories/_components/delete-category-dialog';
 
@@ -53,6 +55,7 @@ function ProductsTab({ categories }: { categories: Category[] }) {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'ok'>('all');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [showImport, setShowImport] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,14 +117,20 @@ function ProductsTab({ categories }: { categories: Category[] }) {
           {products.length} producto{products.length !== 1 ? 's' : ''}
           {hasActiveFilters ? ' encontrado' + (products.length !== 1 ? 's' : '') : ' en total'}
         </p>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setShowForm(true);
-          }}
-        >
-          + Nuevo producto
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-1.5" onClick={() => setShowImport(true)}>
+            <Upload size={14} />
+            Importar CSV
+          </Button>
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
+            + Nuevo producto
+          </Button>
+        </div>
       </div>
 
       <div
@@ -333,6 +342,12 @@ function ProductsTab({ categories }: { categories: Category[] }) {
         onOpenChange={setShowForm}
         product={editing}
         categories={categories}
+        onSuccess={() => void load()}
+      />
+
+      <CsvImportDialog
+        open={showImport}
+        onOpenChange={setShowImport}
         onSuccess={() => void load()}
       />
 

@@ -28,6 +28,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SlidersHorizontal, TrendingUp, ShoppingBag, Banknote, Receipt } from 'lucide-react';
 import { NewSaleDialog } from './_components/new-sale-dialog';
+import { RefundDialog } from './_components/refund-dialog';
 import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -35,9 +36,10 @@ import { toast } from 'sonner';
 type SaleWithSurcharge = Sale & { surcharge?: number };
 
 type SaleSummary = {
-  totalSales: number;
-  totalRevenue: number;
-  totalProfit: number;
+  count: number;
+  total: number;
+  profit: number;
+  avgTicket: number;
 };
 
 type PaymentFilter = 'all' | 'cash' | 'card' | 'transfer';
@@ -77,7 +79,7 @@ export default function SalesPage() {
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>('all');
-  const [refundingId, setRefundingId] = useState<string | null>(null);
+  const [refundSale, setRefundSale] = useState<SaleWithSurcharge | null>(null);
   const [summary, setSummary] = useState<SaleSummary | null>(null);
 
   const load = useCallback(async () => {
@@ -86,10 +88,13 @@ export default function SalesPage() {
       const params = new URLSearchParams();
       if (paymentFilter !== 'all') params.set('paymentMethod', paymentFilter);
       const qs = params.toString();
-      const [salesData, summaryData] = await Promise.all([
-        api.get<SaleWithSurcharge[]>(`/sales${qs ? `?${qs}` : ''}`),
+      const [salesRes, summaryData] = await Promise.all([
+        api.get<{ data: SaleWithSurcharge[] } | SaleWithSurcharge[]>(`/sales${qs ? `?${qs}` : ''}`),
         api.get<SaleSummary>('/sales/summary?period=month').catch(() => null),
       ]);
+      const salesData = Array.isArray(salesRes)
+        ? salesRes
+        : (salesRes as { data: SaleWithSurcharge[] }).data;
       setSales(salesData);
       if (summaryData) setSummary(summaryData);
     } finally {
@@ -101,19 +106,16 @@ export default function SalesPage() {
     void load();
   }, [load]);
 
-  async function handleRefund(sale: SaleWithSurcharge) {
-    if (!confirm(`¿Reembolsar la venta #${sale.saleNumber}? Se restaurará el stock.`)) return;
-    setRefundingId(sale.id);
-    try {
-      await api.post(`/sales/${sale.id}/refund`, {});
-      toast.success(`Venta #${sale.saleNumber} reembolsada`);
-      void load();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al reembolsar';
-      toast.error(msg);
-    } finally {
-      setRefundingId(null);
-    }
+  function handleRefund(sale: SaleWithSurcharge) {
+    setRefundSale(sale);
+  }
+
+  async function handleRefundDone() {
+    if (!refundSale) return;
+    const saleNumber = refundSale.saleNumber;
+    setRefundSale(null);
+    toast.success(`Venta #${saleNumber} reembolsada`);
+    void load();
   }
 
   const hasFilters = paymentFilter !== 'all';
@@ -121,21 +123,21 @@ export default function SalesPage() {
   const statsCards = [
     {
       label: 'Ventas este mes',
-      value: summary ? String(summary.totalSales) : '—',
+      value: summary ? String(summary.count) : '—',
       icon: ShoppingBag,
       iconBg: 'bg-blue-50 dark:bg-blue-950/50 text-blue-500',
       color: 'text-blue-500',
     },
     {
       label: 'Ingresos este mes',
-      value: summary ? fmt(summary.totalRevenue) : '—',
+      value: summary ? fmt(summary.total) : '—',
       icon: Banknote,
       iconBg: 'bg-green-50 dark:bg-green-950/50 text-green-500',
       color: 'text-green-500',
     },
     {
       label: 'Ganancia este mes',
-      value: summary ? fmt(summary.totalProfit) : '—',
+      value: summary ? fmt(summary.profit) : '—',
       icon: TrendingUp,
       iconBg: 'bg-purple-50 dark:bg-purple-950/50 text-purple-500',
       color: 'text-purple-500',
@@ -278,13 +280,12 @@ export default function SalesPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => void handleRefund(sale)}
-                        disabled={refundingId === sale.id}
+                        onClick={() => handleRefund(sale)}
                         className="h-7 px-2 text-muted-foreground hover:text-destructive text-xs"
                         title="Reembolsar"
                       >
                         <Receipt size={13} className="mr-1" />
-                        {refundingId === sale.id ? 'Reembolsando...' : 'Reembolsar'}
+                        Reembolsar
                       </Button>
                     )}
                   </TableCell>
@@ -296,6 +297,14 @@ export default function SalesPage() {
       </Card>
 
       <NewSaleDialog open={showNew} onOpenChange={setShowNew} onSuccess={() => void load()} />
+
+      <RefundDialog
+        saleId={refundSale?.id ?? null}
+        saleNumber={refundSale?.saleNumber ?? null}
+        itemCount={refundSale?.itemCount ?? 1}
+        onClose={() => setRefundSale(null)}
+        onDone={() => void handleRefundDone()}
+      />
     </div>
   );
 }

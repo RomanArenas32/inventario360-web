@@ -119,6 +119,17 @@ export type AcceptInvitationDto = {
     password: string;
 };
 
+export type SignupDto = {
+    email: string;
+    name: string;
+    password: string;
+};
+
+export type RegisterTenantDto = {
+    name: string;
+    phone?: string;
+};
+
 export type CreateMessageDto = {
     name: string;
     email: string;
@@ -231,6 +242,21 @@ export type CreateProductDto = {
     categoryId?: string;
 };
 
+export type BulkImportItemDto = {
+    name: string;
+    code: string;
+    costPrice?: number;
+    salePrice?: number;
+    stock?: number;
+    minStock?: number;
+    categoryName?: string;
+    description?: string;
+};
+
+export type BulkImportDto = {
+    products: Array<BulkImportItemDto>;
+};
+
 export type UpdateProductDto = {
     name?: string;
     description?: string;
@@ -256,6 +282,7 @@ export type CreateSaleDto = {
     notes?: string;
     customDate?: string;
     discountPct?: number;
+    surchargePct?: number;
 };
 
 export type Sale = {
@@ -272,6 +299,7 @@ export type Sale = {
     user: User;
     saleNumber: number;
     discount: number;
+    surcharge: number;
     refundedAt: string | null;
     createdAt: string;
 };
@@ -296,6 +324,31 @@ export type PartialRefundItemDto = {
 
 export type PartialRefundDto = {
     items: Array<PartialRefundItemDto>;
+};
+
+export type CreateServiceDto = {
+    name: string;
+    description?: string;
+    price: number;
+    duration?: number;
+    isActive?: boolean;
+};
+
+export type Service = {
+    id: string;
+    name: string;
+    description: string | null;
+    price: number;
+    duration: number | null;
+    isActive: boolean;
+    tenantId: string;
+    tenant: Tenant;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type UpdateServiceDto = {
+    [key: string]: unknown;
 };
 
 export type CreateStockMovementDto = {
@@ -684,6 +737,17 @@ export type InvitationsControllerAcceptMineResponses = {
     201: unknown;
 };
 
+export type AuthControllerSignupData = {
+    body: SignupDto;
+    path?: never;
+    query?: never;
+    url: '/auth/signup';
+};
+
+export type AuthControllerSignupResponses = {
+    201: unknown;
+};
+
 export type AuthControllerLoginData = {
     body: LoginDto;
     path?: never;
@@ -764,7 +828,7 @@ export type AuthControllerGoogleMobileLoginResponses = {
 };
 
 export type AuthControllerRegisterTenantData = {
-    body?: never;
+    body: RegisterTenantDto;
     path?: never;
     query?: never;
     url: '/auth/register-tenant';
@@ -1042,6 +1106,34 @@ export type ProductsControllerCreateResponses = {
 
 export type ProductsControllerCreateResponse = ProductsControllerCreateResponses[keyof ProductsControllerCreateResponses];
 
+export type ProductsControllerBulkImportData = {
+    body: BulkImportDto;
+    path?: never;
+    query?: never;
+    url: '/products/bulk-import';
+};
+
+export type ProductsControllerBulkImportResponses = {
+    201: unknown;
+};
+
+export type ProductsControllerFindByCodeData = {
+    body?: never;
+    path?: never;
+    query: {
+        code: string;
+    };
+    url: '/products/by-code';
+};
+
+export type ProductsControllerFindByCodeResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type ProductsControllerFindByCodeResponse = ProductsControllerFindByCodeResponses[keyof ProductsControllerFindByCodeResponses];
+
 export type ProductsControllerFindLowStockData = {
     body?: never;
     path?: never;
@@ -1238,6 +1330,77 @@ export type SalesControllerPartialRefundResponses = {
 };
 
 export type SalesControllerPartialRefundResponse = SalesControllerPartialRefundResponses[keyof SalesControllerPartialRefundResponses];
+
+export type ServicesControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        search?: string;
+    };
+    url: '/services';
+};
+
+export type ServicesControllerFindAllResponses = {
+    200: Array<Service>;
+};
+
+export type ServicesControllerFindAllResponse = ServicesControllerFindAllResponses[keyof ServicesControllerFindAllResponses];
+
+export type ServicesControllerCreateData = {
+    body: CreateServiceDto;
+    path?: never;
+    query?: never;
+    url: '/services';
+};
+
+export type ServicesControllerCreateResponses = {
+    201: Service;
+};
+
+export type ServicesControllerCreateResponse = ServicesControllerCreateResponses[keyof ServicesControllerCreateResponses];
+
+export type ServicesControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/services/{id}';
+};
+
+export type ServicesControllerRemoveResponses = {
+    200: unknown;
+};
+
+export type ServicesControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/services/{id}';
+};
+
+export type ServicesControllerFindOneResponses = {
+    200: Service;
+};
+
+export type ServicesControllerFindOneResponse = ServicesControllerFindOneResponses[keyof ServicesControllerFindOneResponses];
+
+export type ServicesControllerUpdateData = {
+    body: UpdateServiceDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/services/{id}';
+};
+
+export type ServicesControllerUpdateResponses = {
+    200: Service;
+};
+
+export type ServicesControllerUpdateResponse = ServicesControllerUpdateResponses[keyof ServicesControllerUpdateResponses];
 
 export type StockMovementsControllerFindAllData = {
     body?: never;

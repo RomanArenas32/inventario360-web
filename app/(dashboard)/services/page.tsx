@@ -1,7 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Pencil, Trash2, Clock } from 'lucide-react';
+import { Pencil, Trash2, Clock, Scissors, DollarSign } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,6 +49,9 @@ type FormState = {
 
 const EMPTY: FormState = { name: '', description: '', price: '', duration: '', isActive: true };
 
+const NO_SPIN =
+  '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
+
 function getInitial(s: Service | null): FormState {
   if (!s) return EMPTY;
   return {
@@ -58,6 +61,23 @@ function getInitial(s: Service | null): FormState {
     duration: s.duration?.toString() ?? '',
     isActive: s.isActive,
   };
+}
+
+function SectionLabel({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-2 pb-2 border-b border-border">
+      <Icon size={13} className="text-muted-foreground" />
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {children}
+      </p>
+    </div>
+  );
 }
 
 function ServiceFormDialog({
@@ -71,16 +91,26 @@ function ServiceFormDialog({
   service: Service | null;
   onSuccess: () => void;
 }) {
+  const isEdit = !!service;
   const [form, setForm] = useState<FormState>(() => getInitial(service));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  function handleOpenChange(v: boolean) {
-    if (!v) {
-      setForm(getInitial(service));
-      setError('');
-    }
-    onOpenChange(v);
+  // Persistence: only re-initialize when target service changes identity
+  const lastInitKey = useRef<string>('');
+
+  useEffect(() => {
+    if (!open) return;
+    const key = service ? `edit:${service.id}` : 'new';
+    if (key === 'new' && lastInitKey.current === 'new') return;
+    lastInitKey.current = key;
+    setForm(getInitial(service));
+    setError('');
+  }, [open, service]);
+
+  function handleCancel() {
+    lastInitKey.current = '';
+    onOpenChange(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -95,12 +125,13 @@ function ServiceFormDialog({
         duration: form.duration ? parseInt(form.duration, 10) : undefined,
         isActive: form.isActive,
       };
-      if (service) {
+      if (isEdit) {
         await api.patch(`/services/${service.id}`, body);
         toast.success('Servicio actualizado');
       } else {
         await api.post('/services', body);
         toast.success('Servicio creado');
+        lastInitKey.current = '';
       }
       onOpenChange(false);
       onSuccess();
@@ -114,79 +145,106 @@ function ServiceFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{service ? 'Editar servicio' : 'Nuevo servicio'}</DialogTitle>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Scissors size={16} className="text-muted-foreground" />
+            {isEdit ? `Editar — ${service.name}` : 'Nuevo servicio'}
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3">
-          <div>
-            <Label className="text-sm font-medium mb-1.5">Nombre *</Label>
-            <Input
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Ej: Corte de cabello"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium mb-1.5">Descripción</Label>
-            <Textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Opcional"
-              className="resize-none h-20 text-sm"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium mb-1.5">Precio *</Label>
-              <Input
-                required
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                placeholder="0.00"
-              />
+
+        <form onSubmit={(e) => void handleSubmit(e)}>
+          <div className="px-6 py-5 space-y-6 max-h-[65vh] overflow-y-auto">
+            {/* ── Información ─────────────────────────────────────── */}
+            <div className="space-y-4">
+              <SectionLabel icon={Scissors}>Información</SectionLabel>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Nombre *</Label>
+                <Input
+                  required
+                  autoFocus
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Ej: Corte de cabello"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Descripción</Label>
+                <Textarea
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="Opcional"
+                  className="resize-none h-20 text-sm"
+                />
+              </div>
             </div>
-            <div>
-              <Label className="text-sm font-medium mb-1.5">Duración (min)</Label>
-              <Input
-                type="number"
-                min="0"
-                step="1"
-                value={form.duration}
-                onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                placeholder="Ej: 30"
-              />
+
+            {/* ── Precio y duración ────────────────────────────────── */}
+            <div className="space-y-4">
+              <SectionLabel icon={DollarSign}>Precio y duración</SectionLabel>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Precio *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                      $
+                    </span>
+                    <Input
+                      required
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={form.price}
+                      onChange={(e) => setForm({ ...form, price: e.target.value })}
+                      placeholder="0"
+                      className={`pl-7 ${NO_SPIN}`}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs flex items-center gap-1.5">
+                    <Clock size={11} />
+                    Duración (min)
+                  </Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={form.duration}
+                    onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                    placeholder="Ej: 30"
+                    className={NO_SPIN}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="svcActive"
+                  checked={form.isActive}
+                  onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+                  className="h-4 w-4 rounded border-border"
+                />
+                <Label htmlFor="svcActive" className="text-sm font-normal cursor-pointer">
+                  Servicio activo
+                </Label>
+              </div>
             </div>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="svcActive"
-              checked={form.isActive}
-              onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-              className="rounded border-border"
-            />
-            <Label htmlFor="svcActive" className="font-normal">
-              Servicio activo
-            </Label>
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <div className="flex gap-3 pt-1">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              className="flex-1"
-            >
+
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border bg-muted/30">
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={submitting}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={submitting} className="flex-1">
-              {submitting ? 'Guardando...' : 'Guardar'}
+            <Button type="submit" disabled={submitting}>
+              {submitting ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Crear servicio'}
             </Button>
           </div>
         </form>
@@ -340,7 +398,6 @@ export default function ServicesPage() {
       </Card>
 
       <ServiceFormDialog
-        key={editing?.id ?? 'new-service'}
         open={showForm}
         onOpenChange={setShowForm}
         service={editing}
