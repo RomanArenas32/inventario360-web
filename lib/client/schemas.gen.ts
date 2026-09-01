@@ -404,6 +404,48 @@ export const AcceptInvitationDtoSchema = {
     ]
 } as const;
 
+export const SignupDtoSchema = {
+    type: 'object',
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email'
+        },
+        name: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 80
+        },
+        password: {
+            type: 'string',
+            minLength: 6
+        }
+    },
+    required: [
+        'email',
+        'name',
+        'password'
+    ]
+} as const;
+
+export const RegisterTenantDtoSchema = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 100
+        },
+        phone: {
+            type: 'string',
+            maxLength: 30
+        }
+    },
+    required: [
+        'name'
+    ]
+} as const;
+
 export const CreateMessageDtoSchema = {
     type: 'object',
     properties: {
@@ -820,6 +862,60 @@ export const CreateProductDtoSchema = {
     ]
 } as const;
 
+export const BulkImportItemDtoSchema = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        costPrice: {
+            type: 'number',
+            minimum: 0
+        },
+        salePrice: {
+            type: 'number',
+            minimum: 0
+        },
+        stock: {
+            type: 'number',
+            minimum: 0
+        },
+        minStock: {
+            type: 'number',
+            minimum: 0
+        },
+        categoryName: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        }
+    },
+    required: [
+        'name',
+        'code'
+    ]
+} as const;
+
+export const BulkImportDtoSchema = {
+    type: 'object',
+    properties: {
+        products: {
+            minItems: 1,
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/BulkImportItemDto'
+            }
+        }
+    },
+    required: [
+        'products'
+    ]
+} as const;
+
 export const UpdateProductDtoSchema = {
     type: 'object',
     properties: {
@@ -910,6 +1006,11 @@ export const CreateSaleDtoSchema = {
             type: 'number',
             minimum: 0,
             maximum: 100
+        },
+        surchargePct: {
+            type: 'number',
+            minimum: 0,
+            maximum: 100
         }
     },
     required: [
@@ -968,6 +1069,9 @@ export const SaleSchema = {
         discount: {
             type: 'number'
         },
+        surcharge: {
+            type: 'number'
+        },
         refundedAt: {
             format: 'date-time',
             type: 'string',
@@ -992,6 +1096,7 @@ export const SaleSchema = {
         'user',
         'saleNumber',
         'discount',
+        'surcharge',
         'refundedAt',
         'createdAt'
     ]
@@ -1085,6 +1190,90 @@ export const PartialRefundDtoSchema = {
     required: [
         'items'
     ]
+} as const;
+
+export const CreateServiceDtoSchema = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        price: {
+            type: 'number',
+            minimum: 0
+        },
+        duration: {
+            type: 'number',
+            minimum: 1
+        },
+        isActive: {
+            type: 'boolean'
+        }
+    },
+    required: [
+        'name',
+        'price'
+    ]
+} as const;
+
+export const ServiceSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        price: {
+            type: 'number'
+        },
+        duration: {
+            type: 'number',
+            nullable: true
+        },
+        isActive: {
+            type: 'boolean'
+        },
+        tenantId: {
+            type: 'string'
+        },
+        tenant: {
+            $ref: '#/components/schemas/Tenant'
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'name',
+        'description',
+        'price',
+        'duration',
+        'isActive',
+        'tenantId',
+        'tenant',
+        'createdAt',
+        'updatedAt'
+    ]
+} as const;
+
+export const UpdateServiceDtoSchema = {
+    type: 'object',
+    properties: {}
 } as const;
 
 export const CreateStockMovementDtoSchema = {

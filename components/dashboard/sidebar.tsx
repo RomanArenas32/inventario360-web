@@ -209,7 +209,7 @@ export default function Sidebar() {
       {isOwner && (
         <Link
           href="/settings"
-          title={collapsed ? 'Integraciones' : undefined}
+          title={collapsed ? 'Configuración' : undefined}
           className={`flex items-center py-2 rounded-lg text-sm font-medium transition-colors ${
             collapsed ? 'justify-center px-2' : 'gap-3 px-3'
           } ${
@@ -219,7 +219,7 @@ export default function Sidebar() {
           }`}
         >
           <Settings size={16} />
-          {!collapsed && 'Integraciones'}
+          {!collapsed && 'Configuración'}
         </Link>
       )}
       <Link

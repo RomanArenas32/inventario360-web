@@ -1,7 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
-import { setSession } from '@/lib/auth';
+import { setSession, setToken } from '@/lib/auth';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -19,7 +19,8 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/admin/auth/login', form);
+      const res = await api.post<{ access_token: string }>('/admin/auth/login', form);
+      setToken(res.access_token);
       const me = await api.get<{ role: string }>('/admin/auth/me');
       setSession(me.role, true);
       router.push('/admin/dashboard');
